@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teleprompter Studio</title>
+  
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📡</text></svg>">
+
+  <meta property="og:title" content="Teleprompter Studio PRO" />
+  <meta property="og:description" content="Professional Script Generator." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://zmau.dev/arti/maestro/img/IMG_to.jpeg" />
+
+  <style>
+    /* --- THEME: PROFESSIONAL PURPLE --- */
+    :root { 
+      --primary: #4C1D95; 
+      --primary-light: #6D28D9; 
+      --accent: #8B5CF6;
+      --bg: #F3F4F6; 
+      --card: #ffffff; 
+      --text: #1F2937; 
+      --text-muted: #6B7280;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg); 
+      color: var(--text);
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; margin: 0; padding: 20px;
+    }
+
+    .app-container {
+      background: var(--card); width: 100%; max-width: 600px;
+      border-radius: 24px; 
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      overflow: hidden; display: flex; flex-direction: column;
+    }
+
+    .app-header {
+      background-color: var(--primary);
+      background-image: linear-gradient(135deg, #4C1D95 0%, #5B21B6 100%);
+      padding: 40px 30px; 
+      text-align: center; 
+      color: white;
+    }
+    
+    .logo-icon { font-size: 3rem; margin-bottom: 10px; display: block; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2)); }
+    .app-header h1 { margin: 0; font-size: 1.75rem; font-weight: 800; letter-spacing: -0.025em; }
+    .app-header p { color: #E5E7EB; margin-top: 8px; font-size: 0.95rem; font-weight: 500; opacity: 0.9; }
+
+    .app-body { padding: 30px; display: flex; flex-direction: column; gap: 20px; }
+
+    .label-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 5px; }
+    label { font-weight: 700; font-size: 1rem; color: #374151; }
+
+    .btn-upload {
+      background: #E5E7EB; color: #374151; border: none; padding: 8px 14px;
+      font-size: 0.85rem; font-weight: 600; border-radius: 8px; cursor: pointer;
+      display: flex; align-items: center; gap: 6px; transition: all 0.2s;
+    }
+    .btn-upload:hover { background: #D1D5DB; color: #111; }
+
+    textarea {
+      width: 100%; padding: 16px; border: 2px solid #E5E7EB; border-radius: 16px;
+      font-size: 16px; line-height: 1.5; min-height: 280px; resize: vertical; outline: none;
+      font-family: inherit; box-sizing: border-box; transition: 0.2s;
+      background: #F9FAFB; color: #1F2937;
+    }
+    textarea:focus { border-color: var(--accent); background: #fff; box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1); }
+    textarea::placeholder { color: #9CA3AF; }
+
+    .btn-row { margin-top: 10px; }
+    .btn-project {
+      width: 100%; border: none; padding: 18px;
+      font-size: 1.1rem; font-weight: 700; border-radius: 14px; cursor: pointer;
+      transition: transform 0.1s, opacity 0.2s, box-shadow 0.2s; 
+      display: flex; justify-content: center; align-items: center; gap: 10px;
+      background: var(--primary-light); color: white;
+      box-shadow: 0 4px 6px -1px rgba(109, 40, 217, 0.4);
+    }
+    .btn-project:hover { background: var(--primary); box-shadow: 0 10px 15px -3px rgba(109, 40, 217, 0.5); transform: translateY(-1px); }
+    .btn-project:active { transform: scale(0.98); }
+
+    .footer-note { text-align: center; font-size: 0.8rem; color: var(--text-muted); margin-top: 5px; }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <div class="app-header">
+      <span class="logo-icon">📡</span>
+      <h1>Teleprompter Studio</h1>
+      <p>Load, Edit, and Project Live</p>
+    </div>
+    
+    <div class="app-body">
+      <div class="label-row">
+        <label for="input">Program Script:</label>
+        <input type="file" id="fileInput" accept=".txt,.md,.json" style="display: none;" onchange="loadFile(this)">
+        <button class="btn-upload" onclick="document.getElementById('fileInput').click()">
+          <span>📂</span> Open Text File
+        </button>
+      </div>
+
+      <textarea id="input" placeholder="# Program Title&#10;* Instruction (Camera 1...)&#10;&#10;Paste your text here..."></textarea>
+      
+      <div class="btn-row">
+        <button class="btn-project" onclick="openLiveWindow()">
+          <span>PROJECT LIVE NOW</span>
+          <span>📺</span>
+        </button>
+      </div>
+      <p class="footer-note">
+        Note: Please allow "Pop-ups" in your browser settings if the window doesn't open.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    function loadFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) { document.getElementById('input').value = e.target.result; };
+      reader.readAsText(file);
+      input.value = ''; 
+    }
+
+    function openLiveWindow() {
+      const raw = document.getElementById('input').value;
+      const lines = raw.split('\n');
+      
+      let scriptData = [];
+      lines.forEach(line => {
+          line = line.trim();
+          if (!line) return;
+          if (line.startsWith('#')) scriptData.push({ type: "title", content: line.substring(1).trim() });
+          else if (line.startsWith('*')) scriptData.push({ type: "instruction", content: line.substring(1).trim() });
+          else scriptData.push({ type: "text", content: line });
+      });
+
+      if (scriptData.length === 0) {
+          scriptData = [{ type: "title", content: "TEST MODE" }, { type: "text", content: "No text detected." }];
+      }
+      
+      const jsonContent = JSON.stringify(scriptData, null, 2);
+
+      // =======================================================
+      // PLAYER TEMPLATE (V15: LINEAR SPEED FIX)
+      // =======================================================
+      const playerHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Teleprompter Player</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { background-color: #000; color: #f0f0f0; font-family: 'Inter', sans-serif; margin:0; overflow-x: hidden; }
+        
+        /* SMART COVER (Purple Screen) */
+        #cover-screen {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, #4C1D95 0%, #2E1065 100%);
+            color: white; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 30px;
+        }
+        .cover-icon { font-size: 5rem; margin-bottom: 20px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
+        .cover-title { font-size: 2rem; font-weight: 800; margin-bottom: 10px; }
+        .cover-text { font-size: 1.1rem; opacity: 0.9; }
+        .cover-warning { 
+            margin-top: 30px; background: rgba(255,255,255,0.15); 
+            padding: 15px 25px; border-radius: 12px; font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* CONTROLS */
+        #controls { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background-color: #111; border-top: 1px solid #333; 
+            padding: 10px; padding-bottom: env(safe-area-inset-bottom, 10px);
+            display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; 
+            z-index: 1000; overflow-x: auto; justify-content: center;
+            -webkit-overflow-scrolling: touch;
+            opacity: 0; transition: opacity 0.5s;
+        }
+        #controls::-webkit-scrollbar { display: none; }
+
+        .btn-main {
+            height: 40px; padding: 0 16px; border-radius: 8px;
+            font-weight: 700; text-transform: uppercase; cursor: pointer;
+            border: none; color: white; font-size: 0.85rem; 
+            display: flex; align-items: center; justify-content: center; 
+            flex-shrink: 0; transition: 0.2s;
+        }
+        .btn-main:active { transform: scale(0.95); }
+        #play-pause-btn { background-color: #10B981; min-width: 90px; } 
+        #play-pause-btn.paused { background-color: #EF4444; } 
+        #reset-btn { background-color: #374151; width: 40px; padding: 0; }
+        #save-btn { background-color: #7C3AED; margin-left: 10px; width: 40px; padding:0; border: 1px solid #8B5CF6; }
+
+        .control-group {
+            display: flex; align-items: center; gap: 2px;
+            background-color: #222; padding: 3px; border-radius: 8px; border: 1px solid #444; flex-shrink: 0;
+        }
+        .stepper-btn {
+            width: 36px; height: 36px; border-radius: 6px; border: none;
+            font-size: 1.2rem; font-weight: bold; cursor: pointer; color: white;
+            background: transparent; display:flex; justify-content:center; align-items:center; padding-bottom:4px;
+        }
+        .value-display { font-family: monospace; font-size: 0.95rem; font-weight: bold; min-width: 28px; text-align: center; }
+        .theme-speed .stepper-btn { background-color: #1E40AF; }
+        .theme-font .stepper-btn { background-color: #92400E; }
+        .icon-svg { width: 20px; height: 20px; fill: currentColor; } 
+
+        #script-container { padding: 2rem 1.5rem; padding-bottom: 50vh; max-width: 900px; margin: 0 auto; line-height: 1.5; opacity: 0; transition: opacity 0.5s; }
+        .speaker-text { font-size: 2.5rem; font-weight: 600; color: #fff; margin-bottom: 1.5rem; }
+        .instruction { font-size: 1.3rem; color: #FCD34D; font-style: italic; background-color: #282518; border-left: 4px solid #F59E0B; padding: 1rem; margin-bottom: 1.5rem; border-radius: 0 8px 8px 0; }
+        .timestamp { font-size: 1.8rem; font-weight: 700; color: #60A5FA; border-top: 1px solid #333; padding-top: 2rem; margin-top: 3rem; margin-bottom: 1rem; text-transform: uppercase; }
+        
+        @media (min-width: 768px) {
+            #controls { gap: 16px; padding: 16px; }
+            .btn-main, #save-btn { height: 48px; width:48px; }
+            #play-pause-btn { min-width: 120px; }
+            .stepper-btn { width: 44px; height: 44px; }
+            .icon-svg { width: 24px; height: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+  <div id="cover-screen">
+     <div class="cover-icon">🎬</div>
+     <div class="cover-title">Script Ready</div>
+     <div class="cover-text">The file is loaded.</div>
+     <div class="cover-warning">
+        ⚠️ Open in <b>Chrome</b> or <b>Safari</b> to run.
+     </div>
+  </div>
+
+  <div id="script-container"></div>
+  
+  <div id="controls">
+    <button id="play-pause-btn" class="btn-main">START</button>
+    <button id="reset-btn" class="btn-main" title="Reset"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+    <div class="control-group theme-speed"><button class="stepper-btn" id="speed-minus">−</button><div class="value-display" id="speed-display">3</div><button class="stepper-btn" id="speed-plus">+</button></div>
+    <div class="control-group theme-font"><button class="stepper-btn" id="font-minus">−</button><div class="value-display" id="font-display">3</div><button class="stepper-btn" id="font-plus">+</button></div>
+    <button id="save-btn" class="btn-main" title="Save File"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg></button>
+  </div>
+
+  <script>
+    const scriptData = ${jsonContent};
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      const cover = document.getElementById('cover-screen');
+      const scriptCont = document.getElementById('script-container');
+      const controls = document.getElementById('controls');
+
+      if(cover) {
+         setTimeout(() => {
+             cover.style.opacity = '0';
+             cover.style.pointerEvents = 'none'; 
+             scriptCont.style.opacity = '1';
+             controls.style.opacity = '1';
+             setTimeout(() => cover.remove(), 500); 
+         }, 800);
+      }
+
+      scriptData.forEach(item => {
+          let el;
+          if (item.type === 'title') { el = document.createElement('h2'); el.className = 'timestamp'; }
+          else if (item.type === 'instruction') { el = document.createElement('p'); el.className = 'instruction'; }
+          else { el = document.createElement('p'); el.className = 'speaker-text'; }
+          el.textContent = item.content;
+          scriptCont.appendChild(el);
+      });
+
+      let state = { speedLevel: 3, fontLevel: 3, isScrolling: false };
+      let animationFrameId = null;
+      const btnPlay = document.getElementById('play-pause-btn');
+      const dispSpeed = document.getElementById('speed-display');
+      const dispFont = document.getElementById('font-display');
+
+      function updateFont() { const size = 20 + (state.fontLevel * 5); document.querySelectorAll('.speaker-text, .timestamp').forEach(el => el.style.fontSize = size + 'px'); dispFont.textContent = state.fontLevel; }
+      
+      // --- CORRECCIÓN DE VELOCIDAD LINEAL ---
+      // Ahora es simplemente el Nivel * 0.5. 
+      // Nivel 1 = 0.5px/frame (Lento pero visible). Nivel 10 = 5px/frame (Rápido).
+      function loop() { 
+          if (!state.isScrolling) return; 
+          const pixels = state.speedLevel * 0.5; // Fórmula lineal simple
+          if (pixels > 0) window.scrollBy(0, pixels); 
+          animationFrameId = requestAnimationFrame(loop); 
+      }
+
+      function togglePlay() { state.isScrolling = !state.isScrolling; if (state.isScrolling) { btnPlay.textContent = "PAUSA"; btnPlay.classList.add('paused'); loop(); } else { btnPlay.textContent = "INICIAR"; btnPlay.classList.remove('paused'); cancelAnimationFrame(animationFrameId); } }
+
+      document.getElementById('speed-minus').onclick = () => { if (state.speedLevel > 0) state.speedLevel--; dispSpeed.textContent = state.speedLevel; };
+      document.getElementById('speed-plus').onclick = () => { if (state.speedLevel < 20) state.speedLevel++; dispSpeed.textContent = state.speedLevel; };
+      document.getElementById('font-minus').onclick = () => { if (state.fontLevel > 0) state.fontLevel--; updateFont(); };
+      document.getElementById('font-plus').onclick = () => { if (state.fontLevel < 15) state.fontLevel++; updateFont(); };
+      btnPlay.onclick = togglePlay;
+      document.getElementById('reset-btn').onclick = () => { window.scrollTo(0,0); state.isScrolling = false; btnPlay.textContent = "INICIAR"; btnPlay.classList.remove('paused'); cancelAnimationFrame(animationFrameId); };
+      
+      document.getElementById('save-btn').onclick = () => {
+          const htmlContent = document.documentElement.outerHTML;
+          const blob = new Blob([htmlContent], { type: 'text/html' });
+          const titleItem = scriptData.find(i => i.type === 'title');
+          let titleSlug = 'Script';
+          if (titleItem) { titleSlug = titleItem.content.replace(/[^a-zA-Z0-9 ]/g, '').trim(); }
+          if(!titleSlug) titleSlug = 'Teleprompter';
+          const fileName = 'Teleprompter - ' + titleSlug + '.html';
+          const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = fileName;
+          document.body.appendChild(link); link.click(); document.body.removeChild(link);
+      };
+      
+      document.addEventListener('keydown', (e) => { if (e.key === ' ') { e.preventDefault(); togglePlay(); } });
+      scriptCont.addEventListener('click', (e) => { togglePlay(); });
+      updateFont(); dispSpeed.textContent = state.speedLevel;
+      setTimeout(() => { if(!state.isScrolling) togglePlay(); }, 2500);
+    });
+  <\/script>
+</body>
+</html>`;
+
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.open();
+        newWindow.document.write(playerHTML);
+        newWindow.document.close();
+      } else {
+        alert("⚠️ Pop-up blocked. Please allow pop-ups.");
+      }
+    }
+  </script>
+</body>
+</html>
+p

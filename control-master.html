@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Control Center Generator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ESTILOS BASE - Heredados de admin.html */
+    :root {
+        --bg-app: #0f172a;
+        --bg-panel: #1e293b;
+        --accent: #10b981;
+        --accent-hover: #059669;
+        --text-main: #e2e8f0;
+        --border: #334155;
+        --input-bg: #0f172a;
+    }
+
+    body {
+        background-color: var(--bg-app);
+        color: var(--text-main);
+        font-family: 'Inter', sans-serif;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* SCROLLBARS */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-app); }
+    ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    /* HEADER */
+    .header {
+        padding: 15px 20px;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg-panel);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+    }
+
+    /* CONTENEDOR PRINCIPAL */
+    .main-layout {
+        flex: 1;
+        display: flex;
+        padding: 20px;
+        gap: 20px;
+        overflow-y: hidden; /* El scroll está en los paneles internos */
+    }
+
+    /* PANELES */
+    .panel {
+        background: var(--bg-panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* FORMULARIO (Izquierda) */
+    .form-section {
+        flex: 2;
+        padding: 0;
+        overflow-y: auto;
+    }
+
+    .form-header {
+        background: rgba(15, 23, 42, 0.5);
+        padding: 15px 25px;
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: blur(5px);
+    }
+
+    .form-content {
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    /* INPUTS */
+    .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .input-group label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    input[type="text"], input[type="url"], textarea {
+        background: var(--input-bg);
+        border: 1px solid var(--border);
+        color: white;
+        padding: 12px;
+        border-radius: 6px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 0.9rem;
+        transition: border-color 0.2s;
+    }
+
+    input:focus, textarea:focus {
+        outline: none;
+        border-color: var(--accent);
+    }
+
+    textarea {
+        resize: vertical;
+        min-height: 80px;
+        line-height: 1.5;
+    }
+
+    /* SIDEBAR (Derecha) */
+    .sidebar-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-width: 320px;
+        max-width: 400px;
+    }
+
+    /* BARRA DE ACCIONES */
+    .actions-panel {
+        background: var(--bg-panel);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 20px;
+    }
+
+    /* BOTONES */
+    .btn {
+        display: inline-flex; justify-content: center; items-center; gap: 8px;
+        padding: 12px 16px;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+        width: 100%;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+    
+    .btn-primary { 
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%); 
+        color: #022c22; 
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    }
+    .btn-primary:hover { transform: translateY(-1px); filter: brightness(1.1); }
+
+    .btn-secondary { 
+        background: transparent; 
+        border: 1px solid #475569; 
+        color: #e2e8f0; 
+    }
+    .btn-secondary:hover { background: #334155; border-color: #64748b; }
+
+    /* PREVIEW INFO */
+    .status-panel {
+        padding: 20px;
+        background: rgba(16, 185, 129, 0.05);
+        border: 1px dashed var(--accent);
+        border-radius: 8px;
+        margin-top: auto;
+    }
+
+    /* MÓVIL */
+    @media (max-width: 900px) {
+        body { height: auto; overflow-y: auto; }
+        .main-layout { flex-direction: column; padding: 10px; }
+        .sidebar-section { min-width: 100%; max-width: 100%; order: -1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="flex items-center gap-3">
+        <span class="text-2xl">🎛️</span>
+        <div>
+            <h1 class="text-lg font-bold tracking-tight text-white">Generator <span class="text-emerald-500">CONTROL CENTER</span></h1>
+            <p class="text-[10px] text-slate-400 font-mono">v1.0 // Template Builder</p>
+        </div>
+    </div>
+    <div class="hidden md:block">
+         <span class="text-xs font-mono text-emerald-500 bg-emerald-900/30 px-2 py-1 rounded border border-emerald-500/30">SYSTEM ONLINE</span>
+    </div>
+  </header>
+
+  <div class="main-layout">
+    
+    <!-- PANEL IZQUIERDO: FORMULARIO -->
+    <div class="panel form-section">
+        <div class="form-header flex justify-between items-center">
+            <h2 class="text-sm font-bold text-white uppercase tracking-widest flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Datos de la Misión
+            </h2>
+            <button class="text-xs text-slate-400 hover:text-white underline" onclick="loadExample()">Cargar Ejemplo</button>
+        </div>
+
+        <div class="form-content">
+            
+            <!-- Bloque 1: Identidad -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="input-group">
+                    <label>ID de Operación</label>
+                    <input type="text" id="opId" placeholder="Ej: OPR-BF-2025">
+                </div>
+                <div class="input-group">
+                    <label>Ubicación</label>
+                    <input type="text" id="opLoc" placeholder="Ej: TEL AVIV, ISR">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Título del Informe</label>
+                <input type="text" id="opTitle" placeholder="Ej: Operation Black Friday">
+            </div>
+
+            <div class="input-group">
+                <label>Descripción / Misión</label>
+                <textarea id="opDesc" rows="3" placeholder="Breve descripción del objetivo de la transmisión..."></textarea>
+            </div>
+
+            <hr class="border-slate-700 my-2">
+
+            <!-- Bloque 2: Recursos -->
+            <div class="input-group">
+                <label>Enlace Presentación (Google Slides)</label>
+                <input type="url" id="linkSlides" placeholder="Pega el enlace completo de Google Slides..." onchange="detectSlideId()">
+                <p class="text-[10px] text-slate-500 mt-1">El sistema extraerá automáticamente el ID para generar el embed.</p>
+            </div>
+
+            <div class="input-group">
+                <label>Enlace Teleprompter (Vista Lectura)</label>
+                <input type="url" id="linkPrompter" placeholder="Ej: https://zmau.dev/bf/tp-bf.html">
+            </div>
+
+            <!-- Bloque 3: Notas Adicionales -->
+            <hr class="border-slate-700 my-2">
+            
+            <div class="input-group">
+                <label>Nota de Tono / Protocolo (Opcional)</label>
+                <textarea id="opTone" rows="2" placeholder="Ej: Mantener tono serio, evitar especulaciones..."></textarea>
+            </div>
+             <div class="input-group">
+                <label>Mensaje Motivacional (Footer)</label>
+                <textarea id="opFooter" rows="2" placeholder="Ej: Tienes el talento, el escenario es tuyo."></textarea>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- PANEL DERECHO: ACCIONES -->
+    <div class="sidebar-section">
+        
+        <div class="actions-panel">
+            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4">Acciones</h3>
+            
+            <button class="btn btn-primary" onclick="previewControlCenter()">
+                <span>👁️</span> Vista Previa
+            </button>
+            
+            <button class="btn btn-secondary" onclick="downloadHTML()">
+                <span>💾</span> Descargar HTML
+            </button>
+        </div>
+
+        <div class="status-panel">
+            <h4 class="text-xs font-bold text-emerald-500 mb-2 font-mono">ESTADO DEL SISTEMA</h4>
+            <div id="statusLog" class="text-[11px] font-mono text-slate-400 space-y-1">
+                <p>> Esperando datos...</p>
+            </div>
+        </div>
+
+        <!-- Instrucciones rápidas -->
+        <div class="p-4 bg-slate-800/50 rounded border border-slate-700">
+            <h4 class="text-xs font-bold text-white mb-2">Instrucciones</h4>
+            <ul class="text-xs text-slate-400 space-y-2 list-disc pl-4">
+                <li>Pega el enlace <strong>estándar</strong> de Google Slides (modo edición), el script detectará el ID.</li>
+                <li>Usa el enlace directo al HTML del teleprompter generado previamente.</li>
+                <li>Descarga el archivo y súbelo a tu servidor.</li>
+            </ul>
+        </div>
+
+    </div>
+  </div>
+
+  <script>
+    // CARGAR EJEMPLO
+    function loadExample() {
+        document.getElementById('opId').value = "OPR-BF-2025";
+        document.getElementById('opLoc').value = "TEL AVIV";
+        document.getElementById('opTitle').value = "Operation Black Friday";
+        document.getElementById('opDesc').value = "Israels vernichtender Schlag gegen die Führungsstruktur der Hisbollah y la red de túneles de UNRWA.";
+        document.getElementById('linkSlides').value = "https://docs.google.com/presentation/d/1-CnNvoVp3yUJoH_eI2C6lUkzxBFtql6Q/edit?usp=sharing";
+        document.getElementById('linkPrompter').value = "https://zmau.dev/bf/tp-bf.html";
+        document.getElementById('opTone').value = "Mantener frialdad periodística. Enfatizar los datos numéricos de los túneles.";
+        document.getElementById('opFooter').value = "La verdad está en los detalles. Buena suerte.";
+        logStatus("Datos de ejemplo cargados.");
+    }
+
+    // LOGGING
+    function logStatus(msg) {
+        const log = document.getElementById('statusLog');
+        log.innerHTML += `<p>> ${msg}</p>`;
+        log.scrollTop = log.scrollHeight;
+    }
+
+    // DETECTAR ID DE SLIDES
+    function getSlideID(url) {
+        // Regex para capturar el ID entre /d/ y /
+        const match = url.match(/\/d\/([a-zA-Z0-9-_]+)/);
+        return match ? match[1] : null;
+    }
+
+    function detectSlideId() {
+        const url = document.getElementById('linkSlides').value;
+        const id = getSlideID(url);
+        if(id) {
+            logStatus(`ID Slides detectado: ${id.substring(0,8)}...`);
+        } else if (url.length > 0) {
+            logStatus(`⚠️ No se pudo extraer ID de Slides.`);
+        }
+    }
+
+    // GENERAR CÓDIGO HTML
+    function generateHTML() {
+        // Recoger datos
+        const id = document.getElementById('opId').value || "OPR-GEN-001";
+        const loc = document.getElementById('opLoc').value || "UNKNOWN";
+        const title = document.getElementById('opTitle').value || "Misión Sin Título";
+        const desc = document.getElementById('opDesc').value || "Sin descripción disponible.";
+        const footerMsg = document.getElementById('opFooter').value || "Fin de transmisión.";
+        const tone = document.getElementById('opTone').value || "Sin notas de protocolo.";
+        
+        const rawSlideLink = document.getElementById('linkSlides').value;
+        const slideID = getSlideID(rawSlideLink) || "";
+        const prompterLink = document.getElementById('linkPrompter').value || "#";
+
+        // Embed Link
+        const embedSlides = slideID ? `https://docs.google.com/presentation/d/${slideID}/embed?start=false&loop=false&delayms=3000` : "";
+
+        // Template String
+        return `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Centro de Control: ${title}</title>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#0f172a">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .scanline { width: 100%; height: 2px; background: rgba(16, 185, 129, 0.5); opacity: 0.1; animation: scanline 6s linear infinite; position: fixed; top: 0; left: 0; pointer-events: none; z-index: 50; }
+        @keyframes scanline { 0% { transform: translateY(-100vh); } 100% { transform: translateY(100vh); } }
+        .terminal-box { background-color: #1e293b; border: 1px solid #334155; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .status-dot { height: 10px; width: 10px; background-color: #10b981; border-radius: 50%; display: inline-block; box-shadow: 0 0 10px #10b981; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.9); } 100% { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8 relative selection:bg-emerald-500 selection:text-white">
+    <div class="scanline"></div>
+
+    <header class="max-w-6xl mx-auto mb-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-700 pb-6">
+        <div>
+            <div class="flex items-center gap-3 mb-1">
+                <div class="status-dot"></div>
+                <span class="mono text-xs text-emerald-400 font-bold tracking-widest uppercase">Conexión Segura</span>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white">Centro de Control</h1>
+            <p class="text-slate-400 mono text-sm mt-1">${title} // Central de Operaciones</p>
+        </div>
+        <div class="text-right hidden md:block">
+            <div class="mono text-xs text-slate-500">ID: ${id}</div>
+            <div class="mono text-xs text-slate-500">LOC: ${loc}</div>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto space-y-12">
+        
+        <section>
+            <div class="inline-block bg-emerald-900/30 border border-emerald-500/30 rounded px-3 py-1 mb-4">
+                <span class="mono text-xs text-emerald-400 font-bold">NUEVOS DATOS RECIBIDOS</span>
+            </div>
+            <h2 class="text-2xl md:text-3xl font-bold text-white mb-4">Paquete de Misión: "${title}"</h2>
+            <p class="text-lg text-slate-300 leading-relaxed max-w-3xl border-l-4 border-emerald-500 pl-4">
+                ${desc}
+            </p>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- SLIDES -->
+            <div class="terminal-box rounded-lg p-6 hover:border-emerald-500/50 transition-colors group">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">### La Presentación</h3>
+                </div>
+                <div class="relative w-full aspect-video bg-black rounded border border-slate-700 overflow-hidden shadow-lg">
+                    ${slideID ? `<iframe src="${embedSlides}" frameborder="0" width="100%" height="100%" allowfullscreen="true" mozallowfullscreen="true" webkitallowfullscreen="true"></iframe>` : `<div class="flex items-center justify-center h-full text-slate-500">Sin ID de Slides Válido</div>`}
+                </div>
+                <div class="mt-3 flex justify-between items-center">
+                    <span class="text-xs text-slate-500">ID: ${slideID || 'N/A'}</span>
+                    <a href="${rawSlideLink}" target="_blank" class="text-xs mono text-emerald-500 hover:underline">[ Abrir Google Slides ]</a>
+                </div>
+            </div>
+
+            <!-- TELEPROMPTER -->
+            <div class="terminal-box rounded-lg p-6 hover:border-emerald-500/50 transition-colors group flex flex-col">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">### El Teleprompter</h3>
+                </div>
+                <p class="text-slate-400 mb-6 text-sm">Guión sincronizado para la moderación y lectura en vivo.</p>
+                <div class="bg-black/50 p-4 rounded border border-slate-700 font-mono text-xs text-slate-500 mb-auto">
+                    > ENLACE OBJETIVO: ${prompterLink}<br>
+                    > ESTADO: LISTO PARA TRANSMISIÓN<br>
+                    > VERIFICAR SINCRONIZACIÓN...
+                </div>
+                <a href="${prompterLink}" target="_blank" class="mt-6 inline-flex items-center justify-center w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded transition-all shadow-lg shadow-emerald-900/20">
+                    Iniciar Teleprompter
+                </a>
+            </div>
+        </div>
+
+        <section class="terminal-box rounded-lg p-8">
+            <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                <span class="text-emerald-500">##</span> Notas de Protocolo
+            </h2>
+            <div class="text-slate-300 italic border-l-2 border-slate-600 pl-4">
+                "${tone}"
+            </div>
+        </section>
+
+        <footer class="text-center py-12 border-t border-slate-800">
+            <p class="text-slate-400 text-lg mb-2">${footerMsg}</p>
+             <div class="mt-4 inline-block">
+                <span class="mono text-xs text-emerald-500 border border-emerald-500/30 px-3 py-1 rounded-full bg-emerald-500/10">
+                    ESTADO: MISIÓN GO
+                </span>
+            </div>
+        </footer>
+    </main>
+</body>
+</html>`;
+    }
+
+    // DESCARGAR
+    function downloadHTML() {
+        const html = generateHTML();
+        const id = document.getElementById('opId').value || "control-center";
+        const cleanId = id.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+        
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; 
+        a.download = `CentroControl_${cleanId}.html`;
+        document.body.appendChild(a); 
+        a.click(); 
+        document.body.removeChild(a);
+        
+        logStatus("Archivo descargado.");
+    }
+
+    // PREVIEW
+    function previewControlCenter() {
+        const html = generateHTML();
+        const win = window.open('', '_blank');
+        if(win) {
+            win.document.write(html);
+            win.document.close();
+        } else {
+            alert("Por favor, permite las ventanas emergentes (pop-ups).");
+        }
+        logStatus("Vista previa lanzada.");
+    }
+  </script>
+</body>
+</html>
+
