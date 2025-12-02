@@ -1,51 +1,86 @@
+/* Estilo base para El Remache y el Zorzal */
 body {
-  font-family: Georgia, serif;
-  line-height: 1.6;
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 2rem;
-  background: #f9f9f9;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.15rem;
+  line-height: 1.8;
+  background-color: #f9f9f9;
   color: #222;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
 }
+
 h1, h2, h3 {
-  color: #333;
+  font-family: 'Georgia', serif;
+  color: #222;
   margin-top: 2rem;
+  margin-bottom: 1rem;
+  line-height: 1.3;
 }
+
+h1 {
+  font-size: 2.2rem;
+  text-align: center;
+  color: #111;
+}
+
+h2 {
+  font-size: 1.6rem;
+}
+
+h3 {
+  font-size: 1.3rem;
+}
+
+p {
+  margin-bottom: 1.2rem;
+  text-align: justify;
+}
+
 a {
   color: #0055aa;
   text-decoration: none;
+  font-weight: 500;
 }
+
 a:hover {
   text-decoration: underline;
 }
-hr {
-  margin: 3rem 0;
-  border: none;
-  border-top: 1px solid #ccc;
-}
-.hero {
-  background: linear-gradient(to right, #eee, #ddd);
-  padding: 2rem;
-  text-align: center;
-  border-radius: 10px;
-}
-.hero h1 {
-  font-size: 2.8rem;
-  margin-bottom: 0.5rem;
-}
-.hero p {
-  font-size: 1.2rem;
-  margin: 0.5rem 0;
-}
+
 .btn {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 8px;
   background-color: #222;
   color: #fff;
-  padding: 0.6rem 1.2rem;
-  border-radius: 6px;
   text-decoration: none;
-  margin-top: 1rem;
-  display: inline-block;
+  transition: background-color 0.3s ease;
 }
+
 .btn:hover {
   background-color: #0055aa;
+}
+
+.selector {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+select {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-top: 0.5rem;
+}
+
+footer {
+  margin-top: 4rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+  border-top: 1px solid #ccc;
+  padding-top: 2rem;
 }
