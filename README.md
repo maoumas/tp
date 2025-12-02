@@ -1,10 +1,14 @@
 <div align="right">
-  <iframe src="dropdown.html" frameborder="0" scrolling="no" width="150" height="30"></iframe>
+  <select onchange="location = this.value;">
+    <option value="README.md" selected>Deutsch</option>
+    <option value="README_en.md">Englisch</option>
+    <option value="README_es.md">Spanisch</option>
+  </select>
 </div>
 
 <div align="center">
 
-<img src="og-image-tpascal.png" alt="Banner von TPascal.com" width="40%" style="border-radius: 10px; margin-bottom: 20px;">
+<img src="og-image-tpascal.jpg" alt="Banner von TPascal.com" width="100%" style="border-radius: 10px; margin-bottom: 20px;">
 
 # Willkommen auf TPascal.com
 ### Das Zentrum für Anwendungen und Tools des Kanals <a href="https://www.youtube.com/@TranslatedPressDE" target="_blank">TranslatedPress</a>.
