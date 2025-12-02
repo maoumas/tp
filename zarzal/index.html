@@ -1,12 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎙️</text></svg>">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>El Remache y el Zorzal – Bienvenida</title>
   <link rel="stylesheet" href="style.css" />
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎙️</text></svg>">
   <style>
     body {
       font-family: Georgia, serif;
@@ -61,19 +60,19 @@
   <label for="lang">🌐 Selecciona idioma:</label><br/>
   <select id="lang" onchange="goToLang()">
     <option value="">-- Elige --</option>
-    <option value="es/">🇪🇸 Español</option>
-    <option value="en/">🇬🇧 English</option>
-    <option value="de/">🇩🇪 Deutsch</option>
+    <option value="es/cap1.html">🇪🇸 Español</option>
+    <option value="en/cap1.html">🇬🇧 English</option>
+    <option value="de/cap1.html">🇩🇪 Deutsch</option>
   </select>
 </div>
 
-<p><a class="btn" href="es/index.html">Leer en Español</a></p>
+<p><a class="btn" href="es/cap1.html">Leer en Español</a></p>
 
 <script>
   function goToLang() {
     const lang = document.getElementById("lang").value;
     if (lang) {
-      window.location.href = lang + "index.html";
+      window.location.href = lang;
     }
   }
 </script>
