@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Willkommen auf TPascal.com</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 960px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .language-selector {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+
+        .language-selector select {
+            padding: 5px;
+            font-size: 16px;
+        }
+
+        .content {
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+
+        h3 {
+            color: #666;
+            text-align: center;
+        }
+
+        p {
+            line-height: 1.6;
+            color: #666;
+        }
+
+        .banner {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .featured-apps {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .app-card {
+            width: 250px;
+            border: 1px solid #e1e4e8;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            background-color: #ffffff;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .app-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .app-card h3 {
+            color: #0366d6;
+            margin-top: 0;
+        }
+
+        .app-card p {
+            color: #586069;
+            font-size: 0.9em;
+        }
+
+        .directory-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .directory-list li {
+            margin-bottom: 10px;
+        }
+
+        .directory-list a {
+            text-decoration: none;
+            color: #0366d6;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        footer a {
+            color: #0366d6;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="language-selector">
+            <select id="languageSelect" onchange="changeLanguage(this.value)">
+                <option value="de">Deutsch</option>
+                <option value="en">English</option>
+                <option value="es">Español</option>
+            </select>
+        </div>
+
+        <div id="de" class="content active">
+            <img src="og-image-tpascal.png" alt="Banner von TPascal.com" class="banner">
+            <h1>Willkommen auf TPascal.com</h1>
+            <h3>Das Zentrum für Anwendungen und Tools des Kanals <a href="https://www.youtube.com/@TranslatedPressDE" target="_blank">TranslatedPress</a>.</h3>
+            <p style="text-align: center; max-width: 800px; margin: 20px auto;">
+                Hier finden Sie eine Sammlung von Dienstprogrammen, Skripten und Ressourcen, die entwickelt wurden, um die Erstellung von Inhalten, die Produktivität und die Gemeinschaft von TranslatedPress zu unterstützen. Von spezialisierten Taschenrechnern bis hin zu Automatisierungstools ist alles darauf ausgelegt, praktisch und direkt zu sein.
+            </p>
+            <hr>
+            <h2>🚀 Hervorgehobene Anwendungen</h2>
+            <div class="featured-apps">
+                <a href="https://github.com/IHR_BENUTZERNAME/IHR_REPOSITORY/blob/main/DATEINAME_1.md" class="app-card">
+                    <h3>🧮 Pascal-Rechner</h3>
+                    <p>Eine digitale Nachbildung des historischen mechanischen Taschenrechners. Perfekt für Bildungsdemonstrationen.</p>
+                </a>
+                <a href="https://github.com/IHR_BENUTZERNAME/IHR_REPOSITORY/blob/main/teleprompter-master.html" class="app-card">
+                    <h3>📜 Teleprompter Master</h3>
+                    <p>Das ultimative Tool für die Aufnahme Ihrer Videos mit Skripten, Geschwindigkeitskontrolle und Spiegelmodus.</p>
+                </a>
+                <a href="https://github.com/IHR_BENUTZERNAME/IHR_REPOSITORY/blob/main/DATEINAME_3.md" class="app-card">
+                    <h3>🖼️ Thumbnail-Generator</h3>
+                    <p>Erstellen Sie schnelle und konsistente Vorlagen für die Cover Ihrer YouTube-Videos.</p>
+                </a>
+            </div>
+            <br><br>
+            <hr>
+            <h2>📂 Vollständiges Verzeichnis des Repositorys</h2>
+            <p>Wenn Sie eine Listenansicht aller in diesem Verzeichnis verfügbaren Dateien bevorzugen:</p>
+            <ul class="directory-list">
+                <li><a href="teleprompter-master.html">📄 <strong>teleprompter-master.html</strong></a> - Die neueste Version unseres Teleprompter-Tools.</li>
+                <li><a href="anleitung-rechner.md">📄 <strong>anleitung-rechner.md</strong></a> - Dokumentation für den Taschenrechner.</li>
+                <li><a href="automatisierungs-skript.py">📄 <strong>automatisierungs-skript.py</strong></a> - Python-Skript für wiederkehrende Aufgaben.</li>
+                <li><a href="grafik-ressourcen/">📄 <strong>grafik-ressourcen/</strong></a> - Ordner mit Symbolen und Logos des Kanals.</li>
+                <li><em>Fügen Sie hier manuell die Links zu den neuen Dateien hinzu, die Sie hochladen...</em></li>
+            </ul>
+            <br>
+            <hr>
+            <footer>
+                <p>Entwickelt mit ❤️ für die Gemeinschaft von <b>TranslatedPress</b>.<br>
+                <a href="https://www.youtube.com/@TranslatedPressDE">Besuchen Sie unseren YouTube-Kanal</a> | <a href="https://github.com/IHR_BENUTZERNAME">GitHub-Profil</a></p>
+            </footer>
+        </div>
+
+        <div id="en" class="content">
+            <img src="og-image-tpascal.png" alt="TPascal.com Banner" class="banner">
+            <h1>Welcome to TPascal.com</h1>
+            <h3>The hub for applications and tools for the <a href="https://www.youtube.com/@TranslatedPressDE" target="_blank">TranslatedPress</a> channel.</h3>
+            <p style="text-align: center; max-width: 800px; margin: 20px auto;">
+                Here you will find a collection of utilities, scripts, and resources developed to support content creation, productivity, and the TranslatedPress community. From specialized calculators to automation tools, everything is designed to be practical and direct.
+            </p>
+            <hr>
+            <h2>🚀 Featured Applications</h2>
+            <div class="featured-apps">
+                <a href="https://github.com/YOUR_USERNAME/YOUR_REPOSITORY/blob/main/FILENAME_1.md" class="app-card">
+                    <h3>🧮 Pascal Calculator</h3>
+                    <p>A digital recreation of the historic mechanical calculator. Perfect for educational demonstrations.</p>
+                </a>
+                <a href="https://github.com/YOUR_USERNAME/YOUR_REPOSITORY/blob/main/teleprompter-master.html" class="app-card">
+                    <h3>📜 Teleprompter Master</h3>
+                    <p>The ultimate tool for recording your videos with scripts, speed control, and mirror mode.</p>
+                </a>
+                <a href="https://github.com/YOUR_USERNAME/YOUR_REPOSITORY/blob/main/FILENAME_3.md" class="app-card">
+                    <h3>🖼️ Thumbnail Generator</h3>
+                    <p>Create quick and consistent templates for your YouTube video covers.</p>
+                </a>
+            </div>
+            <br><br>
+            <hr>
+            <h2>📂 Complete Repository Directory</h2>
+            <p>If you prefer a list view of all files available in this directory:</p>
+            <ul class="directory-list">
+                <li><a href="teleprompter-master.html">📄 <strong>teleprompter-master.html</strong></a> - The latest version of our Teleprompter tool.</li>
+                <li><a href="calculator-guide.md">📄 <strong>calculator-guide.md</strong></a> - Documentation for the calculator.</li>
+                <li><a href="automation-script.py">📄 <strong>automation-script.py</strong></a> - Python script for recurring tasks.</li>
+                <li><a href="graphic-resources/">📄 <strong>graphic-resources/</strong></a> - Folder with channel icons and logos.</li>
+                <li><em>Manually add links to new files you upload here...</em></li>
+            </ul>
+            <br>
+            <hr>
+            <footer>
+                <p>Developed with ❤️ for the <b>TranslatedPress</b> community.<br>
+                <a href="https://www.youtube.com/@TranslatedPressDE">Visit our YouTube channel</a> | <a href="https://github.com/YOUR_USERNAME">GitHub Profile</a></p>
+            </footer>
+        </div>
+
+        <div id="es" class="content">
+            <img src="og-image-tpascal.png" alt="Banner de TPascal.com" class="banner">
+            <h1>Bienvenido a TPascal.com</h1>
+            <h3>El centro de aplicaciones y herramientas del canal <a href="https://www.youtube.com/@TranslatedPressDE" target="_blank">TranslatedPress</a>.</h3>
+            <p style="text-align: center; max-width: 800px; margin: 20px auto;">
+                Aquí encontrarás una colección de utilidades, scripts y recursos desarrollados para apoyar la creación de contenido, la productividad y la comunidad de TranslatedPress. Desde calculadoras especializadas hasta herramientas de automatización, todo está pensado para ser práctico y directo.
+            </p>
+            <hr>
+            <h2>🚀 Aplicaciones Destacadas</h2>
+            <div class="featured-apps">
+                <a href="https://github.com/TU_USUARIO/TU_REPOSITORIO/blob/main/NOMBRE_DEL_ARCHIVO_1.md" class="app-card">
+                    <h3>🧮 Calculadora Pascal</h3>
+                    <p>Una recreación digital de la histórica calculadora mecánica. Perfecta para demostraciones educativas.</p>
+                </a>
+                <a href="https://github.com/TU_USUARIO/TU_REPOSITORIO/blob/main/teleprompter-master.html" class="app-card">
+                    <h3>📜 Teleprompter Master</h3>
+                    <p>La herramienta definitiva para grabar tus vídeos con guiones, control de velocidad y modo espejo.</p>
+                </a>
+                <a href="https://github.com/TU_USUARIO/TU_REPOSITORIO/blob/main/NOMBRE_DEL_ARCHIVO_3.md" class="app-card">
+                    <h3>🖼️ Generador de Miniaturas</h3>
+                    <p>Crea plantillas rápidas y consistentes para las portadas de tus vídeos de YouTube.</p>
+                </a>
+            </div>
+            <br><br>
+            <hr>
+            <h2>📂 Directorio Completo del Repositorio</h2>
+            <p>Si prefieres una vista de lista de todos los archivos disponibles en este directorio:</p>
+            <ul class="directory-list">
+                <li><a href="teleprompter-master.html">📄 <strong>teleprompter-master.html</strong></a> - La última versión de nuestra herramienta de teleprompter.</li>
+                <li><a href="guia-calculadora.md">📄 <strong>guia-calculadora.md</strong></a> - Documentación para la calculadora.</li>
+                <li><a href="script-automatizacion.py">📄 <strong>script-automatizacion.py</strong></a> - Script de Python para tareas recurrentes.</li>
+                <li><a href="recursos-graficos/">📄 <strong>recursos-graficos/</strong></a> - Carpeta con iconos y logos del canal.</li>
+                <li><em>Añade aquí manualmente los enlaces a los nuevos archivos que subas...</em></li>
+            </ul>
+            <br>
+            <hr>
+            <footer>
+                <p>Desarrollado con ❤️ para la comunidad de <b>TranslatedPress</b>.<br>
+                <a href="https://www.youtube.com/@TranslatedPressDE">Visita nuestro canal de YouTube</a> | <a href="https://github.com/TU_USUARIO">Perfil de GitHub</a></p>
+            </footer>
+        </div>
+
+    </div>
+
+    <script>
+        function changeLanguage(lang) {
+            document.querySelectorAll('.content').forEach(div => {
+                div.classList.remove('active');
+            });
+            document.getElementById(lang).classList.add('active');
+            document.documentElement.lang = lang;
+        }
+    </script>
+
+</body>
+</html>
