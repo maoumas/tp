@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pascal-Rechner</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .calculator {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .language-selector {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .language-selector select {
+            padding: 5px;
+            font-size: 14px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 25px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 18px;
+            box-sizing: border-box;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 15px;
+            font-size: 18px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #0366d6;
+            color: white;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #024ea4;
+        }
+        
+        button.clear {
+            background-color: #d9534f;
+            grid-column: span 2;
+        }
+
+        button.clear:hover {
+            background-color: #c9302c;
+        }
+
+        #result {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calculator">
+        <div class="language-selector">
+            <select id="languageSelect" onchange="changeLanguage(this.value)">
+                <option value="de">Deutsch</option>
+                <option value="en">English</option>
+                <option value="es">Español</option>
+            </select>
+        </div>
+
+        <h1 id="title">Pascal-Rechner</h1>
+
+        <input type="number" id="num1" placeholder="Erste Zahl">
+        <input type="number" id="num2" placeholder="Zweite Zahl">
+
+        <div class="buttons">
+            <button onclick="calculate('+')">+</button>
+            <button onclick="calculate('-')">-</button>
+            <button onclick="calculate('*')">*</button>
+            <button onclick="calculate('/')">/</button>
+            <button class="clear" onclick="clearFields()" id="clearBtn">Löschen</button>
+        </div>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const translations = {
+            de: {
+                title: "Pascal-Rechner",
+                num1Placeholder: "Erste Zahl",
+                num2Placeholder: "Zweite Zahl",
+                clearBtn: "Löschen",
+                resultPrefix: "Ergebnis: ",
+                error: "Bitte geben Sie gültige Zahlen ein.",
+                divZero: "Division durch Null nicht möglich"
+            },
+            en: {
+                title: "Pascal Calculator",
+                num1Placeholder: "First Number",
+                num2Placeholder: "Second Number",
+                clearBtn: "Clear",
+                resultPrefix: "Result: ",
+                error: "Please enter valid numbers.",
+                divZero: "Cannot divide by zero"
+            },
+            es: {
+                title: "Calculadora Pascal",
+                num1Placeholder: "Primer Número",
+                num2Placeholder: "Segundo Número",
+                clearBtn: "Borrar",
+                resultPrefix: "Resultado: ",
+                error: "Por favor, introduzca números válidos.",
+                divZero: "No se puede dividir por cero"
+            }
+        };
+
+        let currentLang = 'de';
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            document.getElementById('title').innerText = translations[lang].title;
+            document.getElementById('num1').placeholder = translations[lang].num1Placeholder;
+            document.getElementById('num2').placeholder = translations[lang].num2Placeholder;
+            document.getElementById('clearBtn').innerText = translations[lang].clearBtn;
+            document.documentElement.lang = lang;
+            calculate(); 
+        }
+
+        function calculate(operator) {
+            const num1 = parseFloat(document.getElementById('num1').value);
+            const num2 = parseFloat(document.getElementById('num2').value);
+            let result;
+
+            if (isNaN(num1) || isNaN(num2)) {
+                if (document.getElementById('num1').value !== '' || document.getElementById('num2').value !== '') {
+                    document.getElementById('result').innerText = translations[currentLang].error;
+                } else {
+                    document.getElementById('result').innerText = '';
+                }
+                return;
+            }
+
+            switch (operator) {
+                case '+':
+                    result = num1 + num2;
+                    break;
+                case '-':
+                    result = num1 - num2;
+                    break;
+                case '*':
+                    result = num1 * num2;
+                    break;
+                case '/':
+                    if (num2 === 0) {
+                        result = translations[currentLang].divZero;
+                    } else {
+                        result = num1 / num2;
+                    }
+                    break;
+                default:
+                    return;
+            }
+
+            if (typeof result === 'number') {
+                document.getElementById('result').innerText = translations[currentLang].resultPrefix + result;
+            } else {
+                document.getElementById('result').innerText = result;
+            }
+        }
+
+        function clearFields() {
+            document.getElementById('num1').value = '';
+            document.getElementById('num2').value = '';
+            document.getElementById('result').innerText = '';
+        }
+    </script>
+
+</body>
+</html>
