@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teleprompter Studio - Ultimate</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    /* --- 1. VARIABLES DINÁMICAS --- */
+    :root {
+        /* Default: Original (Dark Blue/Gold) */
+        --bg-app: #020617;       
+        --bg-panel: #172554;     
+        --accent: #facc15;       
+        --accent-hover: #eab308; 
+        --accent-text: #000000;  
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;    
+        --border: #1e3a8a;       
+        --input-bg: #0f172a;     
+        --alert: #ef4444;        
+    }
+
+    body {
+        background-color: var(--bg-app);
+        color: var(--text-main);
+        font-family: 'Inter', sans-serif;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* SCROLLBARS */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-app); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    /* HEADER */
+    .header {
+        padding: 15px 20px;
+        border-bottom: 2px solid var(--accent);
+        background: var(--bg-panel);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+        transition: background-color 0.3s ease;
+    }
+
+    /* LAYOUT */
+    .main-layout {
+        flex: 1;
+        display: flex;
+        padding: 20px;
+        gap: 20px;
+        overflow-y: hidden;
+    }
+
+    /* PANELES */
+    .panel {
+        background: var(--bg-panel);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+    }
+
+    /* EDITOR SECTION (Izquierda) */
+    .editor-section {
+        flex: 2;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .editor-header {
+        background: rgba(0,0,0,0.2);
+        padding: 10px 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        backdrop-filter: blur(5px);
+    }
+
+    /* TEXTAREA DEL EDITOR */
+    textarea {
+        flex: 1;
+        background: var(--input-bg);
+        color: var(--text-main);
+        border: none;
+        padding: 25px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 16px;
+        line-height: 1.6;
+        resize: none;
+        outline: none;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    
+    textarea::placeholder { color: var(--text-muted); opacity: 0.5; }
+
+    /* SIDEBAR (Derecha) */
+    .sidebar-section {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        min-width: 300px;
+        max-width: 380px;
+    }
+
+    .actions-panel {
+        background: var(--bg-panel);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 20px;
+    }
+
+    /* BOTONES */
+    .btn {
+        display: inline-flex; justify-content: center; items-center; gap: 8px;
+        padding: 12px 16px;
+        border-radius: 4px;
+        font-weight: 800;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+        width: 100%;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        letter-spacing: 0.05em;
+    }
+    
+    .btn-primary { 
+        background: var(--accent); 
+        color: var(--accent-text); 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+    .btn-secondary { 
+        background: transparent; 
+        border: 1px solid var(--text-main); 
+        color: var(--text-main); 
+    }
+    .btn-secondary:hover { 
+        background: rgba(255,255,255,0.05); 
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    /* ESTADO */
+    .status-panel {
+        padding: 20px;
+        background: rgba(0,0,0,0.2);
+        border: 1px dashed var(--accent);
+        border-radius: 4px;
+        margin-top: auto;
+    }
+    .status-text { color: var(--accent); }
+
+    /* MENUS DESPLEGABLES (Mismo estilo que gen-kz) */
+    .options-grid { 
+        display: flex; 
+        gap: 10px; 
+        padding: 15px 20px; 
+        border-bottom: 1px solid var(--border); 
+        background: rgba(0,0,0,0.1); 
+    }
+    .dropdown-wrapper { position: relative; flex: 1; }
+
+    .dropdown-btn {
+        width: 100%; padding: 10px;
+        background: rgba(0,0,0,0.2);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        color: var(--text-main);
+        font-size: 0.8rem; font-weight: 600;
+        cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+        transition: all 0.2s; white-space: nowrap;
+    }
+    .dropdown-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .dropdown-menu {
+        position: absolute; top: 100%; left: 0; width: 100%;
+        background: var(--bg-panel);
+        border: 1px solid var(--border); border-top: none;
+        border-radius: 0 0 4px 4px;
+        overflow: hidden; max-height: 0; opacity: 0;
+        transition: all 0.2s ease; z-index: 50;
+        box-shadow: 0 10px 15px rgba(0,0,0,0.5);
+    }
+    .dropdown-menu.open { max-height: 200px; opacity: 1; margin-top: 2px; border-top: 1px solid var(--border); }
+
+    .dropdown-item {
+        padding: 10px; font-size: 0.75rem; color: var(--text-muted); cursor: pointer;
+        display: flex; align-items: center; gap: 8px; transition: background 0.2s;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .dropdown-item:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
+    .dropdown-item.selected { color: var(--accent); font-weight: bold; }
+    .theme-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; border: 1px solid rgba(255,255,255,0.3); }
+
+    /* MÓVIL: AJUSTES CRÍTICOS */
+    @media (max-width: 900px) {
+        body { height: auto; overflow-y: auto; }
+        .main-layout { flex-direction: column; padding: 10px; }
+        .sidebar-section { min-width: 100%; max-width: 100%; order: 2; } /* Sidebar abajo */
+        .editor-section { order: 1; min-height: 400px; } /* Editor primero (pero debajo de las opciones porque están DENTRO del editor-section) */
+        
+        /* FORZAR FILA HORIZONTAL EN MÓVIL */
+        .options-grid { 
+            flex-direction: row; /* Forzar fila */
+            gap: 10px;
+        }
+        .dropdown-wrapper {
+            width: 50%; /* Cada uno ocupa la mitad */
+            flex: 1;
+        }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="flex items-center gap-3">
+        <span class="text-2xl" style="color: var(--accent);"><i class="fa-solid fa-microphone-lines"></i></span>
+        <div>
+            <h1 class="text-lg font-bold tracking-tight" style="color: var(--text-main);">TELEPROMPTER <span style="color: var(--accent);">STUDIO</span></h1>
+            <p class="text-[10px] font-mono" style="color: var(--text-muted);" id="lbl_version">v4.0 // PRO EDITOR</p>
+        </div>
+    </div>
+    <div class="hidden md:block">
+         <span id="lbl_system_online" class="text-xs font-mono font-bold px-2 py-1 rounded border" style="color: var(--bg-app); background-color: var(--accent); border-color: var(--accent); color: var(--accent-text);">SYSTEM ONLINE</span>
+    </div>
+  </header>
+
+  <div class="main-layout">
+    
+    <!-- PANEL IZQUIERDO: EDITOR + CONFIG -->
+    <div class="panel editor-section">
+        
+        <!-- GRID DE OPCIONES (MUDADO AQUÍ, ARRIBA DEL EDITOR) -->
+        <div class="options-grid">
+            <!-- IDIOMA -->
+            <div class="dropdown-wrapper">
+                <div class="dropdown-btn" onclick="toggleMenu('langMenu')">
+                    <span id="currentLangDisplay"><i class="fa-solid fa-language mr-1"></i> DE</span>
+                    <i class="fa-solid fa-caret-down text-[10px]"></i>
+                </div>
+                <div id="langMenu" class="dropdown-menu">
+                    <div class="dropdown-item selected" onclick="setLang('de', this)">Deutsch</div>
+                    <div class="dropdown-item" onclick="setLang('es', this)">Español</div>
+                    <div class="dropdown-item" onclick="setLang('en', this)">English</div>
+                </div>
+            </div>
+
+            <!-- TEMA -->
+            <div class="dropdown-wrapper">
+                <div class="dropdown-btn" onclick="toggleMenu('themeMenu')">
+                    <span id="currentThemeDisplay"><span class="theme-dot mr-1" style="background:#facc15"></span> Original</span>
+                    <i class="fa-solid fa-caret-down text-[10px]"></i>
+                </div>
+                <div id="themeMenu" class="dropdown-menu">
+                    <div class="dropdown-item selected" onclick="setTheme('original', this)">
+                        <span class="theme-dot" style="background:#facc15"></span> Original
+                    </div>
+                    <div class="dropdown-item" onclick="setTheme('purple', this)">
+                        <span class="theme-dot" style="background:#a855f7"></span> Nebula
+                    </div>
+                    <div class="dropdown-item" onclick="setTheme('light', this)">
+                        <span class="theme-dot" style="background:#f8fafc"></span> Daylight
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CABECERA DEL EDITOR -->
+        <div class="editor-header">
+            <h2 class="text-sm font-bold uppercase tracking-widest flex items-center gap-2" style="color: var(--text-main);">
+                <i class="fa-solid fa-file-pen"></i> <span id="lbl_editor">Skript-Editor</span>
+            </h2>
+            <button id="btn_load_example" class="text-xs underline hover:opacity-80" style="color: var(--text-muted);" onclick="loadExample()">Beispiel laden</button>
+        </div>
+        
+        <!-- AREA DE TEXTO -->
+        <textarea id="input" placeholder="# Titel\n* Anweisung...\n\nText hier..."></textarea>
+    </div>
+
+    <!-- PANEL DERECHO: CONTROLES -->
+    <div class="sidebar-section">
+        
+        <div class="actions-panel">
+            <h3 id="lbl_actions" class="text-xs font-bold uppercase tracking-wider mb-4" style="color: var(--text-muted);">Aktionen</h3>
+            
+            <input type="file" id="fileImport" accept=".txt,.md,.json" style="display: none;" onchange="importFile(this)">
+            <button id="btn_import" class="btn btn-secondary" onclick="document.getElementById('fileImport').click()">
+                <span>📂</span> Import
+            </button>
+
+            <div class="my-2 border-t border-b py-2" style="border-color: var(--border);">
+                <button id="btn_live" class="btn btn-primary" onclick="testLive()">
+                    <span>▶</span> <span id="lbl_live">LIVE PROJEKTION</span>
+                </button>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <button class="btn btn-secondary" onclick="generatePDF()">
+                    <span>📄</span> PDF
+                </button>
+                <button class="btn btn-secondary" onclick="exportPlayer()">
+                    <span>💾</span> HTML
+                </button>
+            </div>
+        </div>
+
+        <div class="status-panel">
+            <h4 id="lbl_status_header" class="text-xs font-bold mb-2 font-mono status-text">ENGINE V4.0</h4>
+            <div class="w-full rounded p-3 text-left space-y-2" style="background: var(--input-bg);">
+                <div class="flex justify-between text-[11px] font-mono" style="color: var(--text-muted); border-bottom: 1px solid var(--border);">
+                    <span id="lbl_engine">ENGINE</span> <span style="color: var(--accent);">PRÄZISION</span>
+                </div>
+                <div class="flex justify-between text-[11px] font-mono" style="color: var(--text-muted);">
+                    <span id="lbl_mode">MODUS</span> <span style="color: var(--accent);">MARKDOWN</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+  </div>
+
+  <div id="print-area" style="display:none;"></div>
+
+  <script>
+    // --- 1. CONFIGURACIÓN VISUAL (TEMAS) ---
+    const themes = {
+        original: {
+            name: "Original",
+            vars: {
+                '--bg-app': '#020617', '--bg-panel': '#172554', '--accent': '#facc15', '--accent-hover': '#eab308',
+                '--accent-text': '#000000', '--text-main': '#f8fafc', '--text-muted': '#94a3b8', '--border': '#1e3a8a',
+                '--input-bg': '#0f172a', '--alert': '#ef4444'
+            }
+        },
+        purple: {
+            name: "Nebula",
+            vars: {
+                '--bg-app': '#1e293b', '--bg-panel': '#334155', '--accent': '#a855f7', '--accent-hover': '#9333ea',
+                '--accent-text': '#ffffff', '--text-main': '#f1f5f9', '--text-muted': '#cbd5e1', '--border': '#64748b',
+                '--input-bg': '#0f172a', '--alert': '#f472b6'
+            }
+        },
+        light: {
+            name: "Daylight",
+            vars: {
+                '--bg-app': '#f8fafc', '--bg-panel': '#ffffff', '--accent': '#7c3aed', '--accent-hover': '#6d28d9',
+                '--accent-text': '#ffffff', '--text-main': '#1e293b', '--text-muted': '#64748b', '--border': '#e2e8f0',
+                '--input-bg': '#ffffff', '--alert': '#be185d'
+            }
+        }
+    };
+
+    // --- 2. TRADUCCIONES ---
+    const translations = {
+        es: {
+            lbl_version: "v4.0 // EDITOR PRO", lbl_system_online: "SISTEMA EN LÍNEA", lbl_editor: "Editor de Guion",
+            btn_load_example: "Cargar Ejemplo", lbl_actions: "Acciones", btn_import: "Importar Texto",
+            lbl_live: "PROYECTAR EN VIVO", lbl_status_header: "MOTOR V4.0", lbl_engine: "MOTOR", lbl_mode: "MODO",
+            ph_editor: "# Título del Programa\n* [Instrucción: Cámara 1]\n\nPega tu texto aquí...",
+            example_text: "# 📡 Zmau Broadcast Master Suite\n\n* [CAM 1 - PLANO MEDIO]\n\nBienvenidos al centro de operaciones.\nEsta herramienta unifica la creación de guiones y la gestión del entorno.\n\n* [PAUSA 2 SEG]\n\n## 🛠️ Características\n\n1. **Editor Markdown:** Usa numerales para títulos y asteriscos para instrucciones.\n2. **Multilingüe:** Soporte completo para ES, EN y DE.\n3. **Temas:** Adapta la interfaz a la iluminación de tu estudio.\n\n* [CAM 2 - ZOOM IN]\n\nTodo está listo para la transmisión.\n¡Buena suerte!"
+        },
+        en: {
+            lbl_version: "v4.0 // PRO EDITOR", lbl_system_online: "SYSTEM ONLINE", lbl_editor: "Script Editor",
+            btn_load_example: "Load Example", lbl_actions: "Actions", btn_import: "Import Text",
+            lbl_live: "PROJECT LIVE", lbl_status_header: "ENGINE V4.0", lbl_engine: "ENGINE", lbl_mode: "MODE",
+            ph_editor: "# Show Title\n* [Instruction: Cam 1]\n\nPaste text here...",
+            example_text: "# 📡 Zmau Broadcast Master Suite\n\n* [CAM 1 - MEDIUM SHOT]\n\nWelcome to the operations center.\nThis tool unifies script creation and environment management.\n\n* [PAUSE 2 SEC]\n\n## 🛠️ Features\n\n1. **Markdown Editor:** Use hashes for titles and asterisks for instructions.\n2. **Multi-language:** Full support for ES, EN, and DE.\n3. **Themes:** Adapt the interface to your studio lighting.\n\n* [CAM 2 - ZOOM IN]\n\nEverything is ready for broadcast.\nGood luck!"
+        },
+        de: {
+            lbl_version: "v4.0 // PRO EDITOR", lbl_system_online: "SYSTEM ONLINE", lbl_editor: "Skript-Editor",
+            btn_load_example: "Beispiel laden", lbl_actions: "Aktionen", btn_import: "Text importieren",
+            lbl_live: "LIVE PROJIZIEREN", lbl_status_header: "ENGINE V4.0", lbl_engine: "ENGINE", lbl_mode: "MODUS",
+            ph_editor: "# Sendungstitel\n* [Anweisung: Kamera 1]\n\nText hier einfügen...",
+            example_text: "# 📡 Zmau Broadcast Master Suite\n\n* [KAM 1 - HALBNAH]\n\nWillkommen im Operationszentrum.\nDieses Tool vereint Skripterstellung und Umgebungsmanagement.\n\n* [PAUSE 2 SEK]\n\n## 🛠️ Funktionen\n\n1. **Markdown Editor:** Rauten für Titel, Sternchen für Anweisungen.\n2. **Mehrsprachig:** Volle Unterstützung für ES, EN und DE.\n3. **Themen:** Passen Sie das Interface an Ihr Studiolicht an.\n\n* [KAM 2 - ZOOM IN]\n\nAlles ist bereit für die Übertragung.\nViel Glück!"
+        }
+    };
+
+    let currentLang = 'de'; // IDIOMA POR DEFECTO: ALEMÁN
+
+    // --- UI LOGIC (Dropdowns & Themes) ---
+    function toggleMenu(id) {
+        document.querySelectorAll('.dropdown-menu').forEach(m => { if(m.id !== id) m.classList.remove('open'); });
+        document.getElementById(id).classList.toggle('open');
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.dropdown-wrapper')) document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('open'));
+    });
+
+    function setLang(lang, el) {
+        currentLang = lang;
+        const t = translations[lang];
+        
+        document.querySelectorAll('#langMenu .dropdown-item').forEach(i => i.classList.remove('selected'));
+        if(el) el.classList.add('selected');
+        document.getElementById('currentLangDisplay').innerHTML = `<i class="fa-solid fa-language mr-1"></i> ${lang.toUpperCase()}`;
+        
+        // Update Texts
+        const ids = ['lbl_version', 'lbl_system_online', 'lbl_editor', 'btn_load_example', 'lbl_actions', 'lbl_live', 'lbl_status_header', 'lbl_engine', 'lbl_mode'];
+        ids.forEach(id => { const dom = document.getElementById(id); if(dom) dom.innerText = t[id]; });
+        
+        // Update Import Button (HTML inside)
+        document.getElementById('btn_import').innerHTML = `<span>📂</span> ${t.btn_import}`;
+        document.getElementById('input').placeholder = t.ph_editor;
+
+        // IMPORTANT: Close menu explicitly by removing class, do NOT toggle
+        document.getElementById('langMenu').classList.remove('open');
+    }
+
+    function setTheme(themeKey, el) {
+        const theme = themes[themeKey];
+        const root = document.documentElement;
+        for (const [key, value] of Object.entries(theme.vars)) root.style.setProperty(key, value);
+
+        document.querySelectorAll('#themeMenu .dropdown-item').forEach(i => i.classList.remove('selected'));
+        if(el) el.classList.add('selected');
+        document.getElementById('currentThemeDisplay').innerHTML = `<span class="theme-dot mr-1" style="background:${theme.vars['--accent']}"></span> ${theme.name}`;
+        
+        document.getElementById('themeMenu').classList.remove('open');
+    }
+
+    function loadExample() {
+        document.getElementById('input').value = translations[currentLang].example_text;
+    }
+
+    // --- LOGICA TELEPROMPTER (CORE) ---
+    function importFile(input) {
+        const file = input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) { document.getElementById('input').value = e.target.result; };
+        reader.readAsText(file);
+        input.value = '';
+    }
+
+    function generatePDF() {
+        const raw = document.getElementById('input').value;
+        const lines = raw.split('\n');
+        let html = '<h1 style="margin-bottom:20px; font-family:sans-serif;">Guión</h1>';
+        lines.forEach(line => {
+            if(line.startsWith('#')) html += `<h2 style="color:#000; border-bottom:2px solid black; padding-bottom:5px;">${line.substring(1)}</h2>`;
+            else if(line.startsWith('*')) html += `<p style="color:#666; font-style:italic; font-weight:bold; background:#eee; padding:5px;">[DIR] ${line.substring(1)}</p>`;
+            else if(line.trim() !== '') html += `<p style="font-size:14pt; line-height:1.5; font-family:serif;">${line}</p>`;
+        });
+        document.getElementById('print-area').innerHTML = html;
+        window.print();
+    }
+
+    function getTitleFromScript() {
+        const raw = document.getElementById('input').value;
+        const lines = raw.split('\n');
+        for(let line of lines) if(line.startsWith('#')) return line.substring(1).trim();
+        return "Teleprompter";
+    }
+
+    function parseScript() {
+        const raw = document.getElementById('input').value;
+        const lines = raw.split('\n');
+        let scriptData = [];
+        lines.forEach(line => {
+            line = line.trim();
+            if (!line) return;
+            if (line.startsWith('#')) scriptData.push({ type: "title", content: line.substring(1).trim() });
+            else if (line.startsWith('*')) scriptData.push({ type: "instruction", content: line.substring(1).trim() });
+            else scriptData.push({ type: "text", content: line });
+        });
+        if (scriptData.length === 0) scriptData = [{ type: "title", content: "READY" }, { type: "text", content: "..." }];
+        return JSON.stringify(scriptData);
+    }
+
+    // Plantilla del Player (Optimizada)
+    function getPlayerHTML(jsonData) {
+        const title = getTitleFromScript();
+        return `<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${title}</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+body{background:#000;color:#fff;font-family:'Inter',sans-serif;margin:0;overflow:hidden;height:100vh;display:flex;flex-direction:column;}
+#prompter-area{flex:1;overflow-y:scroll;padding:20px 40px;padding-bottom:60vh;cursor:pointer;scroll-behavior: auto;}
+.p-text{font-size:4rem;line-height:1.4;margin-bottom:1.5rem;font-weight:700;}
+.p-title{color:#10B981;font-size:2.5rem;text-transform:uppercase;letter-spacing:2px;border-bottom:1px solid #333;margin:40px 0 20px 0;}
+.p-inst{color:#F59E0B;font-size:2rem;font-style:italic;background:#1e1e1e;padding:15px;border-left:5px solid #F59E0B;margin-bottom:20px;}
+.mirror-x { transform: scaleX(-1); } .mirror-y { transform: scaleY(-1); }
+#controls {position:fixed; bottom:0; left:0; width:100%; background: #111; border-top: 1px solid #333; padding: 10px; display:flex; justify-content:center; gap:15px; z-index:999;}
+button {background:#222; border:1px solid #444; color:#eee; width:40px; height:40px; border-radius:6px; font-weight:bold; cursor:pointer; transition:0.1s;}
+button:hover {background:#333;}
+#btnPlay {background:#10B981; color:#000; width:auto; padding:0 20px; font-weight:800;}
+#btnPlay.paused {background:#EF4444; color:#fff;}
+#guide {position:fixed; top:40%; left:0; width:100%; height:10%; border-top:1px solid rgba(255,255,255,0.1); border-bottom:1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.02); pointer-events:none; z-index:50;}
+</style></head><body><div id="guide"></div><div id="prompter-area"><div id="content"></div></div><div id="controls"><button onclick="changeSpeed(-1)">-</button><button id="spdVal" style="width:auto;padding:0 10px;font-family:monospace;">10</button><button onclick="changeSpeed(1)">+</button><button onclick="togglePlay()" id="btnPlay">START</button><button onclick="changeSize(-1)">A-</button><button onclick="changeSize(1)">A+</button><button onclick="toggleMirror()">⇄</button></div>
+<script>
+const data = ${jsonData}; const content = document.getElementById('content');
+data.forEach(item => { let el = document.createElement('div'); el.className = item.type==='title'?'p-title':item.type==='instruction'?'p-inst':'p-text'; el.innerText=item.content; content.appendChild(el); });
+let playing=false, speed=10, font=4, mirrorState=0, anim; const area=document.getElementById('prompter-area');
+function loop(){ if(playing){ area.scrollBy(0, speed*0.15); anim=requestAnimationFrame(loop); } }
+function togglePlay(){ playing=!playing; document.getElementById('btnPlay').innerText=playing?'PAUSE':'START'; document.getElementById('btnPlay').classList.toggle('paused', playing); if(playing) loop(); else cancelAnimationFrame(anim); }
+function changeSpeed(d){ speed=Math.max(1,Math.min(100,speed+d)); document.getElementById('spdVal').innerText=speed; }
+function changeSize(d){ font=Math.max(1,Math.min(10,font+d*0.5)); document.querySelectorAll('.p-text').forEach(e=>e.style.fontSize=font+'rem'); }
+function toggleMirror(){ mirrorState=(mirrorState+1)%3; area.className=''; if(mirrorState===1) area.classList.add('mirror-x'); if(mirrorState===2) area.classList.add('mirror-y'); }
+area.addEventListener('click', togglePlay);
+document.addEventListener('keydown', e=>{ if(e.code==='Space'){e.preventDefault();togglePlay();} if(e.code==='ArrowUp')changeSpeed(1); if(e.code==='ArrowDown')changeSpeed(-1); });
+<\/script></body></html>`;
+    }
+
+    function exportPlayer() {
+        const html = getPlayerHTML(parseScript());
+        const title = getTitleFromScript().replace(/[^a-z0-9]/gi, '_');
+        const blob = new Blob([html], { type: 'text/html' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob); a.download = `Prompter_${title}.html`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    }
+
+    function testLive() {
+        const win = window.open('', '_blank', 'width=1000,height=800');
+        if(win) win.document.write(getPlayerHTML(parseScript()));
+        else alert("Pop-ups blocked");
+    }
+
+    // Inicialización automática: Deutsch
+    document.addEventListener('DOMContentLoaded', () => {
+        const deBtn = document.querySelector('#langMenu .dropdown-item[onclick*="de"]');
+        setLang('de', deBtn); // This updates text but also closes menu via new logic
+    });
+  </script>
+</body>
+</html>
