@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Rivet and the Songbird</title>
+    <style>
+        :root {
+            --bg-color: #fdfbf7; /* Warm paper color */
+            --text-color: #333;
+            --accent-color: #8b0000; /* Deep red for emphasis */
+            --sidebar-width: 250px;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar Navigation */
+        #sidebar {
+            width: var(--sidebar-width);
+            background-color: #f4f1ea;
+            border-right: 1px solid #dcdcdc;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        #sidebar h1 {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 10px;
+            cursor: pointer;
+            font-family: 'Helvetica', sans-serif;
+            font-size: 0.9rem;
+            color: #555;
+            transition: all 0.3s;
+            border-radius: 4px;
+        }
+
+        .nav-btn:hover {
+            background-color: #e0ddd6;
+            color: #000;
+        }
+
+        .nav-btn.active {
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Main Content Area */
+        #content-area {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+            max-width: 800px; /* Optimal reading width */
+            margin: 0 auto;
+        }
+
+        .chapter {
+            display: none; /* Hidden by default */
+            line-height: 1.8;
+            font-size: 1.15rem;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .chapter.active {
+            display: block; /* Show only active chapter */
+        }
+
+        .chapter h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 10px;
+        }
+
+        .chapter h3 {
+            color: #666;
+            font-style: italic;
+            font-weight: normal;
+            margin-top: 0;
+        }
+
+        /* Navigation Footer */
+        .controls {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .control-btn {
+            padding: 10px 20px;
+            background-color: var(--text-color);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            border-radius: 4px;
+        }
+
+        .control-btn:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .control-btn:hover:not(:disabled) {
+            background-color: var(--accent-color);
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            #sidebar { 
+                width: 100%; 
+                height: 60px; 
+                flex-direction: row; 
+                overflow-x: auto; 
+                align-items: center; 
+                padding: 10px;
+                border-bottom: 1px solid #ccc;
+                border-right: none;
+            }
+            #sidebar h1 { display: none; }
+            .nav-btn { white-space: nowrap; margin-right: 10px; }
+            #content-area { padding: 20px; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <nav id="sidebar">
+        <h1>The Rivet & The Songbird</h1>
+        <button class="nav-btn active" onclick="goToChapter(0)">Prologue</button>
+        <button class="nav-btn" onclick="goToChapter(1)">Ch 1: The Museum</button>
+        <button class="nav-btn" onclick="goToChapter(2)">Ch 2: The Final Flight</button>
+        <button class="nav-btn" onclick="goToChapter(3)">Ch 3: Among the Ashes</button>
+        <button class="nav-btn" onclick="goToChapter(4)">Ch 4: Hilario Pérez</button>
+        <button class="nav-btn" onclick="goToChapter(5)">Ch 5: The Evidence</button>
+        <button class="nav-btn" onclick="goToChapter(6)">Ch 6: Mauricio Umaña</button>
+        <button class="nav-btn" onclick="goToChapter(7)">Epilogue</button>
+    </nav>
+
+    <main id="content-area">
+        
+        <article class="chapter active">
+            <h2>Prologue</h2>
+            <p>Some stories defy oblivion. Some objects refuse to become scrap. This is one of them: the tale of a melted fragment from a doomed aircraft that crossed decades and borders to rest—silently and solemnly—inside a display case at the Ford T City Museum in Tacuarembó. It is no ordinary artifact. It’s a piece charged with history, tragedy, longing, and mystery. As if that piece of metal still echoed the tango's melody and the roar of the aircraft that once held it. As if, in its metallic silence, it preserved Gardel’s voice.</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Chapter 1</h2>
+            <h3>A Display Case in the Heart of the Museum</h3>
+            <p>In the very heart of Tacuarembó—a city steeped in history and tradition—stands a heritage treasure suspended in time: the Ford T City Hotel. It’s not just a place to stay, but a true sanctuary of mechanical relics and musical memories. Walking through its doors, one doesn’t simply enter a building—one steps into an experience.</p>
+            <p>Visitors are greeted by an atmosphere scented with aged oil, polished wood, and leather worn by time. Inside its broad halls, flanked by gleaming glass displays, rests a remarkable collection of Ford Model T cars—pioneers of 20th-century mobility—painstakingly restored by the hotel’s owner, Eduardo Custodio.</p>
+            <p>But it’s not all cars. In a quiet corner stands an enviable collection of original Carlos Gardel records. The weathered album covers whisper melodies to those who draw near. Tangos that still beat, that still ache.</p>
+            <p>However, there is one display case that draws particular attention. It doesn't shine like the others, nor flaunt the chrome perfection of a vintage Ford. Inside sits a small, dark, unassuming object: a chunk of melted metal, no bigger than a hand. A small plaque beside it reads, “Fragment of the Ford Trimotor from Gardel’s crash, Medellín, 1935.”</p>
+            <p>Can something so small hold so much history? Can a shapeless, functionless fragment speak to us of a myth, a tragedy, a whole nation? This is the story of how that fragment traveled across time and a continent to find shelter in Tacuarembó. A story woven from voices, documents, serendipity, and passion. A story that, like a well-played tango, carries us from the intimate to the universal.</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Chapter 2</h2>
+            <h3>The Final Flight</h3>
+            <p>The morning of June 24, 1935, dawned clear over Medellín. Sunlight lit up the green hills surrounding the modest but lively Olaya Herrera airfield. It seemed like an ordinary day, but inside the airport, anticipation hung thick in the air. Carlos Gardel—the continental idol, the “Zorzal Criollo”—was in town, midway through a triumphant Latin American tour. His mere presence summoned crowds.</p>
+            <p>Gardel had conquered theaters, phonographs, and the silver screen. He was a living legend. That day, he would board a Ford Trimotor—one of the most advanced aircraft of its time—along with his guitarists, colleagues, and show business partners.</p>
+            <p>At 2:53 p.m., the Trimotor taxied down the runway. Mere meters away, another SCADTA aircraft was preparing for takeoff. For reasons never fully clarified, both planes ended up on the same stretch of tarmac. The outcome was catastrophic: collision, fire, devastation. The voice of the Americas had been silenced in the flames.</p>
+            <p>The news spread swiftly. The tragedy shook an entire continent. Gardel—the man who sang like no other—was gone. And with him, a piece of Latin America's soul. But amid the smoldering wreckage, something endured…</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Chapter 3</h2>
+            <h3>A Fragment Among the Ashes</h3>
+            <p>For years, the crash became the subject of myths, speculation, and tributes. But among the scorched remains, a metal fragment survived—a melted, compact piece with irregular edges and a rivet still attached.</p>
+            <p>Hilario Pérez, a guitarist and collector, received the piece from a retired sailor, distantly related to the González family of Medellín. Hilario preserved it with quiet reverence until, in conversation with Eduardo Custodio, he realized its rightful place was the museum. Eager to verify its origins, Custodio delivered it to the Faculty of Engineering for analysis.</p>
+            <p>The tests confirmed it was a metal alloy consistent with those used in Ford Trimotors from the 1930s. The rivet matched those used in detachable fuselages. The silent fragment had begun to speak.</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Chapter 4</h2>
+            <h3>Hilario Pérez and the Memory Trail</h3>
+            <p>Hilario was no ordinary collector. He was a guardian of memory. His home was filled with shellac records, photos, and sheet music. When he received the piece, he understood it held more than just metal—it held time itself.</p>
+            <p>Years later, his meeting with Custodio forged a bond of trust. Hilario donated the piece, along with part of his collection, to the museum—on the condition that its story be preserved. And so, the melted rivet found a new destiny: a tangible witness to the past in the city of Gardel’s birth.</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Chapter 5</h2>
+            <h3>The Voice of Evidence</h3>
+            <p>Science was the next chapter. At the University of the Republic’s materials lab, the fragment underwent meticulous testing. Alloy composition, rivet shape, signs of oxidation—all matched the specifications of the 1930s Ford Trimotor.</p>
+            <p>The results weren’t absolute, but they were compelling. Oral history met physical evidence. The piece was no longer just an article of faith—it became a metallic voice whispering, “I was there.”</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Chapter 6</h2>
+            <h3>Mauricio Umaña and the Documentary Bridge</h3>
+            <p>Mauricio Umaña, an engineer and member of the Colombian Academy of Aviation History, had spent decades researching the crash. His book, <i>The Truth About Gardel’s Death</i>, revealed documents once censored by the Colombian government. His father, Alfonso Umaña, worked as a SCADTA radio operator. His maternal relatives—the Correas—were related to the González family of Medellín.</p>
+            <p>When Mauricio learned about the museum piece, he contacted Custodio. He verified the story, cross-referenced documents, maps, and aircraft schematics. His rigorous work added historical and technical weight to the artifact’s likely authenticity.</p>
+            <p>Thanks to him, the rivet became more than a remnant. It became a link—between hidden documents, family memory, and scientific findings. A bridge between Medellín and Tacuarembó.</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Epilogue</h2>
+            <h3>The Rivet That Sings</h3>
+            <p>In a humble display case, under the soft glow of a carefully placed lamp, rests a melted piece of metal that could easily go unnoticed. It doesn’t shine. It lacks distinctive form. But its story speaks louder than words.</p>
+            <p>That rivet—small and silent—has witnessed tragedy and reconstruction. It has crossed generations. It has united collectors, engineers, and historians. And now, it rests as a symbol of a living story.</p>
+            <p>Because Gardel still sings. In every shellac record. In every story Hilario shared. In every analysis Mauricio pursued. And in every visitor who, upon seeing that fragment, feels an inexplicable shiver.</p>
+            <p>That rivet—burned, scarred, nearly miraculous—didn’t just hold aircraft panels together. It binds memories. It spans continents. It bridges time. And that is why it sings. Soundlessly. But it sings.</p>
+        </article>
+
+        <div class="controls">
+            <button class="control-btn" id="prevBtn" onclick="changeChapter(-1)">Previous</button>
+            <span id="pageIndicator" style="align-self: center; font-style: italic; color: #777;">Page 1 of 8</span>
+            <button class="control-btn" id="nextBtn" onclick="changeChapter(1)">Next</button>
+        </div>
+
+    </main>
+
+    <script>
+        let currentChapter = 0;
+        const chapters = document.querySelectorAll('.chapter');
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const pageIndicator = document.getElementById('pageIndicator');
+
+        function updateUI() {
+            // Hide all chapters
+            chapters.forEach((chapter, index) => {
+                chapter.classList.remove('active');
+                navBtns[index].classList.remove('active');
+            });
+
+            // Show current chapter
+            chapters[currentChapter].classList.add('active');
+            navBtns[currentChapter].classList.add('active');
+
+            // Scroll to top of content
+            document.getElementById('content-area').scrollTop = 0;
+
+            // Update Buttons
+            prevBtn.disabled = currentChapter === 0;
+            nextBtn.disabled = currentChapter === chapters.length - 1;
+
+            // Update Page Indicator
+            pageIndicator.textContent = `Page ${currentChapter + 1} of ${chapters.length}`;
+        }
+
+        function changeChapter(step) {
+            const newIndex = currentChapter + step;
+            if (newIndex >= 0 && newIndex < chapters.length) {
+                currentChapter = newIndex;
+                updateUI();
+            }
+        }
+
+        function goToChapter(index) {
+            currentChapter = index;
+            updateUI();
+        }
+
+        // Initialize
+        updateUI();
+    </script>
+</body>
+</html>
