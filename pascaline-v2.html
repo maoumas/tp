@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Pascaline Simulator — Improved Textured Version</title>
+  <style>
+    /* --- Basic theme: light wood + brass + metal wheels --- */
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #d6c7b0;
+      font-family: "Georgia", serif;
+      color: #2e2415;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    #machine {
+      background: #e8dfd2;
+      border: 4px solid #7a6653;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.2), 0 5px 15px rgba(0,0,0,0.3);
+      width: 620px;
+      max-width: 95%;
+    }
+
+    #plate {
+      background: #c8b495;
+      border: 2px solid #756449;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: inset 0 0 8px rgba(0,0,0,0.3);
+    }
+
+    .accumulator {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 18px;
+      position: relative;
+      height: 65px;
+    }
+
+    .acc-window {
+      width: 52px;
+      height: 65px;
+      margin: 0 4px;
+      background: #fdf7eb;
+      border: 2px inset #9b8b7a;
+      border-radius: 4px;
+      text-align: center;
+      line-height: 65px;
+      font-size: 1.7em;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+      color: #2e2415;
+      font-family: "Courier New", monospace;
+    }
+
+    #compBar {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(255,255,255,0.6);
+      display: none;
+      border-radius: 4px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    #compBar span {
+      position: absolute;
+      right: 6px;
+      bottom: 6px;
+      font-size: 0.85em;
+      color: #555;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    .input-wheels {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 12px;
+    }
+
+    .wheel {
+      position: relative;
+      width: 60px;
+      height: 60px;
+      margin: 0 6px;
+      background: radial-gradient(circle at center, #d4c69b 0%, #b8a37e 70%, #9e8c6b 100%);
+      border: 3px solid #7a6653;
+      border-radius: 50%;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.4);
+      cursor: pointer;
+      user-select: none;
+      overflow: hidden;
+      transition: transform 0.3s ease-out;
+    }
+
+    .wheel .digits {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      transition: transform 0.25s ease-out;
+    }
+
+    .wheel .digits div {
+      height: 60px;
+      line-height: 60px;
+      text-align: center;
+      font-size: 1.8em;
+      color: #2e2415;
+      font-family: "Courier New", monospace;
+    }
+
+    /* Spokes overlay (simulate crown‑wheel) */
+    .wheel::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at center, transparent 50%, rgba(0,0,0,0.2) 51%),
+        repeating-conic-gradient(
+          transparent 0deg 36deg,
+          rgba(0,0,0,0.15) 36deg 38deg
+        );
+      background-blend-mode: multiply;
+    }
+
+    .controls {
+      text-align: center;
+      margin: 12px 0 22px;
+    }
+    .controls button {
+      background: #7a6653;
+      color: #f2ece3;
+      border: none;
+      padding: 10px 18px;
+      margin: 0 6px;
+      font-size: 1em;
+      border-radius: 6px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+    }
+    .controls button:hover {
+      background: #8d7760;
+    }
+    .controls label {
+      margin-left: 12px;
+      font-size: 0.9em;
+    }
+
+    .education {
+      max-width: 620px;
+      background: #f7f0e6;
+      padding: 20px;
+      border: 3px solid #7a6653;
+      border-radius: 8px;
+      box-shadow: inset 0 0 6px rgba(0,0,0,0.2);
+      margin-top: 25px;
+      color: #2e2415;
+    }
+    .education h2 {
+      margin-top: 0;
+      font-family: serif;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="machine">
+    <div id="plate">
+      <div class="accumulator" id="accumulator">
+        <!-- accumulator windows -->
+        <div id="compBar"><span>9’s complement</span></div>
+      </div>
+
+      <div class="input-wheels" id="inputWheels">
+        <!-- wheels -->
+      </div>
+
+      <div class="controls">
+        <button id="btnAdd">Enter / Add</button>
+        <button id="btnClear">Clear (Reset)</button>
+        <label><input type="checkbox" id="toggleComp"> Use 9’s‑complement (subtraction)</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="education">
+    <h2>How it Works — Inside the Pascaline</h2>
+    <p>
+      The input <strong>wheels</strong> below are designed as circular metal dials with visible spokes — like the original crown wheels. Clicking a wheel rotates it one "notch" clockwise (like inserting a stylus between spokes), and the wheel cannot rotate backwards, simulating the original back‑stop pawl.
+    </p>
+    <p>
+      The top row of <strong>accumulator windows</strong> shows the total sum. Press "Enter / Add" to add the current input‑wheels number into the accumulator; when any digit rolls over from 9 → 0, the carry mechanism advances the next higher-order digit — just like the heavy lever and pawl mechanism in the real Pascaline.
+    </p>
+    <p>
+      For <strong>subtraction</strong>, enable the 9’s‑complement checkbox, dial the 9’s‑complement of the number you want to subtract, and press "Enter / Add". The overlay slider shows the complement view, and the accumulator effectively subtracts that number.
+    </p>
+    <p>
+      The "Clear (Reset)" button emulates the mechanical reset method: it sets all wheels to 9 internally, then adds 1 — causing a ripple carry that resets every digit to 0, simulating how the real Pascaline was zeroed.
+    </p>
+    <p style="font-style: italic; color: #5a4a36;">
+      This simulator focuses on visual fidelity and mechanical logic. While it does not animate internal levers or springs, it aims to evoke the 17th‑century feel with wheels, spokes, brass and wood textures, and authentic one‑way wheel movement.
+    </p>
+  </div>
+
+<script>
+  const NUM = 6;
+  let accumulator = Array(NUM).fill(0);
+  let input = Array(NUM).fill(0);
+
+  const accContainer = document.getElementById("accumulator");
+  const inputWheelsContainer = document.getElementById("inputWheels");
+  const compBar = document.getElementById("compBar");
+  const toggleComp = document.getElementById("toggleComp");
+
+  // Build accumulator windows
+  function buildAccumulator() {
+    for (let i = 0; i < NUM; i++) {
+      const w = document.createElement("div");
+      w.className = "acc-window";
+      w.textContent = "0";
+      accContainer.appendChild(w);
+    }
+  }
+
+  // Build input wheels
+  const wheelElems = [];
+  function buildInputWheels() {
+    for (let i = 0; i < NUM; i++) {
+      const w = document.createElement("div");
+      w.className = "wheel";
+      const digits = document.createElement("div");
+      digits.className = "digits";
+      for (let d = 0; d < 10; d++) {
+        const dd = document.createElement("div");
+        dd.textContent = d;
+        digits.appendChild(dd);
+      }
+      w.appendChild(digits);
+      inputWheelsContainer.appendChild(w);
+      wheelElems.push({ wheel: w, digits: digits });
+      w.addEventListener("click", () => {
+        rotateWheel(i);
+      });
+    }
+  }
+
+  function rotateWheel(idx) {
+    input[idx] = (input[idx] + 1) % 10;
+    // visually rotate wheel
+    const deg = (input[idx] * (360 / 10));
+    wheelElems[idx].wheel.style.transform = `rotate(${deg}deg)`;
+    // update wheel's internal digits for accessibility (hidden)
+    const ds = wheelElems[idx].digits;
+    ds.style.transform = `translateY(-${input[idx] * ds.children[0].offsetHeight}px)`;
+  }
+
+  function refreshAccumulator(showComplement = false) {
+    const wins = accContainer.querySelectorAll(".acc-window");
+    for (let i = 0; i < NUM; i++) {
+      const v = showComplement ? (9 - accumulator[i]) : accumulator[i];
+      wins[i].textContent = v;
+    }
+  }
+
+  function addInput() {
+    let carry = 0;
+    for (let i = NUM - 1; i >= 0; i--) {
+      const s = accumulator[i] + input[i] + carry;
+      accumulator[i] = s % 10;
+      carry = Math.floor(s / 10);
+    }
+    refreshAccumulator(false);
+    resetInput();
+  }
+
+  function resetInput() {
+    input = Array(NUM).fill(0);
+    wheelElems.forEach(w => {
+      w.wheel.style.transform = "rotate(0deg)";
+      w.digits.style.transform = "translateY(0px)";
+    });
+  }
+
+  function clearAll() {
+    accumulator = Array(NUM).fill(9);
+    refreshAccumulator(false);
+    setTimeout(() => {
+      let carry = 1;
+      for (let i = NUM - 1; i >= 0; i--) {
+        const s = accumulator[i] + carry;
+        accumulator[i] = s % 10;
+        carry = Math.floor(s / 10);
+      }
+      refreshAccumulator(false);
+    }, 200);
+  }
+
+  function toggleComplement() {
+    const show = toggleComp.checked;
+    compBar.style.display = show ? "block" : "none";
+    refreshAccumulator(show);
+  }
+
+  document.getElementById("btnAdd").addEventListener("click", () => {
+    addInput();
+    if (toggleComp.checked) {
+      toggleComp.checked = false;
+      toggleComplement();
+    }
+  });
+  document.getElementById("btnClear").addEventListener("click", clearAll);
+  toggleComp.addEventListener("change", toggleComplement);
+
+  // Initialize
+  buildAccumulator();
+  buildInputWheels();
+  refreshAccumulator(false);
+</script>
+
+</body>
+</html>
