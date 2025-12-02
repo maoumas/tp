@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="og-image-tpascal.jpg" alt="Banner de TPascal.com" width="100%" style="border-radius: 10px; margin-bottom: 20px;">
+<img src="og-image-tpascal.png" alt="Banner de TPascal.com" width="100%" style="border-radius: 10px; margin-bottom: 20px;">
 
 # Bienvenido a TPascal.com
 ### El centro de aplicaciones y herramientas del canal <a href="https://www.youtube.com/@TranslatedPressDE" target="_blank">TranslatedPress</a>.
