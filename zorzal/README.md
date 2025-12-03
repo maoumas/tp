@@ -32,12 +32,12 @@ The project is structured as a lightweight, static Single Page Application (SPA)
 │   └── index.html              # Interactive Book (Deutsch)
 │
 ├── [assets]                    # Images and Documents
-│   ├── ford-model-t.jpg
-│   ├── hotel-museo-fordt-city.jpg
-│   ├── fragmento-fundido.jpg
-│   ├── remache-fundido.jpg
-│   ├── portada.jpg
-│   ├── contraportada.jpg
+│   ├── ford-model-t.png
+│   ├── hotel-museo-fordt-city.png
+│   ├── fragmento-fundido.png
+│   ├── remache-fundido.png
+│   ├── portada.png
+│   ├── contraportada.png
 │   └── logo-fordTCity-HotelMuseo.png
 │
 └── [documentation]             # PDF Reports
