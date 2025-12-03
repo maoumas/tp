@@ -17,7 +17,6 @@
                             'neon-green': '#39ff14',
                             'bg-dark': '#0a0a0f',
                             'bg-panel': '#151521',
-                            // Changed text-light for better contrast against dark backgrounds
                             'text-light': '#ffffff', 
                             'text-dim': '#a0a0b0',
                         },
@@ -36,9 +35,9 @@
         body {
             font-family: 'Share Tech Mono', monospace;
             background-color: #0a0a0f;
-            color: #ffffff; /* Global text color set to white for contrast */
+            color: #ffffff;
             background-image: 
-                linear-gradient(rgba(10, 10, 15, 0.9), rgba(10, 10, 15, 0.9)), /* Increased opacity for better text contrast */
+                linear-gradient(rgba(10, 10, 15, 0.9), rgba(10, 10, 15, 0.9)),
                 repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 234, 255, 0.05) 2px, rgba(0, 234, 255, 0.05) 4px),
                 repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0, 234, 255, 0.05) 2px, rgba(0, 234, 255, 0.05) 4px);
             background-size: 100% 100%, 50px 50px, 50px 50px;
@@ -56,8 +55,9 @@
             box-shadow: 0 0 15px rgba(0, 234, 255, 0.3);
         }
 
+        /* CORRECCIÓN: Color de texto y marcador de posición para mejor contraste */
         .cyber-input {
-            @apply w-full p-3 bg-[#151521] border border-[#2a2a40] rounded-md focus:outline-none focus:border-cyber-neon-blue text-white placeholder-cyber-text-dim;
+            @apply w-full p-3 bg-[#151521] border border-[#2a2a40] rounded-md focus:outline-none focus:border-cyber-neon-blue text-white placeholder-gray-400;
         }
 
         .cyber-label {
