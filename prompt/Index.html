@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grok Video Generator - Channel Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyber: {
+                            'neon-pink': '#ff0080',
+                            'neon-blue': '#00eaff',
+                            'neon-green': '#39ff14',
+                            'bg-dark': '#0a0a0f',
+                            'bg-panel': '#151521',
+                            'text-light': '#e2e8f0',
+                        },
+                    },
+                    fontFamily: {
+                        'cyber': ['"Share Tech Mono"', 'monospace'],
+                    },
+                },
+            },
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: #0a0a0f;
+            color: #e2e8f0;
+            background-image: 
+                linear-gradient(rgba(10, 10, 15, 0.8), rgba(10, 10, 15, 0.8)),
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 234, 255, 0.05) 2px, rgba(0, 234, 255, 0.05) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0, 234, 255, 0.05) 2px, rgba(0, 234, 255, 0.05) 4px);
+            background-size: 100% 100%, 50px 50px, 50px 50px;
+            min-height: 100vh;
+        }
+        
+        .cyber-border {
+            border: 1px solid rgba(0, 234, 255, 0.3);
+            box-shadow: 0 0 10px rgba(0, 234, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .cyber-border:hover, .cyber-border:focus-within {
+            border-color: rgba(0, 234, 255, 0.8);
+            box-shadow: 0 0 15px rgba(0, 234, 255, 0.3);
+        }
+
+        .cyber-input {
+            @apply w-full p-3 bg-[#151521] border border-[#2a2a40] rounded-md focus:outline-none focus:border-cyber-neon-blue text-cyber-text-light;
+        }
+
+        .cyber-label {
+            @apply block mb-2 text-sm font-bold text-cyber-neon-blue uppercase tracking-wider;
+        }
+
+        .cyber-button {
+            @apply px-6 py-3 bg-transparent border border-cyber-neon-blue text-cyber-neon-blue font-bold uppercase tracking-widest hover:bg-cyber-neon-blue hover:text-cyber-bg-dark transition-all duration-300 rounded-md relative overflow-hidden;
+        }
+        
+        .cyber-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 234, 255, 0.4), transparent);
+            transition: 0.5s;
+        }
+        
+        .cyber-button:hover::before {
+            left: 100%;
+        }
+
+        .module-header {
+            @apply text-xl font-bold mb-4 text-cyber-neon-pink uppercase;
+            text-shadow: 0 0 5px rgba(255, 0, 128, 0.5);
+        }
+
+        .range-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #2a2a40;
+            outline: none;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #00eaff;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 234, 255, 0.5);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a2a40;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #00eaff;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="p-4 md:p-6 bg-cyber-bg-panel border-b border-cyber-neon-blue/30 flex flex-col md:flex-row justify-between items-center">
+        <h1 class="text-2xl md:text-3xl font-bold text-cyber-neon-blue uppercase tracking-widest mb-4 md:mb-0">
+            <span class="text-cyber-neon-pink">Grok</span> Video Generator <span class="text-sm block md:inline">Channel Edition</span>
+        </h1>
+        <div class="flex space-x-4">
+            <button id="langToggle" class="cyber-button text-sm">Español</button>
+            <a href="#" class="cyber-button text-sm">Community</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-4 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+        <div class="lg:col-span-2 space-y-8">
+
+            <section class="p-6 bg-cyber-bg-panel rounded-lg cyber-border">
+                <h2 class="module-header" data-lang-en="Module I: The Scene" data-lang-es="Módulo I: La Escena">Module I: The Scene</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="cyber-label" data-lang-en="Subject & Action" data-lang-es="Sujeto y Acción">Subject & Action</label>
+                        <input type="text" id="subjectAction" class="cyber-input" placeholder="e.g., A futuristic cyborg woman running...">
+                    </div>
+                    <div>
+                        <label class="cyber-label" data-lang-en="Context & Location" data-lang-es="Contexto y Ubicación">Context & Location</label>
+                        <input type="text" id="contextLocation" class="cyber-input" placeholder="e.g., on a rain-slicked neon street in Neo-Tokyo.">
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <div class="flex justify-between items-center mb-2">
+                        <label class="cyber-label mb-0" data-lang-en="Token Priority" data-lang-es="Prioridad de Tokens">Token Priority</label>
+                        <span class="text-cyber-neon-blue text-sm" id="tokenValue">100%</span>
+                    </div>
+                    <input type="range" id="tokenPriority" min="100" max="140" value="100" class="range-slider">
+                    <p class="text-xs text-gray-400 mt-2" data-lang-en="Adjusts core prompt weight to manage audio token allowance." data-lang-es="Ajusta el peso del prompt principal para gestionar la asignación de tokens de audio.">Adjusts core prompt weight to manage audio token allowance.</p>
+                </div>
+            </section>
+
+            <section class="p-6 bg-cyber-bg-panel rounded-lg cyber-border">
+                <h2 class="module-header" data-lang-en="Module II: Visual Style" data-lang-es="Módulo II: Estilo Visual">Module II: Visual Style</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="cyber-label" data-lang-en="Select Style" data-lang-es="Seleccionar Estilo">Select Style</label>
+                        <select id="visualStyle" class="cyber-input">
+                            <option value="">-- Select Style --</option>
+                            </select>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="cyber-label mb-0" data-lang-en="Artistic Weight" data-lang-es="Peso Artístico">Artistic Weight</label>
+                            <span class="text-cyber-neon-blue text-sm" id="styleWeightValue">100%</span>
+                        </div>
+                        <input type="range" id="styleWeight" min="0" max="140" value="100" class="range-slider">
+                    </div>
+                </div>
+            </section>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <section class="p-6 bg-cyber-bg-panel rounded-lg cyber-border">
+                    <h2 class="module-header" data-lang-en="Module III: Cinematography" data-lang-es="Módulo III: Cinematografía">Module III: Cinematography</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="cyber-label" data-lang-en="Shot Type" data-lang-es="Tipo de Plano">Shot Type</label>
+                            <select id="shotType" class="cyber-input">
+                                <option value="">-- Select Shot Type --</option>
+                                <option value="Extreme Wide Shot">Extreme Wide Shot</option>
+                                <option value="Wide Shot">Wide Shot</option>
+                                <option value="Medium Shot">Medium Shot</option>
+                                <option value="Close-up">Close-up</option>
+                                <option value="Extreme Close-up">Extreme Close-up</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="cyber-label" data-lang-en="Lens" data-lang-es="Lente">Lens</label>
+                            <select id="lens" class="cyber-input">
+                                <option value="">-- Select Lens --</option>
+                                <option value="16mm Lens">16mm Lens</option>
+                                <option value="35mm Lens">35mm Lens</option>
+                                <option value="50mm Lens">50mm Lens</option>
+                                <option value="85mm Lens">85mm Lens</option>
+                                <option value="Macro Lens">Macro Lens</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="p-6 bg-cyber-bg-panel rounded-lg cyber-border">
+                    <h2 class="module-header" data-lang-en="Module IV: Light & Atmosphere" data-lang-es="Módulo IV: Luz y Atmósfera">Module IV: Light & Atmosphere</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="cyber-label" data-lang-en="Lighting" data-lang-es="Iluminación">Lighting</label>
+                            <select id="lighting" class="cyber-input">
+                                <option value="">-- Select Lighting --</option>
+                                <option value="Rembrandt Lighting">Rembrandt Lighting</option>
+                                <option value="Dramatic Lighting">Dramatic Lighting</option>
+                                <option value="Soft Lighting">Soft Lighting</option>
+                                <option value="Neon Lighting">Neon Lighting</option>
+                                <option value="Natural Light">Natural Light</option>
+                                <option value="Studio Lighting">Studio Lighting</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="cyber-label" data-lang-en="Atmosphere/Weather" data-lang-es="Atmósfera/Clima">Atmosphere/Weather</label>
+                            <input type="text" id="atmosphere" class="cyber-input" placeholder="e.g., Fog, Rain, Dust...">
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+             <section class="p-6 bg-cyber-bg-panel rounded-lg cyber-border">
+                <h2 class="module-header" data-lang-en="Module V: Camera Movement" data-lang-es="Módulo V: Movimiento de Cámara">Module V: Camera Movement</h2>
+                <div>
+                    <label class="cyber-label" data-lang-en="Movement" data-lang-es="Movimiento">Movement</label>
+                    <select id="cameraMovement" class="cyber-input">
+                        <option value="">-- Select Movement --</option>
+                        <option value="Static Shot">Static Shot</option>
+                        <option value="Pan Left">Pan Left</option>
+                        <option value="Pan Right">Pan Right</option>
+                        <option value="Tilt Up">Tilt Up</option>
+                        <option value="Tilt Down">Tilt Down</option>
+                        <option value="Handheld Camera">Handheld Camera</option>
+                        <option value="Fast Action Swipe">Fast Action Swipe</option>
+                        <option value="Drone Shot">Drone Shot</option>
+                    </select>
+                </div>
+            </section>
+
+        </div>
+
+        <div class="space-y-8">
+
+            <section class="p-6 bg-cyber-bg-panel rounded-lg cyber-border relative overflow-hidden">
+                <div class="absolute inset-0 border-2 border-cyber-neon-green rounded-lg opacity-50 pointer-events-none animate-pulse"></div>
+
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="module-header mb-0 text-cyber-neon-green" style="text-shadow: 0 0 5px rgba(57, 255, 20, 0.5);" data-lang-en="Module VI: Audio System" data-lang-es="Módulo VI: Sistema de Audio">Module VI: Audio System</h2>
+                    <label class="flex items-center cursor-pointer">
+                        <div class="relative">
+                            <input type="checkbox" id="audioToggle" class="sr-only">
+                            <div class="block bg-[#2a2a40] w-14 h-8 rounded-full border border-cyber-neon-green/50"></div>
+                            <div class="dot absolute left-1 top-1 bg-cyber-neon-green w-6 h-6 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(57,255,20,0.8)]"></div>
+                        </div>
+                    </label>
+                </div>
+
+                <div id="audioControls" class="space-y-6 opacity-50 pointer-events-none transition-all duration-300">
+                    <div>
+                        <h3 class="text-lg font-bold text-cyber-neon-blue mb-3" data-lang-en="Section A: Environment" data-lang-es="Sección A: Entorno">Section A: Environment</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="cyber-label" data-lang-en="SFX/Ambience" data-lang-es="Efectos/Ambiente">SFX/Ambience</label>
+                                <input type="text" id="sfxAmbience" class="cyber-input" placeholder="e.g., distant sirens, rain on pavement...">
+                            </div>
+                            <div>
+                                <label class="cyber-label" data-lang-en="Music" data-lang-es="Música">Music</label>
+                                <input type="text" id="music" class="cyber-input" placeholder="e.g., dark synthwave, tense underscore...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex items-center mb-3">
+                            <input type="checkbox" id="voiceToggle" class="mr-2 h-5 w-5 accent-cyber-neon-green bg-[#151521] border-cyber-neon-blue rounded">
+                            <label for="voiceToggle" class="text-lg font-bold text-cyber-neon-blue cursor-pointer" data-lang-en="Section B: Voice & Dialogue" data-lang-es="Sección B: Voz y Diálogo">Section B: Voice & Dialogue</label>
+                        </div>
+                        
+                        <div id="voiceControls" class="space-y-4 opacity-50 pointer-events-none transition-all duration-300 pl-4 border-l-2 border-cyber-neon-blue/30">
+                            <div>
+                                <label class="cyber-label" data-lang-en="Character Name" data-lang-es="Nombre del Personaje">Character Name</label>
+                                <input type="text" id="characterName" class="cyber-input" placeholder="Must match Subject in Module I">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="cyber-label" data-lang-en="Voice Type" data-lang-es="Tipo de Voz">Voice Type</label>
+                                    <select id="voiceType" class="cyber-input">
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Robot">Robot</option>
+                                        <option value="Child">Child</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="cyber-label" data-lang-en="Accent" data-lang-es="Acento">Accent</label>
+                                    <select id="accent" class="cyber-input">
+                                        <option value="USA">USA</option>
+                                        <option value="UK">UK</option>
+                                        <option value="Mexico">Mexico</option>
+                                        <option value="Spain">Spain</option>
+                                        <option value="Argentina">Argentina</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="cyber-label" data-lang-en="Emotion" data-lang-es="Emoción">Emotion</label>
+                                <select id="emotion" class="cyber-input">
+                                    <option value="Neutral">Neutral</option>
+                                    <option value="Angry">Angry</option>
+                                    <option value="Happy">Happy</option>
+                                    <option value="Whispering">Whispering</option>
+                                    <option value="Urgent">Urgent</option>
+                                    <option value="Sarcastic">Sarcastic</option>
+                                </select>
+                            </div>
+                            <div>
+                                <div class="flex justify-between">
+                                    <label class="cyber-label" data-lang-en="Script (Max 10 words)" data-lang-es="Guion (Máx 10 palabras)">Script (Max 10 words)</label>
+                                    <span id="wordCount" class="text-xs text-cyber-neon-pink font-bold">0/10</span>
+                                </div>
+                                <textarea id="script" class="cyber-input h-24 resize-none" placeholder="e.g., We have to go now!"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="p-6 bg-cyber-bg-panel rounded-lg cyber-border sticky top-8">
+                <h2 class="module-header" data-lang-en="Module VII: Output" data-lang-es="Módulo VII: Salida">Module VII: Output</h2>
+                
+                <div class="mb-6 p-4 bg-[#0a0a0f] border border-cyber-neon-blue/50 rounded-md">
+                    <h3 class="text-cyber-neon-blue font-bold mb-2 flex items-center">
+                        <span class="text-xl mr-2">🤖</span> <span data-lang-en="Virtual Professor" data-lang-es="Profesor Virtual">Virtual Professor</span>
+                    </h3>
+                    <p id="virtualProfessor" class="text-sm text-gray-300 italic" data-lang-en="I'm ready! Fill in the modules to see what we're building..." data-lang-es="¡Estoy listo! Completa los módulos para ver qué estamos construyendo...">I'm ready! Fill in the modules to see what we're building...</p>
+                </div>
+
+                <textarea id="finalPrompt" class="cyber-input h-48 resize-none mb-4 font-mono text-sm" readonly></textarea>
+                
+                <div class="flex flex-col space-y-4">
+                    <button id="generateBtn" class="cyber-button bg-cyber-neon-blue/10 w-full py-4 text-lg" data-lang-en="GENERATE PROMPT" data-lang-es="GENERAR PROMPT">GENERATE PROMPT</button>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button id="copyBtn" class="cyber-button flex justify-center items-center" data-lang-en="Copy to Clipboard" data-lang-es="Copiar al Portapapeles">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                            Copy
+                        </button>
+                        <button id="downloadBtn" class="cyber-button flex justify-center items-center" data-lang-en="Download .txt" data-lang-es="Descargar .txt">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                            .txt
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+
+    <script>
+        // --- Data & Configuration ---
+        const visualStyles = [
+            "Cyberpunk", "Cinematic", "16mm Film", "Lego World", "Pixar Style", "Western", "Anime", "Realistic", 
+            "Noir", "Documentary", "Found Footage", "Retro Sci-Fi", "Fantasy", "Surreal", "Abstract",
+            "Watercolor", "Oil Painting", "Pixel Art", "Gothic", "Steampunk", "Vaporwave",
+            "Horror", "Comedic", "Wes Anderson Style", "Tarantino Style", "Blade Runner Style"
+        ];
+
+        // --- DOM Elements ---
+        const langToggle = document.getElementById('langToggle');
+        const translatableElements = document.querySelectorAll('[data-lang-en]');
+        
+        // Sliders & Values
+        const tokenPriority = document.getElementById('tokenPriority');
+        const tokenValue = document.getElementById('tokenValue');
+        const styleWeight = document.getElementById('styleWeight');
+        const styleWeightValue = document.getElementById('styleWeightValue');
+
+        // Dropdowns
+        const visualStyleSelect = document.getElementById('visualStyle');
+
+        // Audio Toggles
+        const audioToggle = document.getElementById('audioToggle');
+        const audioControls = document.getElementById('audioControls');
+        const voiceToggle = document.getElementById('voiceToggle');
+        const voiceControls = document.getElementById('voiceControls');
+        const scriptInput = document.getElementById('script');
+        const wordCountDisplay = document.getElementById('wordCount');
+
+        // Output
+        const virtualProfessor = document.getElementById('virtualProfessor');
+        const finalPrompt = document.getElementById('finalPrompt');
+        const generateBtn = document.getElementById('generateBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        // --- State ---
+        let currentLang = 'en';
+
+        // --- Initialization ---
+        function init() {
+            // Populate Visual Styles
+            visualStyles.forEach(style => {
+                const option = document.createElement('option');
+                option.value = style;
+                option.textContent = style;
+                visualStyleSelect.appendChild(option);
+            });
+
+            // Event Listeners
+            langToggle.addEventListener('click', toggleLanguage);
+            tokenPriority.addEventListener('input', () => updateSliderValue(tokenPriority, tokenValue));
+            styleWeight.addEventListener('input', () => updateSliderValue(styleWeight, styleWeightValue));
+            audioToggle.addEventListener('change', toggleAudioModule);
+            voiceToggle.addEventListener('change', toggleVoiceModule);
+            scriptInput.addEventListener('input', updateWordCount);
+            generateBtn.addEventListener('click', generatePrompt);
+            copyBtn.addEventListener('click', copyToClipboard);
+            downloadBtn.addEventListener('click', downloadTxt);
+
+            // Initial updates
+            updateWordCount();
+        }
+
+        // --- Functions ---
+
+        // Language Switching
+        function toggleLanguage() {
+            currentLang = currentLang === 'en' ? 'es' : 'en';
+            langToggle.textContent = currentLang === 'en' ? 'Español' : 'English';
+            
+            translatableElements.forEach(el => {
+                el.textContent = el.getAttribute(`data-lang-${currentLang}`);
+            });
+
+            updateVirtualProfessor();
+        }
+
+        // Slider Value Update
+        function updateSliderValue(slider, display) {
+            display.textContent = `${slider.value}%`;
+        }
+
+        // Audio Module Toggles
+        function toggleAudioModule() {
+            if (audioToggle.checked) {
+                audioControls.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                audioControls.classList.add('opacity-50', 'pointer-events-none');
+                voiceToggle.checked = false;
+                toggleVoiceModule(); // Ensure voice is also disabled
+            }
+        }
+
+        function toggleVoiceModule() {
+            if (voiceToggle.checked && audioToggle.checked) {
+                voiceControls.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                voiceControls.classList.add('opacity-50', 'pointer-events-none');
+            }
+        }
+
+        // Word Count Logic (Strict 10 words)
+        function updateWordCount() {
+            const text = scriptInput.value.trim();
+            const words = text.isEmpty() ? [] : text.split(/\s+/);
+            let count = words.length;
+
+            if (count > 10) {
+                // Truncate and set value back
+                const truncatedWords = words.slice(0, 10);
+                scriptInput.value = truncatedWords.join(" ");
+                count = 10;
+                wordCountDisplay.classList.add('text-red-500');
+            } else {
+                wordCountDisplay.classList.remove('text-red-500');
+            }
+            wordCountDisplay.textContent = `${count}/10`;
+        }
+
+        // String Helper function to check for empty string
+        String.prototype.isEmpty = function() {
+            return (this.length === 0 || !this.trim());
+        };
+
+        // Virtual Professor Update
+        function updateVirtualProfessor() {
+            let message = currentLang === 'en' ? "I'm waiting for your inputs." : "Estoy esperando tus entradas.";
+            const subject = document.getElementById('subjectAction').value;
+
+            if (!subject.isEmpty()) {
+                message = currentLang === 'en' 
+                    ? `Okay, we are defining a scene about: "${subject}".` 
+                    : `Bien, estamos definiendo una escena sobre: "${subject}".`;
+                
+                if (audioToggle.checked && voiceToggle.checked && !document.getElementById('characterName').value.isEmpty()) {
+                     message += currentLang === 'en'
+                        ? ` And we are adding dialogue for ${document.getElementById('characterName').value}.`
+                        : ` Y estamos añadiendo diálogo para ${document.getElementById('characterName').value}.`;
+                }
+            }
+            virtualProfessor.textContent = message;
+        }
+
+        // Core Prompt Generation Logic
+        function generatePrompt() {
+            // Gather Inputs
+            const subject = document.getElementById('subjectAction').value || 'A scene';
+            const context = document.getElementById('contextLocation').value || '';
+            const tokenWeight = tokenPriority.value / 100;
+            
+            let style = visualStyleSelect.value;
+            const artisticWeight = styleWeight.value / 100;
+
+            const shotType = document.getElementById('shotType').value;
+            const lens = document.getElementById('lens').value;
+            const lighting = document.getElementById('lighting').value;
+            const atmosphere = document.getElementById('atmosphere').value;
+            const movement = document.getElementById('cameraMovement').value;
+
+            // Build Parts
+            let sceneDescription = subject;
+            if (context) sceneDescription += `, ${context}`;
+
+            // Apply weights (simple multiplication representation for the prompt string)
+            // Note: Grok's actual interpretation of weights might vary, but this follows the logic of emphasizing parts.
+            // A common way to denote weight in prompts is (text:weight).
+            let finalScenePart = `(${sceneDescription}:${tokenWeight.toFixed(1)})`;
+            
+            let finalStylePart = style ? `(${style}:${artisticWeight.toFixed(1)})` : '';
+
+            let cameraParts = [];
+            if (shotType) cameraParts.push(shotType);
+            if (lens) cameraParts.push(lens);
+            if (lighting) cameraParts.push(lighting);
+            if (atmosphere) cameraParts.push(atmosphere);
+            if (movement) cameraParts.push(movement);
+            let finalCameraPart = cameraParts.join(", ");
+
+            // Build Base String: [Visual Style] :: [Scene Description] :: [Camera/Light Details]
+            let promptParts = [];
+            if (finalStylePart) promptParts.push(finalStylePart);
+            promptParts.push(finalScenePart);
+            if (finalCameraPart) promptParts.push(finalCameraPart);
+            
+            let fullPrompt = promptParts.join(" :: ");
+
+            // Audio Logic
+            if (audioToggle.checked) {
+                let audioParts = [];
+                const sfx = document.getElementById('sfxAmbience').value;
+                const music = document.getElementById('music').value;
+
+                if (sfx) audioParts.push(`SFX: ${sfx}`);
+                if (music) audioParts.push(`Music: ${music}`);
+                
+                let audioString = audioParts.join(", ");
+
+                // Voice Logic (Anti-Babble Structure)
+                if (voiceToggle.checked) {
+                    const charName = document.getElementById('characterName').value || 'Character';
+                    const vType = document.getElementById('voiceType').value;
+                    const vAccent = document.getElementById('accent').value;
+                    const vEmotion = document.getElementById('emotion').value;
+                    const vScript = document.getElementById('script').value;
+
+                    if (vScript && !vScript.isEmpty()) {
+                        // Structure: --audio "[SFX/Music] --voice [Name, Type, Emotion, Accent]: "[Script]""
+                        let voicePart = `--voice [${charName}, ${vType}, ${vEmotion.toLowerCase()}, ${vAccent} accent]: "${vScript}"`;
+                        
+                        if (audioString) {
+                             fullPrompt += ` :: --audio "${audioString} ${voicePart}"`;
+                        } else {
+                             fullPrompt += ` :: --audio "${voicePart}"`;
+                        }
+                    } else if (audioString) {
+                         // Audio enabled but no script provided
+                         fullPrompt += ` :: --audio "${audioString}"`;
+                    }
+                } else if (audioString) {
+                    // Audio enabled, voice disabled
+                    fullPrompt += ` :: --audio "${audioString}"`;
+                }
+            }
+
+            finalPrompt.value = fullPrompt;
+            updateVirtualProfessor();
+            
+            // Add a small animation effect to the text area
+            finalPrompt.classList.add('bg-cyber-neon-blue/20');
+            setTimeout(() => {
+                finalPrompt.classList.remove('bg-cyber-neon-blue/20');
+            }, 300);
+        }
+
+        // Clipboard & Download
+        function copyToClipboard() {
+            finalPrompt.select();
+            document.execCommand('copy');
+            
+            const originalText = copyBtn.innerHTML;
+            copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-cyber-neon-green" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg> Copied!';
+            setTimeout(() => {
+                copyBtn.innerHTML = originalText;
+            }, 2000);
+        }
+
+        function downloadTxt() {
+            const content = finalPrompt.value;
+            if (content.isEmpty()) {
+                alert("Please generate a prompt first.");
+                return;
+            }
+            const element = document.createElement('a');
+            const file = new Blob([content], {type: 'text/plain'});
+            element.href = URL.createObjectURL(file);
+            element.download = 'grok-video-prompt.txt';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+
+        // Run init on load
+        window.addEventListener('DOMContentLoaded', init);
+
+    </script>
+</body>
+</html>
