@@ -6,7 +6,7 @@
     <title>The Rivet and the Zorzal | Ford T City Museum</title>
     <style>
         :root {
-            --primary-gold: #c59d5f; /* Extracted from Logo */
+            --primary-gold: #c59d5f;
             --primary-black: #1a1a1a;
             --bg-color: #fdfbf7;
             --text-color: #333;
@@ -22,12 +22,45 @@
             line-height: 1.6;
         }
 
+        /* --- TOP LANGUAGE SWITCHER --- */
+        .top-lang-bar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            font-family: sans-serif;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 5px 10px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .lang-link {
+            text-decoration: none;
+            color: #666;
+            font-weight: bold;
+            font-size: 0.9rem;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .lang-link:hover, .lang-link.active {
+            color: var(--accent-red);
+            text-decoration: underline;
+        }
+
+        .lang-separator {
+            color: #ccc;
+        }
+
         /* --- HEADER --- */
         header {
             background-color: var(--primary-gold);
             text-align: center;
-            padding: 2rem 1rem;
+            padding: 3rem 1rem 2rem 1rem; /* Added top padding for lang switch */
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
         }
 
         .logo {
@@ -117,15 +150,15 @@
             margin-top: 10px;
         }
 
-        /* --- LANGUAGE SELECTOR --- */
-        .lang-selector {
+        /* --- BOOK SELECTION --- */
+        .book-selector {
             background-color: var(--primary-black);
             color: var(--primary-gold);
             padding: 3rem 1rem;
             text-align: center;
         }
 
-        .lang-selector h3 {
+        .book-selector h3 {
             font-size: 1.5rem;
             margin-bottom: 2rem;
             text-transform: uppercase;
@@ -139,7 +172,7 @@
             flex-wrap: wrap;
         }
 
-        .lang-btn {
+        .book-btn {
             background-color: transparent;
             border: 2px solid var(--primary-gold);
             color: var(--primary-gold);
@@ -150,13 +183,21 @@
             font-family: sans-serif;
             text-transform: uppercase;
             letter-spacing: 1px;
-            min-width: 120px;
+            min-width: 180px;
         }
 
-        .lang-btn:hover {
+        .book-btn:hover {
             background-color: var(--primary-gold);
             color: var(--primary-black);
             transform: translateY(-3px);
+        }
+
+        .book-btn small {
+            display: block;
+            font-size: 0.7rem;
+            margin-top: 5px;
+            opacity: 0.8;
+            text-transform: none;
         }
 
         /* --- FOOTER --- */
@@ -172,42 +213,106 @@
             color: #ccc;
         }
 
+        /* Content Language Toggling classes */
+        .lang-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        .lang-content.active {
+            display: block;
+        }
+        span.lang-content.active {
+            display: inline;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
         /* --- MOBILE ADJUSTMENTS --- */
         @media (max-width: 768px) {
+            .top-lang-bar {
+                position: relative;
+                top: 0;
+                right: 0;
+                background: #fdfbf7;
+                text-align: center;
+                padding: 10px;
+                border-bottom: 1px solid #ddd;
+                box-shadow: none;
+            }
+            header { padding-top: 1rem; }
             .grid-2 {
                 grid-template-columns: 1fr;
                 gap: 20px;
             }
             .hero h1 { font-size: 2rem; }
             .img-frame { width: 100%; }
-            .reverse { order: -1; } /* Keeps images on top on mobile if needed */
+            .reverse { order: -1; } 
         }
     </style>
 </head>
 <body>
+
+    <div class="top-lang-bar">
+        <span class="lang-link active" onclick="setLanguage('en')">EN</span>
+        <span class="lang-separator">|</span>
+        <span class="lang-link" onclick="setLanguage('es')">ES</span>
+        <span class="lang-separator">|</span>
+        <span class="lang-link" onclick="setLanguage('de')">DE</span>
+    </div>
 
     <header>
         <img src="logo-fordTCity-HotelMuseo.png" alt="Ford T City Hotel Museo Logo" class="logo">
     </header>
 
     <section class="hero">
-        <h1>The Rivet and the Zorzal</h1>
-        <h2>A Story of Heritage, Tragedy, and Memory</h2>
+        <h1>
+            <span class="lang-content en active">The Rivet and the Zorzal</span>
+            <span class="lang-content es">El Remache y el Zorzal</span>
+            <span class="lang-content de">Der Niet und der Zorzal</span>
+        </h1>
+        <h2>
+            <span class="lang-content en active">A Story of Heritage, Tragedy, and Memory</span>
+            <span class="lang-content es">Una historia de patrimonio, tragedia y memoria</span>
+            <span class="lang-content de">Eine Geschichte von Erbe, Tragödie und Erinnerung</span>
+        </h2>
         <p>
-            Welcome to the <strong>FordT City Museum</strong> in Tacuarembó, Uruguay. A sanctuary where history is preserved not just in objects, but in the stories they whisper. Under the stewardship of <strong>Eduardo Custodio</strong>, this unique collection bridges the gap between the mechanical marvels of the early 20th century and the eternal soul of the Tango.
+            <span class="lang-content en active">
+                Welcome to the <strong>Ford T City Museum</strong> in Tacuarembó, Uruguay. A sanctuary where history is preserved not just in objects, but in the stories they whisper. Under the stewardship of <strong>Eduardo Custodio</strong>, this unique collection bridges the gap between the mechanical marvels of the early 20th century and the eternal soul of the Tango.
+            </span>
+            <span class="lang-content es">
+                Bienvenidos al <strong>Museo Ford T City</strong> en Tacuarembó, Uruguay. Un santuario donde la historia se preserva no solo en objetos, sino en las historias que susurran. Bajo la dirección de <strong>Eduardo Custodio</strong>, esta colección única une las maravillas mecánicas de principios del siglo XX con el alma eterna del Tango.
+            </span>
+            <span class="lang-content de">
+                Willkommen im <strong>Ford T City Museum</strong> in Tacuarembó, Uruguay. Ein Heiligtum, in dem Geschichte nicht nur in Objekten, sondern auch in deren Geschichten bewahrt wird. Unter der Leitung von <strong>Eduardo Custodio</strong> schlägt diese einzigartige Sammlung eine Brücke zwischen den mechanischen Wundern des frühen 20. Jahrhunderts und der ewigen Seele des Tangos.
+            </span>
         </p>
     </section>
 
     <section class="content-section">
         <div class="grid-2">
             <div class="text-block">
-                <h3>A Journey on Wheels</h3>
+                <h3>
+                    <span class="lang-content en active">A Journey on Wheels</span>
+                    <span class="lang-content es">Un Viaje sobre Ruedas</span>
+                    <span class="lang-content de">Eine Reise auf Rädern</span>
+                </h3>
                 <p>
-                    Walking through the halls of the FordT City Hotel is stepping into a living timeline. The museum houses an impeccable collection of <strong>Ford Model T cars</strong>, the vehicle that put the world on wheels. Painstakingly restored by Eduardo Custodio, these machines shine with the same luster as they did a century ago, representing an era of innovation that coincided with the rise of a musical legend.
+                    <span class="lang-content en active">
+                        Walking through the halls of the Ford T City Hotel is stepping into a living timeline. The museum houses an impeccable collection of <strong>Ford Model T cars</strong>, the vehicle that put the world on wheels. Painstakingly restored by Eduardo Custodio, these machines shine with the same luster as they did a century ago.
+                    </span>
+                    <span class="lang-content es">
+                        Caminar por los pasillos del Hotel Ford T City es adentrarse en una línea de tiempo viva. El museo alberga una colección impecable de <strong>automóviles Ford Modelo T</strong>, el vehículo que puso al mundo sobre ruedas. Restauradas minuciosamente por Eduardo Custodio, estas máquinas brillan con el mismo esplendor que hace un siglo.
+                    </span>
+                    <span class="lang-content de">
+                        Ein Gang durch die Hallen des Ford T City Hotels ist wie ein Schritt in eine lebendige Zeitachse. Das Museum beherbergt eine tadellose Sammlung von <strong>Ford Modell T</strong> Autos, dem Fahrzeug, das die Welt mobil machte. Diese von Eduardo Custodio sorgfältig restaurierten Maschinen glänzen noch genauso wie vor einem Jahrhundert.
+                    </span>
                 </p>
             </div>
             <div>
-                <img src="ford-model-t.png" alt="Collection of Ford Model T cars" class="img-frame">
+                <img src="ford-model-t.jpg" alt="Collection of Ford Model T cars" class="img-frame">
             </div>
         </div>
     </section>
@@ -215,15 +320,24 @@
     <section class="content-section">
         <div class="grid-2">
             <div class="reverse">
-                <img src="hotel-museo-fordt-city.png" alt="Gardel Shrine and Ford Trimotor Model" class="img-frame">
+                <img src="hotel-museo-fordt-city.jpg" alt="Gardel Shrine and Ford Trimotor Model" class="img-frame">
             </div>
             <div class="text-block">
-                <h3>The Songbird's Silence</h3>
+                <h3>
+                    <span class="lang-content en active">The Songbird's Silence</span>
+                    <span class="lang-content es">El Silencio del Zorzal</span>
+                    <span class="lang-content de">Das Schweigen des Zorzals</span>
+                </h3>
                 <p>
-                    Alongside the mechanical roar of the Fords lies a quiet corner dedicated to <strong>Carlos Gardel</strong>. The museum holds a complete collection of his original discography—shellac records that captured the voice of the "Zorzal Criollo." 
-                </p>
-                <p>
-                    But the centerpiece of this homage is tragic. On June 24, 1935, at the Olaya Herrera aerodrome in Medellín, a Ford Trimotor aircraft crashed, taking Gardel from the world. For decades, the details were shrouded in sorrow and mystery.
+                    <span class="lang-content en active">
+                        Alongside the mechanical roar of the Fords lies a quiet corner dedicated to <strong>Carlos Gardel</strong>. The museum holds a complete collection of his original discography. But the centerpiece of this homage is tragic: The 1935 crash in Medellín that silenced the "Zorzal Criollo" forever.
+                    </span>
+                    <span class="lang-content es">
+                        Junto al rugido mecánico de los Ford, yace un rincón tranquilo dedicado a <strong>Carlos Gardel</strong>. El museo conserva una colección completa de su discografía original. Pero la pieza central de este homenaje es trágica: El accidente de 1935 en Medellín que silenció al "Zorzal Criollo" para siempre.
+                    </span>
+                    <span class="lang-content de">
+                        Neben dem mechanischen Dröhnen der Fords liegt eine ruhige Ecke, die <strong>Carlos Gardel</strong> gewidmet ist. Das Museum besitzt eine vollständige Sammlung seiner Original-Diskografie. Doch das Herzstück dieser Hommage ist tragisch: Der Absturz von 1935 in Medellín, der den "Zorzal Criollo" für immer verstummen ließ.
+                    </span>
                 </p>
             </div>
         </div>
@@ -231,49 +345,108 @@
 
     <section class="artifact-section">
         <div class="text-block" style="max-width: 800px; margin: 0 auto;">
-            <h3>The Witness in Metal</h3>
+            <h3>
+                <span class="lang-content en active">The Witness in Metal</span>
+                <span class="lang-content es">El Testigo de Metal</span>
+                <span class="lang-content de">Der Zeuge aus Metall</span>
+            </h3>
             <p>
-                Resting in a display case is an object of profound historical weight: a <strong>cast aluminum fragment and a rivet</strong> recovered from the wreckage in Medellín. This is not merely scrap metal; it is a survivor of history.
-            </p>
-            <p>
-                Through the dedicated research of engineer and historian <strong>Mauricio Umaña</strong>, and in collaboration with the University of the Republic, this piece has been subjected to rigorous metallurgical analysis. The studies certify its composition, its age, and its provenance, confirming it as a genuine part of the fuselage that carried the idol on his final flight.
+                <span class="lang-content en active">
+                    Resting in a display case is an object of profound historical weight: a <strong>cast aluminum fragment and a rivet</strong> recovered from the wreckage in Medellín. Through the dedicated research of engineer and historian <strong>Mauricio Umaña</strong>, and in collaboration with the University of the Republic, this piece has been certified as a genuine part of the fuselage from the final flight.
+                </span>
+                <span class="lang-content es">
+                    Descansando en una vitrina se encuentra un objeto de profundo peso histórico: un <strong>fragmento de aluminio fundido y un remache</strong> recuperados de los restos en Medellín. Gracias a la dedicada investigación del ingeniero e historiador <strong>Mauricio Umaña</strong>, y en colaboración con la Universidad de la República, esta pieza ha sido certificada como parte genuina del fuselaje del vuelo final.
+                </span>
+                <span class="lang-content de">
+                    In einer Vitrine ruht ein Objekt von tiefem historischem Gewicht: ein <strong>geschmolzenes Aluminiumfragment und ein Niet</strong>, geborgen aus den Trümmern in Medellín. Durch die engagierte Forschung des Ingenieurs und Historikers <strong>Mauricio Umaña</strong> und in Zusammenarbeit mit der Universität der Republik wurde dieses Stück als echtes Teil des Rumpfes des letzten Fluges zertifiziert.
+                </span>
             </p>
         </div>
 
         <div class="artifact-grid">
             <div>
-                <img src="fragmento-fundido.png" alt="Melted Aluminum Fragment" class="img-frame">
-                <p class="artifact-caption">The melted aluminum fuselage fragment.</p>
+                <img src="fragmento-fundido.jpg" alt="Melted Aluminum Fragment" class="img-frame">
+                <p class="artifact-caption">
+                    <span class="lang-content en active">The melted aluminum fuselage fragment.</span>
+                    <span class="lang-content es">El fragmento de fuselaje de aluminio fundido.</span>
+                    <span class="lang-content de">Das geschmolzene Aluminium-Rumpffragment.</span>
+                </p>
             </div>
             <div>
-                <img src="remache-fundido.png" alt="The Rivet from the Ford Trimotor" class="img-frame">
-                <p class="artifact-caption">The fuselage joining rivet, fused by the heat of 1935.</p>
+                <img src="remache-fundido.jpg" alt="The Rivet from the Ford Trimotor" class="img-frame">
+                <p class="artifact-caption">
+                    <span class="lang-content en active">The fuselage joining rivet, fused by heat.</span>
+                    <span class="lang-content es">El remache de unión del fuselaje, fundido por el calor.</span>
+                    <span class="lang-content de">Der Verbindungsniet des Rumpfes, durch Hitze verschmolzen.</span>
+                </p>
             </div>
         </div>
     </section>
 
-    <section class="lang-selector">
-        <h3>Select Your Language to Read the Full Story</h3>
+    <section class="book-selector">
+        <h3>
+            <span class="lang-content en active">Read the Full Story</span>
+            <span class="lang-content es">Lea la Historia Completa</span>
+            <span class="lang-content de">Lesen Sie die ganze Geschichte</span>
+        </h3>
+        <p style="margin-bottom: 2rem;">
+            <span class="lang-content en active">Select your preferred language to open the digital book.</span>
+            <span class="lang-content es">Seleccione su idioma preferido para abrir el libro digital.</span>
+            <span class="lang-content de">Wählen Sie Ihre bevorzugte Sprache, um das digitale Buch zu öffnen.</span>
+        </p>
+        
         <div class="btn-container">
-            <a href="es/index.html" class="lang-btn">Español</a>
-            <a href="en/index.html" class="lang-btn">English</a>
-            <a href="de/index.html" class="lang-btn">Deutsch</a>
+            <a href="en/index.html" class="book-btn">
+                ENGLISH
+                <small>Enter Book</small>
+            </a>
+            <a href="es/index.html" class="book-btn">
+                ESPAÑOL
+                <small>Entrar al Libro</small>
+            </a>
+            <a href="de/index.html" class="book-btn">
+                DEUTSCH
+                <small>Buch öffnen</small>
+            </a>
         </div>
     </section>
 
     <footer>
         <p>
-            <strong>FordT City Hotel - Museum</strong><br>
+            <strong>Ford T City Hotel - Museum</strong><br>
             Tacuarembó, Uruguay<br>
-            Museum Owner: Eduardo Custodio
+            <span class="lang-content en active">Museum Owner: Eduardo Custodio</span>
+            <span class="lang-content es">Propietario del Museo: Eduardo Custodio</span>
+            <span class="lang-content de">Museumsbesitzer: Eduardo Custodio</span>
         </p>
         <p>
-            Historical Research & Documentation: <strong>Ing. Mauricio Umaña</strong>
+            <span class="lang-content en active">Historical Research & Documentation: <strong>Ing. Mauricio Umaña</strong></span>
+            <span class="lang-content es">Investigación Histórica y Documentación: <strong>Ing. Mauricio Umaña</strong></span>
+            <span class="lang-content de">Historische Forschung & Dokumentation: <strong>Ing. Mauricio Umaña</strong></span>
         </p>
         <p style="margin-top: 20px; font-size: 0.8rem; opacity: 0.6;">
             &copy; 2025 All Rights Reserved.
         </p>
     </footer>
+
+    <script>
+        function setLanguage(lang) {
+            // 1. Update Buttons
+            const buttons = document.querySelectorAll('.lang-link');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Find the button clicked (simple matching)
+            Array.from(buttons).find(b => b.textContent.trim().toLowerCase() === lang).classList.add('active');
+
+            // 2. Hide all content
+            const allContent = document.querySelectorAll('.lang-content');
+            allContent.forEach(el => el.classList.remove('active'));
+
+            // 3. Show selected content
+            const specificContent = document.querySelectorAll(`.lang-content.${lang}`);
+            specificContent.forEach(el => el.classList.add('active'));
+        }
+    </script>
 
 </body>
 </html>
