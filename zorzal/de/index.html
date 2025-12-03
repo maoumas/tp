@@ -1,43 +1,416 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8">
-  <title>Die Niete und der Singvogel</title>
-  <link rel="stylesheet" href="../style.css">
-  <link rel="icon" href="../favicon.ico" type="image/x-icon">
-  <link rel="apple-touch-icon" href="../favicon.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Die Niete und der Zorzal | Ing. Mauricio Umaña</title>
+    <style>
+        :root {
+            --bg-color: #fdfbf7;
+            --text-color: #333;
+            --accent-color: #8b0000; /* Elegantes Dunkelrot */
+            --sidebar-width: 260px;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- SEITENLEISTE (SIDEBAR) --- */
+        #sidebar {
+            width: var(--sidebar-width);
+            background-color: #f4f1ea;
+            border-right: 1px solid #dcdcdc;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+            z-index: 100;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #sidebar h2 {
+            font-size: 1rem;
+            color: var(--accent-color);
+            margin-top: 0;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 12px 10px;
+            cursor: pointer;
+            font-family: 'Helvetica', sans-serif;
+            font-size: 0.95rem;
+            color: #555;
+            border-radius: 4px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nav-btn:hover { background-color: #e0ddd6; color: #000; }
+        .nav-btn.active { background-color: var(--accent-color); color: white; font-weight: bold; }
+
+        /* Mobiles Menü (Hamburger) */
+        #mobile-menu-btn {
+            display: none; /* Versteckt auf PC */
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 200;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* --- INHALTSBEREICH --- */
+        #content-area {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Bilder */
+        .book-cover {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+            border-radius: 2px;
+        }
+
+        .chapter-img {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px 0;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .logo-img {
+            display: block;
+            margin: 0 auto 20px auto;
+            max-width: 200px;
+        }
+
+        /* Titel und Text */
+        .chapter {
+            display: none;
+            line-height: 1.8;
+            font-size: 1.15rem;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .chapter.active { display: block; }
+
+        h1.main-title { font-size: 2.5rem; text-align: center; color: var(--accent-color); margin-bottom: 0.5rem; }
+        .author { text-align: center; font-size: 1.2rem; color: #555; font-style: italic; margin-bottom: 2rem; }
+        
+        /* Inhaltsverzeichnis auf dem Titelblatt */
+        .toc-list { list-style: none; padding: 0; max-width: 500px; margin: 0 auto; }
+        .toc-list li { margin-bottom: 10px; border-bottom: 1px dotted #ccc; }
+        .toc-list button { 
+            background: none; border: none; font-size: 1.1rem; color: var(--accent-color); 
+            cursor: pointer; padding: 5px; width: 100%; text-align: left;
+        }
+        .toc-list button:hover { text-decoration: underline; }
+
+        /* Download-Bereich */
+        .download-box {
+            background-color: #eae7de;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .download-btn {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px;
+            font-family: sans-serif;
+            font-size: 0.9rem;
+        }
+
+        /* Untere Navigation */
+        .controls {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            align-items: center;
+        }
+        .control-btn {
+            padding: 10px 20px;
+            background-color: #444;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .control-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        /* --- RESPONSIVE (MOBIL) --- */
+        @media (max-width: 768px) {
+            #mobile-menu-btn { display: block; } 
+            
+            #sidebar {
+                position: absolute;
+                height: 100%;
+                transform: translateX(-100%); 
+                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            }
+            
+            #sidebar.open {
+                transform: translateX(0); 
+            }
+
+            #content-area {
+                padding: 60px 20px 20px 20px; 
+            }
+            
+            h1.main-title { font-size: 1.8rem; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 <body>
 
-<section class="hero">
-  <h1>Die Niete und der Singvogel</h1>
-  <p>Eine wahre Geschichte von Medellín nach Tacuarembó</p>
-  <a href="#kap1" class="btn">Buch lesen</a>
-  <p style="margin-top: 1rem;">🌐 Sprache: <a href="../index.html">Español</a> | <a href="../en/index.html">English</a> | <strong>Deutsch</strong></p>
-</section>
+    <button id="mobile-menu-btn" onclick="toggleSidebar()">☰ Index</button>
 
-<hr>
+    <nav id="sidebar">
+        <h2 style="text-align: center; margin-top: 10px;">Inhalt</h2>
+        <button class="nav-btn" onclick="goToChapter(0)">🏠 Titelblatt</button>
+        <button class="nav-btn" onclick="goToChapter(1)">Prolog</button>
+        <button class="nav-btn" onclick="goToChapter(2)">Kap 1: Das Museum</button>
+        <button class="nav-btn" onclick="goToChapter(3)">Kap 2: Der letzte Flug</button>
+        <button class="nav-btn" onclick="goToChapter(4)">Kap 3: Unter der Asche</button>
+        <button class="nav-btn" onclick="goToChapter(5)">Kap 4: Hilario Pérez</button>
+        <button class="nav-btn" onclick="goToChapter(6)">Kap 5: Die Beweise</button>
+        <button class="nav-btn" onclick="goToChapter(7)">Kap 6: Mauricio Umaña</button>
+        <button class="nav-btn" onclick="goToChapter(8)">Epilog</button>
+        <button class="nav-btn" onclick="goToChapter(9)">🏁 Rückseite</button>
+    </nav>
 
-<h2>Prolog</h2>
-<p>Es gibt Geschichten, die dem Vergessen trotzen...</p>
+    <main id="content-area" onclick="closeSidebarIfOpen()">
+        
+        <article class="chapter active">
+            <img src="../logo-fordTCity-HotelMuseo.png" alt="Ford T City Logo" class="logo-img">
+            <h1 class="main-title">Die Niete und der Zorzal</h1>
+            <p class="author">Von Ing. Mauricio Umaña</p>
+            
+            <img src="../portada.jpg" alt="Buchcover" class="book-cover" onerror="this.src='../hotel-museo-fordt-city.jpg'">
+            
+            <div style="margin-top: 30px;">
+                <h3 style="text-align: center; border-bottom: 2px solid #8b0000; padding-bottom: 10px;">Inhaltsverzeichnis</h3>
+                <ul class="toc-list">
+                    <li><button onclick="goToChapter(1)">Prolog: Geschichten, die sich dem Vergessen widersetzen</button></li>
+                    <li><button onclick="goToChapter(2)">Kapitel 1: Eine Vitrine im Herzen des Museums</button></li>
+                    <li><button onclick="goToChapter(3)">Kapitel 2: Der letzte Flug</button></li>
+                    <li><button onclick="goToChapter(4)">Kapitel 3: Ein Fragment unter der Asche</button></li>
+                    <li><button onclick="goToChapter(5)">Kapitel 4: Hilario Pérez und die Spur der Erinnerung</button></li>
+                    <li><button onclick="goToChapter(6)">Kapitel 5: Die Stimme der Beweise</button></li>
+                    <li><button onclick="goToChapter(7)">Kapitel 6: Mauricio Umaña und die Brücke der Dokumente</button></li>
+                    <li><button onclick="goToChapter(8)">Epilog: Die Niete, die singt</button></li>
+                    <li><button onclick="goToChapter(9)">Downloads und technische Dokumentation</button></li>
+                </ul>
+            </div>
+        </article>
 
-<h2 id="kap1">Kapitel 1: Eine Glasvitrine im Herzen des Museums</h2>
-<p>Im Ford T City Hotel in Tacuarembó...</p>
+        <article class="chapter">
+            <h2>Prolog</h2>
+            <p>Es gibt Geschichten, die sich dem Vergessen widersetzen. Gegenstände, die sich weigern, Schrott zu werden. Dies ist eine davon: die Geschichte eines geschmolzenen Fragments eines abgestürzten Flugzeugs, das Jahrzehnte und Grenzen überquerte, um schließlich – still und feierlich – in einer Vitrine des Ford T City Museums in Tacuarembó zu ruhen. Kein gewöhnliches Objekt.</p>
+            <p>Ein Stück voller Geschichte, Tragödie, Sehnsucht und Mysterium. Als würde dieses Metallstück noch das Echo eines Tangos und das Brüllen des Flugzeugs in sich tragen. Als würde es in seinem metallischen Schweigen die Stimme von Gardel bewahren.</p>
+        </article>
 
-<h2>Kapitel 2: Der letzte Flug</h2>
-<p>Am 24. Juni 1935 wurde Medellín Zeuge einer Tragödie...</p>
+        <article class="chapter">
+            <h2>Kapitel 1: Eine Vitrine im Herzen des Museums</h2>
+            <p>Im Herzen von Tacuarembó – einer Stadt voller Geschichte und Tradition – steht ein Erbe, das in der Zeit zu schweben scheint: das Hotel Ford T City. Es ist nicht nur eine Unterkunft, sondern ein wahrer Zufluchtsort für mechanische Relikte und musikalische Erinnerungen. Wer diese Türen durchschreitet, betritt nicht bloß ein Gebäude – er betritt ein Erlebnis.</p>
 
-<h2>Kapitel 3: Ein Fragment unter der Asche</h2>
-<p>Jahrzehnte später tauchte ein geschmolzenes Stück in Uruguay auf...</p>
+            <p>Die Besucher werden von einem Duft aus altem Öl, poliertem Holz und gealtertem Leder empfangen. In seinen geräumigen Sälen, flankiert von glänzenden Glasvitrinen, ruht eine eindrucksvolle Sammlung von Ford T-Automobilen – jene Pioniere der Mobilität des 20. Jahrhunderts –, liebevoll restauriert vom Besitzer des Hotels, Eduardo Custodio.</p>
 
-<!-- Continúa con los demás capítulos -->
+            <img src="../ford-model-t.jpg" alt="Sammlung Ford Modell T" class="chapter-img">
 
-<hr>
-<h3>Downloads</h3>
-<ul>
-  <li><a href="../El Remache y el Zorzal - Libro Museo Tacuarembó.pdf">📄 PDF herunterladen (Spanisch)</a></li>
-  <li><a href="../El_Remache_y_el_Zorzal_Museo_Tacuarembo.epub">📚 EPUB herunterladen (Spanisch)</a></li>
-</ul>
+            <p>Doch es geht nicht nur um Autos. In einer ruhigen Ecke befindet sich eine beneidenswerte Sammlung originaler Schallplatten von Carlos Gardel. Die abgenutzten Plattencover flüstern Melodien jenen zu, die sich nähern. Tangos, die immer noch pochen, die immer noch schmerzen.</p>
+            <p>Aber da ist eine Vitrine, die besonders auffällt. Sie glänzt nicht wie die anderen, sie zeigt nicht den verchromten Glanz eines alten Ford. Darin liegt ein kleines, dunkles, unscheinbares Objekt: ein geschmolzenes Metallstück, kaum größer als eine Hand. Daneben ein schlichtes Schild: „Fragment der Ford Trimotor aus dem Gardel-Absturz, Medellín, 1935“.</p>
+            <p>Kann etwas so Kleines so viel Geschichte in sich tragen? Kann ein form- und funktionsloses Fragment von einem Mythos erzählen, von einer Tragödie, von einer ganzen Nation? Dies ist die Geschichte, wie dieses Fragment durch Zeit und Kontinente reiste, um schließlich in Tacuarembó Zuflucht zu finden. Eine Geschichte, gewoben aus Stimmen, Dokumenten, Zufällen und Leidenschaft.</p>
+        </article>
 
+        <article class="chapter">
+            <h2>Kapitel 2: Der letzte Flug</h2>
+            <p>Der Morgen des 24. Juni 1935 begann klar über Medellín. Sonnenlicht tauchte die grünen Hügel rund um den kleinen, aber lebhaften Flughafen Olaya Herrera in warmes Licht. Es schien ein gewöhnlicher Tag zu sein, doch in den Hallen des Flughafens lag Spannung in der Luft. Carlos Gardel – das Idol eines ganzen Kontinents, der „Zorzal Criollo“ – war auf Durchreise, mitten auf seiner triumphalen Lateinamerika-Tournee. Seine bloße Anwesenheit versammelte Massen.</p>
+
+            <img src="../hotel-museo-fordt-city.jpg" alt="Modell Ford Trimotor und Gardel Porträt" class="chapter-img">
+
+            <p>Gardel hatte Theater, Platten und Kinoleinwände erobert. Er war eine lebende Legende. An diesem Tag bestieg er eine Ford Trimotor – eines der modernsten Flugzeuge seiner Zeit –, gemeinsam mit seinen Gitarristen, Kollegen und Geschäftspartnern.</p>
+            <p>Um 14:53 Uhr rollte das Trimotor-Flugzeug über die Startbahn. Nur wenige Meter entfernt bereitete sich ein weiteres SCADTA-Flugzeug auf den Start vor. Aus Gründen, die nie vollständig geklärt wurden, befanden sich beide Maschinen plötzlich auf derselben Rollbahn. Das Ergebnis war katastrophal: Kollision, Feuer, Zerstörung. Die Stimme Amerikas verstummte in den Flammen.</p>
+            <p>Die Nachricht verbreitete sich rasend schnell. Die Tragödie erschütterte den gesamten Kontinent. Gardel – der Mann, der sang wie kein anderer – war tot. Und mit ihm ein Stück der lateinamerikanischen Seele. Doch zwischen den rauchenden Trümmern überlebte etwas…</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Kapitel 3: Ein Fragment unter der Asche</h2>
+            <p>Jahrelang war der Absturz Gegenstand von Mythen, Spekulationen und Gedenkfeiern. Doch zwischen den verkohlten Überresten überlebte ein Metallfragment – ein geschmolzenes, kompaktes Stück mit unregelmäßigen Rändern und einer noch befestigten Niete.</p>
+
+            <img src="../fragmento-fundido.jpg" alt="Geschmolzenes Aluminiumfragment" class="chapter-img">
+
+            <p>Hilario Pérez, Gitarrist und Sammler, erhielt das Fragment von einem pensionierten Seemann, einem entfernten Verwandten der Familie González aus Medellín. Hilario bewahrte es mit stillem Respekt auf, bis er im Gespräch mit Eduardo Custodio erkannte, dass es seinen Platz im Museum finden sollte. Um die Herkunft zu verifizieren, brachte Custodio das Stück zur technischen Analyse an die Ingenieursfakultät.</p>
+            <p>Die Untersuchungen ergaben, dass es sich um eine Legierung handelte, die mit jenen übereinstimmte, die in den Ford Trimotor-Flugzeugen der 1930er Jahre verwendet wurden. Die Form der Niete stimmte mit den Typen überein, die in abnehmbaren Rumpfteilen verwendet wurden. Das stumme Fragment begann zu sprechen.</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Kapitel 4: Hilario Pérez und die Spur der Erinnerung</h2>
+            <p>Hilario war kein gewöhnlicher Sammler. Er war ein Hüter der Erinnerung. In seinem Zuhause lebten Schellackplatten, Fotografien und Notenblätter nebeneinander. Als er das Fragment erhielt, verstand er: Es enthielt mehr als nur Metall – es enthielt Zeit.</p>
+            <p>Jahre später besiegelte das Treffen mit Custodio ein Vertrauensverhältnis. Hilario spendete das Stück – zusammen mit einem Teil seiner Sammlung – dem Museum, unter der Bedingung, dass seine Geschichte weitergegeben wird. So fand die geschmolzene Niete ein neues Ziel: ein sichtbarer Zeuge der Vergangenheit in Gardels mutmaßlicher Geburtsstadt.</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Kapitel 5: Die Stimme der Beweise</h2>
+            <p>Die Wissenschaft folgte als nächster Schritt. Im Materiallabor der Universität der Republik wurde das Fragment gründlich analysiert. Legierungszusammensetzung, Nietform, Oxidationsspuren – alles stimmte mit den Spezifikationen des Ford Trimotor aus den 1930er Jahren überein.</p>
+
+            <img src="../remache-fundido.jpg" alt="Die geschmolzene Niete" class="chapter-img">
+
+            <p>Die Ergebnisse waren nicht absolut, aber überzeugend. Die mündliche Überlieferung wurde durch physikalische Beweise gestützt. Das Stück war nicht länger nur ein Objekt des Glaubens – es wurde zu einer metallischen Stimme, die flüsterte: „Ich war dort.“</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Kapitel 6: Mauricio Umaña und die Brücke der Dokumente</h2>
+            <p>Mauricio Umaña, Ingenieur und Mitglied der Kolumbianischen Akademie für Luftfahrtgeschichte, forschte jahrzehntelang über den Unfall. In seinem Buch <em>Die Wahrheit über den Tod von Carlos Gardel</em> veröffentlichte er Dokumente, die einst von der kolumbianischen Regierung zensiert worden waren. Sein Vater, Alfonso Umaña, war Funker bei SCADTA; seine Mutter stammte aus der Familie Correa, die mit den González aus Medellín verwandt war.</p>
+            <p>Als Mauricio von dem Fragment erfuhr, nahm er Kontakt mit Custodio auf. Er bestätigte die Geschichte, verglich Dokumente, Karten, Flugzeugpläne. Seine präzise Arbeit verlieh dem Fundstück historisches und technisches Gewicht.</p>
+            <p>Dank ihm wurde die Niete mehr als nur ein Überbleibsel. Sie wurde zu einer Verbindung – zwischen verborgenen Dokumenten, familiärer Erinnerung und wissenschaftlicher Erkenntnis. Eine Brücke zwischen Medellín und Tacuarembó.</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Epilog: Die Niete, die singt</h2>
+            <p>In einer bescheidenen Vitrine, unter dem sanften Licht einer sorgfältig platzierten Lampe, ruht ein geschmolzenes Metallstück, das leicht übersehen werden könnte. Es glänzt nicht. Es hat keine markante Form. Doch seine Geschichte spricht lauter als Worte.</p>
+            <p>Diese Niete – klein und stumm – war Zeugin von Tragödie und Wiederaufbau. Sie hat Generationen überdauert. Sie hat Sammler, Ingenieure und Historiker vereint. Und nun ruht sie als Symbol einer lebendigen Geschichte.</p>
+            <p>Denn Gardel singt noch immer. In jeder Schellackplatte. In jeder Geschichte, die Hilario erzählte. In jeder Analyse, die Mauricio durchführte. Und in jedem Besucher, der beim Anblick dieses Fragments eine Gänsehaut verspürt.</p>
+            <p>Diese Niete – verbrannt, vernarbt, fast wundersam – hielt nicht nur Flugzeugteile zusammen. Sie verbindet Erinnerungen. Sie überbrückt Kontinente. Sie überspannt die Zeit. Und deshalb singt sie. Lautlos. Aber sie singt.</p>
+        </article>
+
+        <article class="chapter">
+            <h2 style="text-align: center;">Dokumentation und Vermächtnis</h2>
+            
+            <img src="../contraportada.jpg" alt="Rückseite" class="book-cover" onerror="this.style.display='none'">
+
+            <div class="download-box">
+                <h3>Offizieller technischer Bericht</h3>
+                <p>Für einen tieferen Einblick in die metallurgischen Analysen und historischen Forschungen, die die Authentizität des Stücks bestätigen, stellen wir Ihnen den vollständigen Bericht zur Verfügung.</p>
+                <br>
+                <a href="../Info_IEM__UDELAR_25256.pdf" class="download-btn" target="_blank">📄 Bericht herunterladen (PDF)</a>
+                <a href="../remache_zarzal.pdf" class="download-btn">📚 Buch herunterladen (PDF)</a>
+            </div>
+
+            <p style="text-align: center; margin-top: 40px; font-size: 0.9rem; color: #777;">
+                &copy; 2025 Ing. Mauricio Umaña Núñez. Alle Rechte vorbehalten.<br>
+                Museo FordT City, Tacuarembó.
+            </p>
+        </article>
+
+        <div class="controls">
+            <button class="control-btn" id="prevBtn" onclick="changeChapter(-1)">Zurück</button>
+            <span id="pageIndicator" style="font-style: italic; color: #777;">Titelblatt</span>
+            <button class="control-btn" id="nextBtn" onclick="changeChapter(1)">Weiter</button>
+        </div>
+
+    </main>
+
+    <script>
+        let currentChapter = 0;
+        const chapters = document.querySelectorAll('.chapter');
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const pageIndicator = document.getElementById('pageIndicator');
+        const sidebar = document.getElementById('sidebar');
+
+        function updateUI() {
+            // Alle Kapitel verstecken
+            chapters.forEach((chapter, index) => {
+                chapter.classList.remove('active');
+                if(navBtns[index]) navBtns[index].classList.remove('active');
+            });
+
+            // Aktuelles anzeigen
+            if(chapters[currentChapter]) {
+                chapters[currentChapter].classList.add('active');
+                if(navBtns[currentChapter]) navBtns[currentChapter].classList.add('active');
+            }
+
+            // Nach oben scrollen
+            document.getElementById('content-area').scrollTop = 0;
+
+            // Buttons aktualisieren
+            prevBtn.disabled = currentChapter === 0;
+            nextBtn.disabled = currentChapter === chapters.length - 1;
+
+            // Seitenanzeige aktualisieren
+            if (currentChapter === 0) {
+                pageIndicator.textContent = "Titelblatt";
+            } else if (currentChapter === chapters.length - 1) {
+                pageIndicator.textContent = "Rückseite";
+            } else {
+                pageIndicator.textContent = `Seite ${currentChapter} von ${chapters.length - 2}`;
+            }
+
+            // Mobiles Menü schließen
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+            }
+        }
+
+        function changeChapter(step) {
+            const newIndex = currentChapter + step;
+            if (newIndex >= 0 && newIndex < chapters.length) {
+                currentChapter = newIndex;
+                updateUI();
+            }
+        }
+
+        function goToChapter(index) {
+            currentChapter = index;
+            updateUI();
+        }
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+        }
+
+        function closeSidebarIfOpen() {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        }
+
+        // Initialisierung
+        updateUI();
+    </script>
 </body>
 </html>
