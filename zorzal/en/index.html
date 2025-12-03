@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Remache y el Zorzal | Ing. Mauricio Umaña</title>
+    <style>
+        :root {
+            --bg-color: #fdfbf7;
+            --text-color: #333;
+            --accent-color: #8b0000; /* Rojo oscuro elegante */
+            --sidebar-width: 260px;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- MENÚ LATERAL (SIDEBAR) --- */
+        #sidebar {
+            width: var(--sidebar-width);
+            background-color: #f4f1ea;
+            border-right: 1px solid #dcdcdc;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+            z-index: 100;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #sidebar h2 {
+            font-size: 1rem;
+            color: var(--accent-color);
+            margin-top: 0;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 12px 10px;
+            cursor: pointer;
+            font-family: 'Helvetica', sans-serif;
+            font-size: 0.95rem;
+            color: #555;
+            border-radius: 4px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nav-btn:hover { background-color: #e0ddd6; color: #000; }
+        .nav-btn.active { background-color: var(--accent-color); color: white; font-weight: bold; }
+
+        /* Botón de Menú Móvil (Hamburguesa) */
+        #mobile-menu-btn {
+            display: none; /* Oculto en PC */
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 200;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* --- ÁREA DE CONTENIDO --- */
+        #content-area {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Imágenes de Portada y Contraportada */
+        .book-cover {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+            border-radius: 2px;
+        }
+
+        /* Títulos y Texto */
+        .chapter {
+            display: none;
+            line-height: 1.8;
+            font-size: 1.15rem;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .chapter.active { display: block; }
+
+        h1.main-title { font-size: 2.5rem; text-align: center; color: var(--accent-color); margin-bottom: 0.5rem; }
+        .author { text-align: center; font-size: 1.2rem; color: #555; font-style: italic; margin-bottom: 2rem; }
+        
+        /* Lista de Capítulos en la Portada */
+        .toc-list { list-style: none; padding: 0; max-width: 500px; margin: 0 auto; }
+        .toc-list li { margin-bottom: 10px; border-bottom: 1px dotted #ccc; }
+        .toc-list button { 
+            background: none; border: none; font-size: 1.1rem; color: var(--accent-color); 
+            cursor: pointer; padding: 5px; width: 100%; text-align: left;
+        }
+        .toc-list button:hover { text-decoration: underline; }
+
+        /* Sección de Descargas */
+        .download-box {
+            background-color: #eae7de;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .download-btn {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px;
+            font-family: sans-serif;
+            font-size: 0.9rem;
+        }
+
+        /* Botones de Navegación Inferior */
+        .controls {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            align-items: center;
+        }
+        .control-btn {
+            padding: 10px 20px;
+            background-color: #444;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .control-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        /* --- RESPONSIVE (MÓVIL) --- */
+        @media (max-width: 768px) {
+            #mobile-menu-btn { display: block; } /* Mostrar botón menú */
+            
+            #sidebar {
+                position: absolute;
+                height: 100%;
+                transform: translateX(-100%); /* Ocultar sidebar a la izquierda */
+                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            }
+            
+            #sidebar.open {
+                transform: translateX(0); /* Mostrar sidebar */
+            }
+
+            #content-area {
+                padding: 60px 20px 20px 20px; /* Espacio extra arriba para el botón */
+            }
+            
+            h1.main-title { font-size: 1.8rem; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <button id="mobile-menu-btn" onclick="toggleSidebar()">☰ Índex</button>
+
+    <nav id="sidebar">
+        <h2 style="text-align: center; margin-top: 10px;">Contenido</h2>
+        <button class="nav-btn" onclick="goToChapter(0)">🏠 Portada</button>
+        <button class="nav-btn" onclick="goToChapter(1)">Prólogo</button>
+        <button class="nav-btn" onclick="goToChapter(2)">Cap 1: El Museo</button>
+        <button class="nav-btn" onclick="goToChapter(3)">Cap 2: Vuelo Final</button>
+        <button class="nav-btn" onclick="goToChapter(4)">Cap 3: Entre Cenizas</button>
+        <button class="nav-btn" onclick="goToChapter(5)">Cap 4: Hilario Pérez</button>
+        <button class="nav-btn" onclick="goToChapter(6)">Cap 5: La Evidencia</button>
+        <button class="nav-btn" onclick="goToChapter(7)">Cap 6: Mauricio Umaña</button>
+        <button class="nav-btn" onclick="goToChapter(8)">Epílogo</button>
+        <button class="nav-btn" onclick="goToChapter(9)">🏁 Contraportada</button>
+    </nav>
+
+    <main id="content-area" onclick="closeSidebarIfOpen()">
+        
+        <article class="chapter active">
+            <h1 class="main-title">El Remache y el Zorzal</h1>
+            <p class="author">Por Ing. Mauricio Umaña</p>
+            
+            <img src="portada.jpg" alt="Portada del Libro" class="book-cover" onerror="this.style.display='none'">
+            
+            <div style="margin-top: 30px;">
+                <h3 style="text-align: center; border-bottom: 2px solid #8b0000; padding-bottom: 10px;">Índice</h3>
+                <ul class="toc-list">
+                    <li><button onclick="goToChapter(1)">Prólogo: Historias que desafían el olvido</button></li>
+                    <li><button onclick="goToChapter(2)">Capítulo 1: Una vitrina en el corazón del museo</button></li>
+                    <li><button onclick="goToChapter(3)">Capítulo 2: El vuelo final</button></li>
+                    <li><button onclick="goToChapter(4)">Capítulo 3: Un fragmento entre las cenizas</button></li>
+                    <li><button onclick="goToChapter(5)">Capítulo 4: Hilario Pérez y la cadena de custodia</button></li>
+                    <li><button onclick="goToChapter(6)">Capítulo 5: La voz de la evidencia</button></li>
+                    <li><button onclick="goToChapter(7)">Capítulo 6: Mauricio Umaña y el puente documental</button></li>
+                    <li><button onclick="goToChapter(8)">Epílogo: El remache que canta</button></li>
+                    <li><button onclick="goToChapter(9)">Descargas y Documentación Técnica</button></li>
+                </ul>
+            </div>
+        </article>
+
+        <article class="chapter">
+            <h2>Prólogo</h2>
+            <p>Hay historias que se resisten al olvido. Hay objetos que se niegan a ser chatarra...</p>
+            </article>
+
+        <article class="chapter">
+            <h2>Capítulo 1: Una vitrina en el corazón del museo</h2>
+            <p>En el corazón mismo de Tacuarembó...</p>
+            </article>
+
+        <article class="chapter">
+            <h2>Capítulo 2: El vuelo final</h2>
+            <p>La mañana del 24 de junio de 1935 amaneció despejada en Medellín...</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Capítulo 3: Un fragmento entre las cenizas</h2>
+            <p>Durante años, el accidente fue materia de mitos...</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Capítulo 4: Hilario Pérez y la cadena de custodia</h2>
+            <p>Hilario no era un coleccionista común...</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Capítulo 5: La voz de la evidencia</h2>
+            <p>La ciencia fue el siguiente capítulo...</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Capítulo 6: Mauricio Umaña y el puente documental</h2>
+            <p>Mauricio Umaña, ingeniero y miembro de la Academia de Historia Aérea de Colombia...</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Epílogo: El remache que canta</h2>
+            <p>En una humilde vitrina, bajo la luz tenue...</p>
+        </article>
+
+        <article class="chapter">
+            <h2 style="text-align: center;">Documentación y Legado</h2>
+            
+            <img src="contraportada.jpg" alt="Contraportada" class="book-cover" onerror="this.style.display='none'">
+
+            <div class="download-box">
+                <h3>Informe Técnico Oficial</h3>
+                <p>Para profundizar en los análisis metalúrgicos y la investigación histórica que validan la autenticidad de la pieza, ponemos a su disposición el informe completo.</p>
+                <br>
+                <a href="informe_universidad.pdf" class="download-btn" target="_blank">📄 Descargar Informe Universidad (PDF)</a>
+                <a href="el_remache_completo.epub" class="download-btn">📚 Descargar Libro (EPUB)</a>
+            </div>
+
+            <p style="text-align: center; margin-top: 40px; font-size: 0.9rem; color: #777;">
+                &copy; 2024 Ing. Mauricio Umaña. Todos los derechos reservados.<br>
+                Museo Ford T City, Tacuarembó.
+            </p>
+        </article>
+
+        <div class="controls">
+            <button class="control-btn" id="prevBtn" onclick="changeChapter(-1)">Anterior</button>
+            <span id="pageIndicator" style="font-style: italic; color: #777;">Inicio</span>
+            <button class="control-btn" id="nextBtn" onclick="changeChapter(1)">Siguiente</button>
+        </div>
+
+    </main>
+
+    <script>
+        let currentChapter = 0;
+        const chapters = document.querySelectorAll('.chapter');
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const pageIndicator = document.getElementById('pageIndicator');
+        const sidebar = document.getElementById('sidebar');
+
+        function updateUI() {
+            // Ocultar todos los capítulos
+            chapters.forEach((chapter, index) => {
+                chapter.classList.remove('active');
+                if(navBtns[index]) navBtns[index].classList.remove('active');
+            });
+
+            // Mostrar actual
+            if(chapters[currentChapter]) {
+                chapters[currentChapter].classList.add('active');
+                if(navBtns[currentChapter]) navBtns[currentChapter].classList.add('active');
+            }
+
+            // Scroll arriba
+            document.getElementById('content-area').scrollTop = 0;
+
+            // Actualizar botones
+            prevBtn.disabled = currentChapter === 0;
+            nextBtn.disabled = currentChapter === chapters.length - 1;
+
+            // Texto del indicador
+            if (currentChapter === 0) {
+                pageIndicator.textContent = "Portada";
+            } else if (currentChapter === chapters.length - 1) {
+                pageIndicator.textContent = "Contraportada";
+            } else {
+                pageIndicator.textContent = `Pág ${currentChapter} de ${chapters.length - 2}`;
+            }
+
+            // Cerrar menú móvil si se selecciona algo
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+            }
+        }
+
+        function changeChapter(step) {
+            const newIndex = currentChapter + step;
+            if (newIndex >= 0 && newIndex < chapters.length) {
+                currentChapter = newIndex;
+                updateUI();
+            }
+        }
+
+        function goToChapter(index) {
+            currentChapter = index;
+            updateUI();
+        }
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+        }
+
+        function closeSidebarIfOpen() {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        }
+
+        // Inicializar
+        updateUI();
+    </script>
+</body>
+</html>
