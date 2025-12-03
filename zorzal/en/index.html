@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>El Remache y el Zorzal | Ing. Mauricio Umaña</title>
+    <title>The Rivet and the Zorzal | Ing. Mauricio Umaña</title>
     <style>
         :root {
             --bg-color: #fdfbf7;
             --text-color: #333;
-            --accent-color: #8b0000; /* Rojo oscuro elegante */
+            --accent-color: #8b0000; /* Elegant Dark Red */
             --sidebar-width: 260px;
         }
 
@@ -22,7 +22,7 @@
             overflow: hidden;
         }
 
-        /* --- MENÚ LATERAL (SIDEBAR) --- */
+        /* --- SIDEBAR MENU --- */
         #sidebar {
             width: var(--sidebar-width);
             background-color: #f4f1ea;
@@ -60,9 +60,9 @@
         .nav-btn:hover { background-color: #e0ddd6; color: #000; }
         .nav-btn.active { background-color: var(--accent-color); color: white; font-weight: bold; }
 
-        /* Botón de Menú Móvil (Hamburguesa) */
+        /* Mobile Menu Button (Hamburger) */
         #mobile-menu-btn {
-            display: none; /* Oculto en PC */
+            display: none; /* Hidden on PC */
             position: absolute;
             top: 15px;
             left: 15px;
@@ -77,7 +77,7 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
 
-        /* --- ÁREA DE CONTENIDO --- */
+        /* --- CONTENT AREA --- */
         #content-area {
             flex-grow: 1;
             padding: 40px;
@@ -87,7 +87,7 @@
             margin: 0 auto;
         }
 
-        /* Imágenes de Portada y Contraportada */
+        /* Images */
         .book-cover {
             width: 100%;
             max-width: 400px;
@@ -97,8 +97,24 @@
             box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
             border-radius: 2px;
         }
+        
+        .chapter-img {
+            width: 100%;
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 20px 0;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
 
-        /* Títulos y Texto */
+        .logo-img {
+            display: block;
+            margin: 0 auto 20px auto;
+            max-width: 200px;
+        }
+
+        /* Titles and Text */
         .chapter {
             display: none;
             line-height: 1.8;
@@ -110,7 +126,7 @@
         h1.main-title { font-size: 2.5rem; text-align: center; color: var(--accent-color); margin-bottom: 0.5rem; }
         .author { text-align: center; font-size: 1.2rem; color: #555; font-style: italic; margin-bottom: 2rem; }
         
-        /* Lista de Capítulos en la Portada */
+        /* TOC on Cover */
         .toc-list { list-style: none; padding: 0; max-width: 500px; margin: 0 auto; }
         .toc-list li { margin-bottom: 10px; border-bottom: 1px dotted #ccc; }
         .toc-list button { 
@@ -119,7 +135,7 @@
         }
         .toc-list button:hover { text-decoration: underline; }
 
-        /* Sección de Descargas */
+        /* Download Section */
         .download-box {
             background-color: #eae7de;
             padding: 20px;
@@ -139,7 +155,7 @@
             font-size: 0.9rem;
         }
 
-        /* Botones de Navegación Inferior */
+        /* Bottom Navigation Controls */
         .controls {
             margin-top: 50px;
             display: flex;
@@ -158,23 +174,23 @@
         }
         .control-btn:disabled { background-color: #ccc; cursor: not-allowed; }
 
-        /* --- RESPONSIVE (MÓVIL) --- */
+        /* --- RESPONSIVE (MOBILE) --- */
         @media (max-width: 768px) {
-            #mobile-menu-btn { display: block; } /* Mostrar botón menú */
+            #mobile-menu-btn { display: block; } 
             
             #sidebar {
                 position: absolute;
                 height: 100%;
-                transform: translateX(-100%); /* Ocultar sidebar a la izquierda */
+                transform: translateX(-100%); 
                 box-shadow: 2px 0 10px rgba(0,0,0,0.1);
             }
             
             #sidebar.open {
-                transform: translateX(0); /* Mostrar sidebar */
+                transform: translateX(0); 
             }
 
             #content-area {
-                padding: 60px 20px 20px 20px; /* Espacio extra arriba para el botón */
+                padding: 60px 20px 20px 20px; 
             }
             
             h1.main-title { font-size: 1.8rem; }
@@ -188,109 +204,140 @@
 </head>
 <body>
 
-    <button id="mobile-menu-btn" onclick="toggleSidebar()">☰ Índex</button>
+    <button id="mobile-menu-btn" onclick="toggleSidebar()">☰ Index</button>
 
     <nav id="sidebar">
-        <h2 style="text-align: center; margin-top: 10px;">Contenido</h2>
-        <button class="nav-btn" onclick="goToChapter(0)">🏠 Portada</button>
-        <button class="nav-btn" onclick="goToChapter(1)">Prólogo</button>
-        <button class="nav-btn" onclick="goToChapter(2)">Cap 1: El Museo</button>
-        <button class="nav-btn" onclick="goToChapter(3)">Cap 2: Vuelo Final</button>
-        <button class="nav-btn" onclick="goToChapter(4)">Cap 3: Entre Cenizas</button>
-        <button class="nav-btn" onclick="goToChapter(5)">Cap 4: Hilario Pérez</button>
-        <button class="nav-btn" onclick="goToChapter(6)">Cap 5: La Evidencia</button>
-        <button class="nav-btn" onclick="goToChapter(7)">Cap 6: Mauricio Umaña</button>
-        <button class="nav-btn" onclick="goToChapter(8)">Epílogo</button>
-        <button class="nav-btn" onclick="goToChapter(9)">🏁 Contraportada</button>
+        <h2 style="text-align: center; margin-top: 10px;">Contents</h2>
+        <button class="nav-btn" onclick="goToChapter(0)">🏠 Cover</button>
+        <button class="nav-btn" onclick="goToChapter(1)">Prologue</button>
+        <button class="nav-btn" onclick="goToChapter(2)">Ch 1: The Museum</button>
+        <button class="nav-btn" onclick="goToChapter(3)">Ch 2: Final Flight</button>
+        <button class="nav-btn" onclick="goToChapter(4)">Ch 3: Among Ashes</button>
+        <button class="nav-btn" onclick="goToChapter(5)">Ch 4: Hilario Pérez</button>
+        <button class="nav-btn" onclick="goToChapter(6)">Ch 5: The Evidence</button>
+        <button class="nav-btn" onclick="goToChapter(7)">Ch 6: Mauricio Umaña</button>
+        <button class="nav-btn" onclick="goToChapter(8)">Epilogue</button>
+        <button class="nav-btn" onclick="goToChapter(9)">🏁 Legacy & Docs</button>
     </nav>
 
     <main id="content-area" onclick="closeSidebarIfOpen()">
         
         <article class="chapter active">
-            <h1 class="main-title">El Remache y el Zorzal</h1>
-            <p class="author">Por Ing. Mauricio Umaña</p>
+            <img src="../logo-fordTCity-HotelMuseo.png" alt="Ford T City Logo" class="logo-img">
+            <h1 class="main-title">The Rivet and the Zorzal</h1>
+            <p class="author">By Ing. Mauricio Umaña</p>
             
-            <img src="portada.jpg" alt="Portada del Libro" class="book-cover" onerror="this.style.display='none'">
+            <img src="../portada.jpg" alt="Book Cover" class="book-cover" onerror="this.src='../hotel-museo-fordt-city.jpg'">
             
             <div style="margin-top: 30px;">
-                <h3 style="text-align: center; border-bottom: 2px solid #8b0000; padding-bottom: 10px;">Índice</h3>
+                <h3 style="text-align: center; border-bottom: 2px solid #8b0000; padding-bottom: 10px;">Table of Contents</h3>
                 <ul class="toc-list">
-                    <li><button onclick="goToChapter(1)">Prólogo: Historias que desafían el olvido</button></li>
-                    <li><button onclick="goToChapter(2)">Capítulo 1: Una vitrina en el corazón del museo</button></li>
-                    <li><button onclick="goToChapter(3)">Capítulo 2: El vuelo final</button></li>
-                    <li><button onclick="goToChapter(4)">Capítulo 3: Un fragmento entre las cenizas</button></li>
-                    <li><button onclick="goToChapter(5)">Capítulo 4: Hilario Pérez y la cadena de custodia</button></li>
-                    <li><button onclick="goToChapter(6)">Capítulo 5: La voz de la evidencia</button></li>
-                    <li><button onclick="goToChapter(7)">Capítulo 6: Mauricio Umaña y el puente documental</button></li>
-                    <li><button onclick="goToChapter(8)">Epílogo: El remache que canta</button></li>
-                    <li><button onclick="goToChapter(9)">Descargas y Documentación Técnica</button></li>
+                    <li><button onclick="goToChapter(1)">Prologue: Stories that defy oblivion</button></li>
+                    <li><button onclick="goToChapter(2)">Chapter 1: A Display Case in the Heart of the Museum</button></li>
+                    <li><button onclick="goToChapter(3)">Chapter 2: The Final Flight</button></li>
+                    <li><button onclick="goToChapter(4)">Chapter 3: A Fragment Among the Ashes</button></li>
+                    <li><button onclick="goToChapter(5)">Chapter 4: Hilario Pérez and the Memory Trail</button></li>
+                    <li><button onclick="goToChapter(6)">Chapter 5: The Voice of Evidence</button></li>
+                    <li><button onclick="goToChapter(7)">Chapter 6: Mauricio Umaña and the Documentary Bridge</button></li>
+                    <li><button onclick="goToChapter(8)">Epilogue: The Rivet That Sings</button></li>
+                    <li><button onclick="goToChapter(9)">Downloads and Technical Documentation</button></li>
                 </ul>
             </div>
         </article>
 
         <article class="chapter">
-            <h2>Prólogo</h2>
-            <p>Hay historias que se resisten al olvido. Hay objetos que se niegan a ser chatarra...</p>
-            </article>
-
-        <article class="chapter">
-            <h2>Capítulo 1: Una vitrina en el corazón del museo</h2>
-            <p>En el corazón mismo de Tacuarembó...</p>
-            </article>
-
-        <article class="chapter">
-            <h2>Capítulo 2: El vuelo final</h2>
-            <p>La mañana del 24 de junio de 1935 amaneció despejada en Medellín...</p>
+            <h2>Prologue</h2>
+            <p>Some stories defy oblivion. Some objects refuse to become scrap. This is one of them: the tale of a melted fragment from a doomed aircraft that crossed decades and borders to rest—silently and solemnly—inside a display case at the Ford T City Museum in Tacuarembó.</p>
+            <p>It is no ordinary artifact. It’s a piece charged with history, tragedy, longing, and mystery. As if that piece of metal still echoed the tango's melody and the roar of the aircraft that once held it. As if, in its metallic silence, it preserved Gardel’s voice.</p>
         </article>
 
         <article class="chapter">
-            <h2>Capítulo 3: Un fragmento entre las cenizas</h2>
-            <p>Durante años, el accidente fue materia de mitos...</p>
-        </article>
-
-        <article class="chapter">
-            <h2>Capítulo 4: Hilario Pérez y la cadena de custodia</h2>
-            <p>Hilario no era un coleccionista común...</p>
-        </article>
-
-        <article class="chapter">
-            <h2>Capítulo 5: La voz de la evidencia</h2>
-            <p>La ciencia fue el siguiente capítulo...</p>
-        </article>
-
-        <article class="chapter">
-            <h2>Capítulo 6: Mauricio Umaña y el puente documental</h2>
-            <p>Mauricio Umaña, ingeniero y miembro de la Academia de Historia Aérea de Colombia...</p>
-        </article>
-
-        <article class="chapter">
-            <h2>Epílogo: El remache que canta</h2>
-            <p>En una humilde vitrina, bajo la luz tenue...</p>
-        </article>
-
-        <article class="chapter">
-            <h2 style="text-align: center;">Documentación y Legado</h2>
+            <h2>Chapter 1: A Display Case in the Heart of the Museum</h2>
+            <p>In the very heart of Tacuarembó—a city steeped in history and tradition—stands a heritage treasure suspended in time: the Ford T City Hotel. It’s not just a place to stay, but a true sanctuary of mechanical relics and musical memories. Walking through its doors, one doesn’t simply enter a building—one steps into an experience.</p>
             
-            <img src="contraportada.jpg" alt="Contraportada" class="book-cover" onerror="this.style.display='none'">
+            <p>Visitors are greeted by an atmosphere scented with aged oil, polished wood, and leather worn by time. Inside its broad halls, flanked by gleaming glass displays, rests a remarkable collection of Ford Model T cars—pioneers of 20th-century mobility—painstakingly restored by the hotel’s owner, Eduardo Custodio.</p>
+
+            <img src="../ford-model-t.jpg" alt="Ford Model T Collection at the Museum" class="chapter-img">
+
+            <p>But it’s not all cars. In a quiet corner stands an enviable collection of original Carlos Gardel records. The weathered album covers whisper melodies to those who draw near. Tangos that still beat, that still ache.</p>
+            <p>However, there is one display case that draws particular attention. It doesn't shine like the others, nor flaunt the chrome perfection of a vintage Ford. Inside sits a small, dark, unassuming object: a chunk of melted metal, no bigger than a hand. A small plaque beside it reads, “Fragment of the Ford Trimotor from Gardel’s crash, Medellín, 1935”.</p>
+            <p>Can something so small hold so much history? Can a shapeless, functionless fragment speak to us of a myth, a tragedy, a whole nation? This is the story of how that fragment traveled across time and a continent to find shelter in Tacuarembó. A story woven from voices, documents, serendipity, and passion.</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Chapter 2: The Final Flight</h2>
+            <p>The morning of June 24, 1935, dawned clear over Medellín. Sunlight lit up the green hills surrounding the modest but lively Olaya Herrera airfield. It seemed like an ordinary day, but inside the airport, anticipation hung thick in the air. Carlos Gardel—the continental idol, the “Zorzal Criollo”—was in town, midway through a triumphant Latin American tour. His mere presence summoned crowds.</p>
+            
+            <img src="../hotel-museo-fordt-city.jpg" alt="Model of the Ford Trimotor and Gardel Portrait" class="chapter-img">
+
+            <p>Gardel had conquered theaters, phonographs, and the silver screen. He was a living legend. That day, he would board a Ford Trimotor—one of the most advanced aircraft of its time—along with his guitarists, colleagues, and show business partners.</p>
+            <p>At 2:53 p.m., the Trimotor taxied down the runway. Mere meters away, another SCADTA aircraft was preparing for takeoff. For reasons never fully clarified, both planes ended up on the same stretch of tarmac. The outcome was catastrophic: collision, fire, devastation. The voice of the Americas had been silenced in the flames.</p>
+            <p>The news spread swiftly. The tragedy shook an entire continent. Gardel—the man who sang like no other—was gone. And with him, a piece of Latin America's soul. But amid the smoldering wreckage, something endured…</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Chapter 3: A Fragment Among the Ashes</h2>
+            <p>For years, the crash became the subject of myths, speculation, and tributes. But among the scorched remains, a metal fragment survived—a melted, compact piece with irregular edges and a rivet still attached.</p>
+
+            <img src="../fragmento-fundido.jpg" alt="Melted Aluminum Fragment" class="chapter-img">
+
+            <p>Hilario Pérez, a guitarist and collector, received the piece from a retired sailor, distantly related to the González family of Medellín. Hilario preserved it with quiet reverence until, in conversation with Eduardo Custodio, he realized its rightful place was the museum. Eager to verify its origins, Custodio delivered it to the Faculty of Engineering for analysis.</p>
+            <p>The tests confirmed it was a metal alloy consistent with those used in Ford Trimotors from the 1930s. The rivet matched those used in detachable fuselages. The silent fragment had begun to speak.</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Chapter 4: Hilario Pérez and the Memory Trail</h2>
+            <p>Hilario was no ordinary collector. He was a guardian of memory. His home was filled with shellac records, photos, and sheet music. When he received the piece, he understood it held more than just metal—it held time itself.</p>
+            <p>Years later, his meeting with Custodio forged a bond of trust. Hilario donated the piece, along with part of his collection, to the museum—on the condition that its story be preserved. And so, the melted rivet found a new destiny: a tangible witness to the past in the city of Gardel’s birth.</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Chapter 5: The Voice of Evidence</h2>
+            <p>Science was the next chapter. At the University of the Republic’s materials lab, the fragment underwent meticulous testing. Alloy composition, rivet shape, signs of oxidation—all matched the specifications of the 1930s Ford Trimotor.</p>
+            
+            <img src="../remache-fundido.jpg" alt="The Rivet fused to the metal" class="chapter-img">
+
+            <p>The results weren’t absolute, but they were compelling. Oral history met physical evidence. The piece was no longer just an article of faith—it became a metallic voice whispering, “I was there”.</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Chapter 6: Mauricio Umaña and the Documentary Bridge</h2>
+            <p>Mauricio Umaña, an engineer and member of the Colombian Academy of Aviation History, had spent decades researching the crash. His book, <em>The Truth About Gardel’s Death</em>, revealed documents once censored by the Colombian government. His father, Alfonso Umaña, worked as a SCADTA radio operator. His maternal relatives—the Correas—were related to the González family of Medellín.</p>
+            <p>When Mauricio learned about the museum piece, he contacted Custodio. He verified the story, cross-referenced documents, maps, and aircraft schematics. His rigorous work added historical and technical weight to the artifact’s likely authenticity.</p>
+            <p>Thanks to him, the rivet became more than a remnant. It became a link between hidden documents, family memory, and scientific findings. A bridge between Medellín and Tacuarembó.</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Epilogue: The Rivet That Sings</h2>
+            <p>In a humble display case, under the soft glow of a carefully placed lamp, rests a melted piece of metal that could easily go unnoticed. It doesn’t shine. It lacks a distinctive form. But its story speaks louder than words.</p>
+            <p>That rivet—small and silent—has witnessed tragedy and reconstruction. It has crossed generations. It has united collectors, engineers, and historians. And now, it rests as a symbol of a living story.</p>
+            <p>Because Gardel still sings. In every shellac record. In every story Hilario shared. In every analysis Mauricio pursued. And in every visitor who, upon seeing that fragment, feels an inexplicable shiver.</p>
+            <p>That rivet—burned, scarred, nearly miraculous—didn’t just hold aircraft panels together. It binds memories. It spans continents. It bridges time. And that is why it sings. Soundlessly. But it sings.</p>
+        </article>
+
+        <article class="chapter">
+            <h2 style="text-align: center;">Documentation and Legacy</h2>
+            
+            <img src="../contraportada.jpg" alt="Back Cover" class="book-cover" onerror="this.style.display='none'">
 
             <div class="download-box">
-                <h3>Informe Técnico Oficial</h3>
-                <p>Para profundizar en los análisis metalúrgicos y la investigación histórica que validan la autenticidad de la pieza, ponemos a su disposición el informe completo.</p>
+                <h3>Official Technical Report</h3>
+                <p>To delve deeper into the metallurgical analysis and historical research that validates the authenticity of the piece, we provide the full report below.</p>
                 <br>
-                <a href="informe_universidad.pdf" class="download-btn" target="_blank">📄 Descargar Informe Universidad (PDF)</a>
-                <a href="el_remache_completo.epub" class="download-btn">📚 Descargar Libro (EPUB)</a>
+                <a href="../Info_IEM__UDELAR_25256.pdf" class="download-btn" target="_blank">📄 Download University Report (PDF)</a>
+                <a href="../remache_zarzal.pdf" class="download-btn">📚 Download Book (PDF)</a>
             </div>
 
             <p style="text-align: center; margin-top: 40px; font-size: 0.9rem; color: #777;">
-                &copy; 2024 Ing. Mauricio Umaña. Todos los derechos reservados.<br>
-                Museo Ford T City, Tacuarembó.
+                &copy; 2025 Ing. Mauricio Umaña Núñez. All Rights Reserved.<br>
+                Ford T City Museum, Tacuarembó.
             </p>
         </article>
 
         <div class="controls">
-            <button class="control-btn" id="prevBtn" onclick="changeChapter(-1)">Anterior</button>
-            <span id="pageIndicator" style="font-style: italic; color: #777;">Inicio</span>
-            <button class="control-btn" id="nextBtn" onclick="changeChapter(1)">Siguiente</button>
+            <button class="control-btn" id="prevBtn" onclick="changeChapter(-1)">Previous</button>
+            <span id="pageIndicator" style="font-style: italic; color: #777;">Cover</span>
+            <button class="control-btn" id="nextBtn" onclick="changeChapter(1)">Next</button>
         </div>
 
     </main>
@@ -305,35 +352,35 @@
         const sidebar = document.getElementById('sidebar');
 
         function updateUI() {
-            // Ocultar todos los capítulos
+            // Hide all chapters
             chapters.forEach((chapter, index) => {
                 chapter.classList.remove('active');
                 if(navBtns[index]) navBtns[index].classList.remove('active');
             });
 
-            // Mostrar actual
+            // Show current chapter
             if(chapters[currentChapter]) {
                 chapters[currentChapter].classList.add('active');
                 if(navBtns[currentChapter]) navBtns[currentChapter].classList.add('active');
             }
 
-            // Scroll arriba
+            // Scroll to top
             document.getElementById('content-area').scrollTop = 0;
 
-            // Actualizar botones
+            // Update Buttons
             prevBtn.disabled = currentChapter === 0;
             nextBtn.disabled = currentChapter === chapters.length - 1;
 
-            // Texto del indicador
+            // Update Page Indicator
             if (currentChapter === 0) {
-                pageIndicator.textContent = "Portada";
+                pageIndicator.textContent = "Cover";
             } else if (currentChapter === chapters.length - 1) {
-                pageIndicator.textContent = "Contraportada";
+                pageIndicator.textContent = "Back Cover";
             } else {
-                pageIndicator.textContent = `Pág ${currentChapter} de ${chapters.length - 2}`;
+                pageIndicator.textContent = `Page ${currentChapter} of ${chapters.length - 2}`;
             }
 
-            // Cerrar menú móvil si se selecciona algo
+            // Close mobile sidebar if open
             if (window.innerWidth <= 768) {
                 sidebar.classList.remove('open');
             }
@@ -362,7 +409,7 @@
             }
         }
 
-        // Inicializar
+        // Initialize
         updateUI();
     </script>
 </body>
