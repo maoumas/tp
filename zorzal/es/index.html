@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Remache y el Zorzal | Ing. Mauricio Umaña Núñez</title>
+    <style>
+        :root {
+            --bg-color: #fdfbf7;
+            --text-color: #333;
+            --accent-color: #8b0000; /* Rojo oscuro elegante */
+            --sidebar-width: 260px;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- MENÚ LATERAL (SIDEBAR) --- */
+        #sidebar {
+            width: var(--sidebar-width);
+            background-color: #f4f1ea;
+            border-right: 1px solid #dcdcdc;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            position: relative;
+            z-index: 100;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        #sidebar h2 {
+            font-size: 1rem;
+            color: var(--accent-color);
+            margin-top: 0;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            text-align: left;
+            padding: 12px 10px;
+            cursor: pointer;
+            font-family: 'Helvetica', sans-serif;
+            font-size: 0.95rem;
+            color: #555;
+            border-radius: 4px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nav-btn:hover { background-color: #e0ddd6; color: #000; }
+        .nav-btn.active { background-color: var(--accent-color); color: white; font-weight: bold; }
+
+        /* Botón de Menú Móvil (Hamburguesa) */
+        #mobile-menu-btn {
+            display: none; /* Oculto en PC */
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            z-index: 200;
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        /* --- ÁREA DE CONTENIDO --- */
+        #content-area {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+            position: relative;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Imágenes de Portada y Contraportada */
+        .book-cover {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            display: block;
+            margin: 20px auto;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+            border-radius: 2px;
+        }
+
+        /* Títulos y Texto */
+        .chapter {
+            display: none;
+            line-height: 1.8;
+            font-size: 1.15rem;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .chapter.active { display: block; }
+
+        h1.main-title { font-size: 2.5rem; text-align: center; color: var(--accent-color); margin-bottom: 0.5rem; }
+        .author { text-align: center; font-size: 1.2rem; color: #555; font-style: italic; margin-bottom: 2rem; }
+        
+        /* Lista de Capítulos en la Portada */
+        .toc-list { list-style: none; padding: 0; max-width: 500px; margin: 0 auto; }
+        .toc-list li { margin-bottom: 10px; border-bottom: 1px dotted #ccc; }
+        .toc-list button { 
+            background: none; border: none; font-size: 1.1rem; color: var(--accent-color); 
+            cursor: pointer; padding: 5px; width: 100%; text-align: left;
+        }
+        .toc-list button:hover { text-decoration: underline; }
+
+        /* Sección de Descargas */
+        .download-box {
+            background-color: #eae7de;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        .download-btn {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 10px;
+            font-family: sans-serif;
+            font-size: 0.9rem;
+        }
+
+        /* Botones de Navegación Inferior */
+        .controls {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            align-items: center;
+        }
+        .control-btn {
+            padding: 10px 20px;
+            background-color: #444;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .control-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        /* --- RESPONSIVE (MÓVIL) --- */
+        @media (max-width: 768px) {
+            #mobile-menu-btn { display: block; } /* Mostrar botón menú */
+            
+            #sidebar {
+                position: absolute;
+                height: 100%;
+                transform: translateX(-100%); /* Ocultar sidebar a la izquierda */
+                box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            }
+            
+            #sidebar.open {
+                transform: translateX(0); /* Mostrar sidebar */
+            }
+
+            #content-area {
+                padding: 60px 20px 20px 20px; /* Espacio extra arriba para el botón */
+            }
+            
+            h1.main-title { font-size: 1.8rem; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <button id="mobile-menu-btn" onclick="toggleSidebar()">☰ Índex</button>
+
+    <nav id="sidebar">
+        <h2 style="text-align: center; margin-top: 10px;">Contenido</h2>
+        <button class="nav-btn" onclick="goToChapter(0)">🏠 Portada</button>
+        <button class="nav-btn" onclick="goToChapter(1)">Prólogo</button>
+        <button class="nav-btn" onclick="goToChapter(2)">Cap 1: El Museo</button>
+        <button class="nav-btn" onclick="goToChapter(3)">Cap 2: Vuelo Final</button>
+        <button class="nav-btn" onclick="goToChapter(4)">Cap 3: Entre Cenizas</button>
+        <button class="nav-btn" onclick="goToChapter(5)">Cap 4: Hilario Pérez</button>
+        <button class="nav-btn" onclick="goToChapter(6)">Cap 5: La Evidencia</button>
+        <button class="nav-btn" onclick="goToChapter(7)">Cap 6: Mauricio Umaña</button>
+        <button class="nav-btn" onclick="goToChapter(8)">Epílogo</button>
+        <button class="nav-btn" onclick="goToChapter(9)">🏁 Contraportada</button>
+    </nav>
+
+    <main id="content-area" onclick="closeSidebarIfOpen()">
+        
+        <article class="chapter active">
+            <h1 class="main-title">El Remache y el Zorzal</h1>
+            <p class="author">Por Ing. Mauricio Umaña</p>
+            
+            <img src="portada.jpg" alt="Portada del Libro" class="book-cover" onerror="this.style.display='none'">
+            
+            <div style="margin-top: 30px;">
+                <h3 style="text-align: center; border-bottom: 2px solid #8b0000; padding-bottom: 10px;">Índice</h3>
+                <ul class="toc-list">
+                    <li><button onclick="goToChapter(1)">Prólogo: Historias que desafían el olvido</button></li>
+                    <li><button onclick="goToChapter(2)">Capítulo 1: Una vitrina en el corazón del museo</button></li>
+                    <li><button onclick="goToChapter(3)">Capítulo 2: El vuelo final</button></li>
+                    <li><button onclick="goToChapter(4)">Capítulo 3: Un fragmento entre las cenizas</button></li>
+                    <li><button onclick="goToChapter(5)">Capítulo 4: Hilario Pérez y la cadena de custodia</button></li>
+                    <li><button onclick="goToChapter(6)">Capítulo 5: La voz de la evidencia</button></li>
+                    <li><button onclick="goToChapter(7)">Capítulo 6: Mauricio Umaña y el puente documental</button></li>
+                    <li><button onclick="goToChapter(8)">Epílogo: El remache que canta</button></li>
+                    <li><button onclick="goToChapter(9)">Descargas y Documentación Técnica</button></li>
+                </ul>
+            </div>
+        </article>
+
+        <article class="chapter">
+            <h2>Prólogo</h2>
+            <p>Hay historias que desafían el olvido. Objetos que no se resignan a ser chatarra. Esta es una de ellas: la de un fragmento fundido de un avión siniestrado que cruzó décadas y fronteras hasta descansar, silencioso, en una vitrina del Museo Ford T City de Tacuarembó.</p> 
+			<p>No es un objeto cualquiera: es una pieza cargada de historia, de tragedia, de nostalgia y de preguntas. Como si aquel pedazo de metal aún llevara consigo el eco del tango y el estruendo del avión que lo albergó. Como si, en sus silencios metálicos, guardara la voz de Gardel.</p>
+            </article>
+
+        <article class="chapter">
+            <h2>Capítulo 1: Una vitrina en el corazón del museo</h2>
+            <p>En pleno corazón de Tacuarembó, ciudad que respira historia y tradición, se alza una joya patrimonial que parece suspendida en el tiempo: el Hotel Ford T City. No es solo un hospedaje, sino un auténtico santuario de reliquias mecánicas y recuerdos musicales. Al cruzar sus puertas, uno no ingresa únicamente a un edificio, sino a una experiencia. Allí, los visitantes son recibidos por una atmósfera impregnada del aroma del aceite antiguo, de la madera barnizada y del cuero envejecido por las décadas.</p> 
+
+			<p>En sus amplios salones, flanqueados por vitrinas relucientes, reposan con dignidad una impresionante colección de automóviles Ford T —aquellos pioneros del siglo XX que democratizaron la movilidad— meticulosamente restaurados por su dueño, Eduardo Custodio. Pero no solo hay autos. En otro rincón, como si velara en silencio, se despliega una colección envidiable de discos originales de Carlos Gardel. Aquellas carátulas desgastadas por los años parecen susurrar melodías a quienes se acercan. Tangos que siguen latiendo, que siguen doliendo.</p>
+
+			<p>Sin embargo, hay una vitrina que capta una atención especial. No brilla como las demás, ni exhibe la perfección cromada de un Ford. Contiene una pieza pequeña, modesta, oscura: un trozo de metal fundido. Apenas del tamaño de una mano. A su lado, un cartel discreto reza: “Fragmento del Ford Trimotor del accidente de Gardel, Medellín, 1935”.</p>
+
+			<p>¿Puede un objeto tan pequeño contener tanta historia? ¿Puede una pieza sin forma ni función hablarnos de un mito, de una tragedia, de un país entero? Esta es la historia de cómo ese fragmento cruzó el tiempo y el continente, para encontrar refugio en Tacuarembó. Una historia tejida con voces, documentos, casualidades y pasiones. Una historia que, como un tango bien interpretado, nos lleva desde lo más íntimo hasta lo universal.</p>
+            </article>
+
+        <article class="chapter">
+            <h2>Capítulo 2: El vuelo final</h2>
+            <p>La mañana del 24 de junio de 1935 amaneció despejada sobre Medellín. El sol iluminaba las colinas verdes que rodeaban el pequeño pero bullicioso aeródromo Olaya Herrera. Era un día aparentemente común, pero los pasillos del aeropuerto respiraban expectación. Carlos Gardel, el ídolo continental, el “Zorzal Criollo”, estaba de paso por la ciudad, en plena gira triunfal por América Latina. Su sola presencia era suficiente para que se reunieran multitudes. Había gente en los alrededores con cámaras, flores, pañuelos; otros simplemente esperaban verlo embarcar, aunque fuera de lejos.</p>
+ 
+ 			<p>Gardel había conquistado los teatros, los discos, el cine. Era una leyenda viva, y cada paso que daba era seguido con fervor casi religioso. Aquel día abordaría un avión Ford Trimotor, uno de los modelos más avanzados de su tiempo, aunque ya mostraba señales de desgaste. Su destino era Cali, para continuar con la gira. Junto a él viajaban sus guitarristas, sus colaboradores más cercanos y algunos empresarios del espectáculo.</p>
+
+			<p>A las 14:53, el Trimotor rodó por la pista. A pocos metros, otro avión —también un Ford Trimotor, de la SCADTA— se disponía a despegar. Por razones nunca completamente aclaradas, ambos aparatos coincidieron en la pista. El resultado fue catastrófico. El avión de Gardel colisionó con el otro en pleno despegue, y en cuestión de segundos, el fuego lo consumió todo. Las llamas, voraces, convirtieron el campo de vuelo en un infierno.</p>
+
+			<p>Las noticias no tardaron en propagarse. Radio, telegramas, prensa escrita: el mundo entero supo, en apenas horas, que Carlos Gardel había muerto. Que su voz, tan viva hasta el día anterior, se había apagado para siempre en una pista colombiana. Pero para millones de personas, Gardel no murió ese día. Se convirtió en mito, en leyenda.</p>
+
+			<p>Los detalles del accidente se diluyeron con el tiempo. Hubo investigaciones, versiones encontradas, documentos ocultos, y hasta sospechas de sabotaje. Pero más allá del misterio técnico, lo cierto es que aquella tarde de junio marcó una herida imborrable en el corazón cultural de América Latina. Medellín cambió. La aviación cambió. El tango cambió.</p>
+
+			<p>En medio de los escombros, entre metales calcinados y documentos chamuscados, quedaron fragmentos dispersos de aquel trágico vuelo. Uno de ellos —inimaginablemente— sobrevivió, fue recogido, preservado, y mucho tiempo después viajaría miles de kilómetros para convertirse en testigo silencioso de una historia que no termina de contarse.</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Capítulo 3: Un fragmento entre las cenizas</h2>
+            <p>Durante años, la historia del accidente de Gardel se convirtió en materia de mitos, especulaciones y homenajes. Pero nadie imaginaba que entre los residuos carbonizados del siniestro y el silencio posterior, aún quedaban vestigios físicos que esperaban ser redescubiertos. Uno de esos vestigios, quizás el más improbable, fue un fragmento de metal: una pieza fundida, compacta, con formas irregulares y un remache aún adherido a su costado. Una rareza. Un susurro de otro tiempo.</p>
+
+			<p>La historia de cómo esta pieza logró sobrevivir al incendio y a las décadas posteriores parece escrita por el azar o por la persistencia del recuerdo. Según lo relatado por el coleccionista Hilario Pérez, fue un marino colombiano, miembro lejano de la familia González, quien la rescató del campo calcinado cuando se retiraban los restos del avión del lugar. El marino no sabía entonces que aquel trozo metálico que guardaba como recuerdo iba a formar parte, con el tiempo, de una narrativa mayor, una historia de reconstrucción emocional y cultural.</p>
+
+			<p>Años después, Hilario —guitarrista, amante del tango, admirador de Gardel y custodio de archivos olvidados— recibió esa pieza como obsequio o como herencia de memoria. Su intuición fue inmediata: no era una simple chatarra. La conservó con respeto, casi con devoción, y la mantuvo entre partituras, discos y fotografías. Fue recién décadas más tarde, cuando conversó con Eduardo Custodio, que la posibilidad de exponerla al mundo cobró sentido.</p>
+
+			<p>Custodio, a su vez, comprendió de inmediato el peso simbólico de la pieza. Pero no se conformó con la historia oral. Quiso verificar, confirmar, explorar con ojos científicos lo que el corazón ya creía. Así, la pieza fue llevada al laboratorio de ensayos de materiales de la Facultad de Ingeniería de la Universidad de la República. Allí, bajo microscopios y espectrómetros, comenzó otra fase de la historia: la del análisis técnico, la del lenguaje del metal y de los remaches.</p>
+
+			<p>El resultado fue sorprendente. El fragmento presentaba características propias del duraluminio empleado en aeronaves de los años treinta. La composición coincidía, en un porcentaje alto, con la aleación empleada en los Ford Trimotor. El remache, además, tenía una geometría singular: era del tipo usado en uniones de fácil desmontaje, exactamente como los que unían ciertas partes del fuselaje de los aviones de esa época.</p>
+
+			<p>La ciencia no podía certificar con certeza absoluta que ese fragmento pertenecía al avión de Gardel. Pero todos los indicios —materiales, técnicos, históricos y familiares— apuntaban en una misma dirección. Lo más asombroso era que, de entre las llamas y el tiempo, aquella pequeña pieza no solo había sobrevivido, sino que había viajado, sido guardada, conservada, y finalmente honrada.</p>
+
+			<p>Un fragmento entre las cenizas. Una voz sin sonido. Un testigo metálico que, desde una vitrina en Tacuarembó, sigue hablando con quienes lo escuchan con atención.</p>		
+        </article>
+
+        <article class="chapter">
+            <h2>Capítulo 4: Hilario Pérez y la cadena de custodia</h2>
+            <p>Hablar de Hilario Pérez es hablar de un personaje que parece haber sido extraído de un bolero antiguo o de una película en blanco y negro. Nacido en los años cuarenta en Montevideo, Hilario creció en un hogar donde la radio nunca dejaba de sonar y donde Gardel no era solo una voz del pasado, sino una presencia cotidiana. Su padre, guitarrista aficionado, solía decir que cada tango bien tocado era un modo de mantener vivos los recuerdos, y Hilario hizo de esa enseñanza un credo.</p>
+
+			<p>Desde joven mostró una sensibilidad especial por la música. Aprendió a tocar la guitarra escuchando viejos vinilos de Gardel, Magaldi y Corsini. Mientras sus amigos se interesaban por el fútbol o las carreras, él coleccionaba discos y fotografías de artistas de la época dorada del tango. Pronto su habitación se convirtió en un pequeño archivo personal, con estanterías cargadas de partituras, grabaciones en 78 RPM y libros de historia musical.</p>
+
+			<p>Hilario no era un simple coleccionista. Tenía algo más: una vocación de memoria. Entendía que cada objeto, cada canción, cada documento era un puente hacia el pasado y que custodiarlo era una forma de hacer justicia. Esa pasión lo llevó a conocer a músicos, investigadores y herederos de una época que se desdibujaba lentamente. Su casa, con el tiempo, se convirtió en un punto de encuentro para melómanos, historiadores y curiosos. Allí se debatía sobre arreglos musicales, fechas de grabación, estilos vocales. Pero también se contaban historias, algunas casi olvidadas, otras que aún esperaban salir a la luz.</p>
+
+			<p>Fue en ese entorno donde recibió, de manos de un conocido marino retirado, la extraña pieza metálica que, según se decía, provenía de los restos del avión de Gardel. Al principio, Hilario no supo qué hacer con ella. No era un disco, ni una foto, ni un recorte de diario. Era solo un fragmento chamuscado, irregular, con un remache extraño y el peso de algo que había pasado por el fuego. Pero su instinto le dijo que había algo más allí. Algo digno de ser cuidado.</p>
+
+			<p>Pasaron los años y la pieza permaneció guardada en un cofre de madera, junto a otros recuerdos personales. No era una pieza de exhibición, sino un secreto compartido solo con quienes sabían escuchar más allá de las palabras. Fue recién en los años 2000, cuando Hilario conoció a Eduardo Custodio durante un encuentro de coleccionistas, que la historia del fragmento volvió a respirar.</p>
+
+			<p>Custodio quedó fascinado. No solo por la pieza, sino también por el relato de Hilario, su pasión por los detalles y su respeto por la memoria. Entre ellos nació una amistad basada en la autenticidad de los recuerdos. No tardaron en concretar un acuerdo: Hilario le cedería la pieza y parte de su colección de discos de Gardel al Hotel Museo, con la condición de que fueran cuidados y compartidos con el público. Así, el fragmento encontró un nuevo hogar, y su historia, un nuevo capítulo.</p>
+
+			<p>Gracias a Hilario Pérez, el remache que había cruzado el fuego y las décadas dejó de ser un objeto anónimo para convertirse en un testimonio. Porque la memoria no siempre se encuentra en los libros o en los archivos oficiales. A veces vive en los corazones de quienes se niegan a olvidar.</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Capítulo 5: La voz de la evidencia</h2>
+            <p>Una historia conmovedora puede emocionar. Un objeto antiguo puede despertar nostalgia. Pero cuando entra en juego la ciencia, la historia comienza a cimentarse en hechos verificables. Fue ese deseo de certeza, de encontrar fundamentos materiales para lo que parecía una leyenda viva, lo que motivó a Eduardo Custodio a dar el siguiente paso: someter la pieza a un análisis técnico riguroso.</p>
+
+			<p>No se trataba de una obsesión personal, sino de un compromiso con la historia misma. En un mundo donde proliferan los mitos y las verdades a medias, la posibilidad de probar —aunque fuera con un grado razonable de certeza— que ese fragmento pertenecía al avión Ford Trimotor del accidente de Gardel era un acto de respeto. A Gardel. A la memoria. Y también al visitante del museo, que merecía conocer una historia con sustento.</p>
+
+			<p>Así fue como la pieza fue trasladada al Laboratorio de Ensayos de Materiales de la Facultad de Ingeniería de la Universidad de la República. Allí, en una atmósfera en la que el conocimiento se respira, la pieza fue tratada como una evidencia valiosa. Profesionales de diversas disciplinas participaron en el estudio: metalurgistas, ingenieros aeronáuticos, historiadores de la técnica.</p>
+
+			<p>El análisis comenzó por lo visible. La forma de la pieza, su textura rugosa, las evidencias de exposición a altas temperaturas, el remache aún adherido: todo hablaba de un pasado violento y una transformación por calor. Luego vinieron las pruebas químicas. Se utilizó la espectroscopía de emisión para analizar la aleación de aluminio. Los resultados fueron sorprendentes: el metal coincidía en gran medida con las aleaciones usadas en aeronaves entre los años veinte y treinta, más específicamente con los registros documentales del Ford Trimotor fabricado por la Stout Metal Airplane Division de Ford.</p>
+
+			<p>Pero quizás el detalle más fascinante fue el remache. Tenía una forma inusual: no era un simple clavo industrial, sino una pieza diseñada para unir partes desmontables de estructuras metálicas. Su diseño se alineaba con los manuales técnicos de mantenimiento de los Trimotor, usados en aeronaves que debían ser desmontadas parcialmente para inspección o reparación.</p>
+
+			<p>Además del análisis metalúrgico, se realizó una inspección con lupa electrónica, que reveló rastros de oxidación compatibles con la exposición a ambientes húmedos y contaminados por combustión. Todo coincidía con un entorno posterior al accidente: fuego, calor extremo, residuos de queroseno, ceniza.</p>
+
+			<p>Los resultados no permitían una afirmación absoluta —nada en ciencia histórica lo permite—, pero sumaban capas de verosimilitud. A lo largo de las semanas siguientes, Custodio organizó la información, los gráficos, los informes. Y los convirtió en parte del discurso museístico. No solo se trataba de mostrar la pieza, sino de contar todo lo que se había hecho para entenderla.</p>
+
+			<p>Así, aquella porción fundida de historia dejó de ser un objeto curioso para convertirse en un documento tangible. En una voz que, sin emitir sonido, decía: “Yo estuve allí”. En un remache que susurraba su procedencia. En una prueba que, como una estrofa que regresa en el estribillo, repetía una verdad con ritmo pausado y tono firme.</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Capítulo 6: Mauricio Umaña y el puente documental</h2>
+             <p>Cada historia profunda necesita un investigador tenaz. Alguien que no solo observe, sino que conecte los puntos con paciencia y obsesión. En esta historia, ese rol lo asumió el ingeniero Mauricio Umaña, un colombiano con una biografía tan apasionante como sus investigaciones. Desde hace décadas, Umaña ha dedicado buena parte de su vida a desentrañar los enigmas que rodean el accidente aéreo de Gardel.</p>
+
+			<p>Graduado en ingeniería en la Universidad Nacional de Colombia, Umaña emigró a Estados Unidos hace más de 25 años. Su trabajo técnico en centrales eléctricas, turbinas y reactores nucleares lo hizo preciso, riguroso, metódico. Pero lejos de abandonar sus raíces, mantuvo siempre encendida una pasión: la aviación histórica. Tal vez porque su padre, Alfonso Umaña, había sido operador e instructor en la legendaria SCADTA, y porque su familia materna, los Correa, tenía vínculos con los González, propietarios de terrenos cercanos al aeródromo Olaya Herrera.</p>
+
+			<p>Graduado en ingeniería en la Universidad Nacional de Colombia, Umaña emigró a Estados Unidos hace más de 25 años. Ese linaje aéreo marcó su destino. Durante años, Umaña rastreó documentos ocultos, actas judiciales olvidadas, informes que nunca vieron la luz pública. En uno de sus libros más reveladores, “La Verdad sobre la muerte de Carlos Gardel”, reconstruyó el accidente con base en un documento escrito por un abogado de SCADTA en 1938, cuya publicación fue vetada por el gobierno colombiano de la época. A través de ese texto, Mauricio reveló detalles que habían sido suprimidos, dejando en evidencia la negligencia técnica y administrativa que rodeó el hecho.</p>
+
+			<p>Graduado en ingeniería en la Universidad Nacional de Colombia, Umaña emigró a Estados Unidos hace más de 25 años. Cuando supo de la existencia del fragmento en manos del Museo FordT City de Tacuarembó, su interés se reactivó de inmediato. El nombre de González le recordó los relatos de su madre, quien mencionaba a los Correa y sus vínculos con esos predios anexos al aeródromo. Consultó con una prima de la familia, y lo que parecía un eco perdido se convirtió en una pista viva: efectivamente, uno de los González había sido marino, y había tenido acceso directo al lugar del accidente.</p>
+
+			<p>Graduado en ingeniería en la Universidad Nacional de Colombia, Umaña emigró a Estados Unidos hace más de 25 años. Con esa información, Umaña se puso en contacto con Custodio. Intercambiaron documentos, fotografías, mapas. Umaña contrastó los detalles del remache con los planos originales del Trimotor, verificó fechas, materiales y patrones de remachado. Su experiencia técnica le permitió leer entre líneas. Cada marca, cada oxidación, cada trazo de fundición era una huella que confirmaba —aunque sin certidumbre jurídica— la autenticidad probable de la pieza.</p>
+
+			<p>Graduado en ingeniería en la Universidad Nacional de Colombia, Umaña emigró a Estados Unidos hace más de 25 años. Más allá del análisis técnico, Umaña aportó un enfoque documental. Él sabía cómo se ocultaban los archivos, cómo las historias oficiales suelen silenciar verdades incómodas. Su archivo personal —producto de décadas de investigación— incluía copias escaneadas de testimonios, informes aeronáuticos, planos de vuelo. Gracias a él, la historia de la pieza se ubicó dentro de un contexto mayor: el de la memoria negada y recuperada.</p>
+
+			<p>Graduado en ingeniería en la Universidad Nacional de Colombia, Umaña emigró a Estados Unidos hace más de 26 años. Así, Mauricio Umaña no solo aportó legitimidad y datos concretos al hallazgo, sino que también se convirtió en el puente entre el pasado y el presente. Entre Medellín y Tacuarembó. Entre la leyenda de Gardel y el rigor de la historia. Su rol fue el del narrador invisible: aquel que, detrás del telón, hace que la historia avance con firmeza y respeto.</p>
+        </article>
+
+        <article class="chapter">
+            <h2>Epílogo: El remache que canta</h2>
+            <p>En una vitrina modesta, bajo la luz tibia de una lámpara cuidadosamente posicionada, reposa una pieza fundida que podría pasar desapercibida para los ojos apurados. No tiene brillo. No tiene forma distinguible. Pero es uno de esos objetos que exigen ser mirados dos veces. Porque lo que representa va mucho más allá de su masa metálica.</p>
+
+			<p>Ese remache —ese pequeño fragmento silencioso— ha sido testigo de la tragedia y de la reconstrucción. Ha cruzado continentes y generaciones. Ha reunido a coleccionistas, ingenieros, historiadores y músicos. Ha sido analizado, custodiado, honrado. Y hoy, reposa en un lugar donde su historia puede continuar hablándole al visitante curioso.</p>
+
+			<p>En el Hotel Ford T City de Tacuarembó, tierra natal de Gardel, según muchos, este fragmento de avión no es una reliquia olvidada. Es un emblema. Un punto de encuentro entre el mito y la materia. Entre la canción que sobrevive al cantor y la prueba que sobrevive al incendio. Entre la nostalgia del tango y la rigurosidad de la ciencia.</p>
+
+			<p>Porque Gardel sigue cantando. En cada disco de pasta. En cada historia contada por Hilario. En cada análisis de Mauricio Umaña. Y en cada visitante que, al observar esa pieza, siente un estremecimiento sin explicación racional.</p>
+
+			<p>Ese remache —quemado, sobreviviente, casi milagroso— no solo une chapas de aluminio. Une recuerdos. Une continentes. Une tiempos. Y por eso canta. Canta sin voz. Pero canta.</p>
+        </article>
+
+        <article class="chapter">
+            <h2 style="text-align: center;">Documentación y Legado</h2>
+            
+            <img src="contraportada.jpg" alt="Contraportada" class="book-cover" onerror="this.style.display='none'">
+
+            <div class="download-box">
+                <h3>Informe Técnico Oficial</h3>
+                <p>Para profundizar en los análisis metalúrgicos y la investigación histórica que validan la autenticidad de la pieza, ponemos a su disposición el informe completo.</p>
+                <br>
+                <a href="Info_IEM__UDELAR_25256.pdf" class="download-btn" target="_blank">📄 Descargar Informe Universidad (PDF)</a>
+                <a href="remache_zarzal.pdf" class="download-btn">📚 Descargar Libro (PDF)</a>
+            </div>
+
+            <p style="text-align: center; margin-top: 40px; font-size: 0.9rem; color: #777;">
+                &copy; 2025 Ing. Mauricio Umaña Núñez. Todos los derechos reservados.<br>
+                Museo FordT City, Tacuarembó.
+            </p>
+        </article>
+
+        <div class="controls">
+            <button class="control-btn" id="prevBtn" onclick="changeChapter(-1)">Anterior</button>
+            <span id="pageIndicator" style="font-style: italic; color: #777;">Inicio</span>
+            <button class="control-btn" id="nextBtn" onclick="changeChapter(1)">Siguiente</button>
+        </div>
+
+    </main>
+
+    <script>
+        let currentChapter = 0;
+        const chapters = document.querySelectorAll('.chapter');
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const pageIndicator = document.getElementById('pageIndicator');
+        const sidebar = document.getElementById('sidebar');
+
+        function updateUI() {
+            // Ocultar todos los capítulos
+            chapters.forEach((chapter, index) => {
+                chapter.classList.remove('active');
+                if(navBtns[index]) navBtns[index].classList.remove('active');
+            });
+
+            // Mostrar actual
+            if(chapters[currentChapter]) {
+                chapters[currentChapter].classList.add('active');
+                if(navBtns[currentChapter]) navBtns[currentChapter].classList.add('active');
+            }
+
+            // Scroll arriba
+            document.getElementById('content-area').scrollTop = 0;
+
+            // Actualizar botones
+            prevBtn.disabled = currentChapter === 0;
+            nextBtn.disabled = currentChapter === chapters.length - 1;
+
+            // Texto del indicador
+            if (currentChapter === 0) {
+                pageIndicator.textContent = "Portada";
+            } else if (currentChapter === chapters.length - 1) {
+                pageIndicator.textContent = "Contraportada";
+            } else {
+                pageIndicator.textContent = `Pág ${currentChapter} de ${chapters.length - 2}`;
+            }
+
+            // Cerrar menú móvil si se selecciona algo
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('open');
+            }
+        }
+
+        function changeChapter(step) {
+            const newIndex = currentChapter + step;
+            if (newIndex >= 0 && newIndex < chapters.length) {
+                currentChapter = newIndex;
+                updateUI();
+            }
+        }
+
+        function goToChapter(index) {
+            currentChapter = index;
+            updateUI();
+        }
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+        }
+
+        function closeSidebarIfOpen() {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        }
+
+        // Inicializar
+        updateUI();
+    </script>
+</body>
+</html>
