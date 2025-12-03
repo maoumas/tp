@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grok Video Generator - Channel Edition</title>
+    <title>Grok Video Generator - Channel Translated Press DE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -17,7 +17,9 @@
                             'neon-green': '#39ff14',
                             'bg-dark': '#0a0a0f',
                             'bg-panel': '#151521',
-                            'text-light': '#e2e8f0',
+                            // Changed text-light for better contrast against dark backgrounds
+                            'text-light': '#ffffff', 
+                            'text-dim': '#a0a0b0',
                         },
                     },
                     fontFamily: {
@@ -34,9 +36,9 @@
         body {
             font-family: 'Share Tech Mono', monospace;
             background-color: #0a0a0f;
-            color: #e2e8f0;
+            color: #ffffff; /* Global text color set to white for contrast */
             background-image: 
-                linear-gradient(rgba(10, 10, 15, 0.8), rgba(10, 10, 15, 0.8)),
+                linear-gradient(rgba(10, 10, 15, 0.9), rgba(10, 10, 15, 0.9)), /* Increased opacity for better text contrast */
                 repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 234, 255, 0.05) 2px, rgba(0, 234, 255, 0.05) 4px),
                 repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(0, 234, 255, 0.05) 2px, rgba(0, 234, 255, 0.05) 4px);
             background-size: 100% 100%, 50px 50px, 50px 50px;
@@ -55,12 +57,23 @@
         }
 
         .cyber-input {
-            @apply w-full p-3 bg-[#151521] border border-[#2a2a40] rounded-md focus:outline-none focus:border-cyber-neon-blue text-cyber-text-light;
+            @apply w-full p-3 bg-[#151521] border border-[#2a2a40] rounded-md focus:outline-none focus:border-cyber-neon-blue text-white placeholder-cyber-text-dim;
         }
 
         .cyber-label {
             @apply block mb-2 text-sm font-bold text-cyber-neon-blue uppercase tracking-wider;
         }
+
+        /* Language Selector Button Style */
+        .lang-btn {
+            @apply px-3 py-1 border border-cyber-neon-blue text-cyber-neon-blue text-xs uppercase transition-all duration-300;
+        }
+        .lang-btn.active {
+            @apply bg-cyber-neon-blue text-cyber-bg-dark font-bold;
+        }
+        .lang-btn:first-child { @apply rounded-l-md; }
+        .lang-btn:last-child { @apply rounded-r-md; }
+
 
         .cyber-button {
             @apply px-6 py-3 bg-transparent border border-cyber-neon-blue text-cyber-neon-blue font-bold uppercase tracking-widest hover:bg-cyber-neon-blue hover:text-cyber-bg-dark transition-all duration-300 rounded-md relative overflow-hidden;
@@ -106,6 +119,11 @@
             box-shadow: 0 0 10px rgba(0, 234, 255, 0.5);
         }
         
+        /* Full width prompt textarea on mobile */
+        #finalPrompt {
+            @apply w-full;
+        }
+
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
@@ -125,13 +143,21 @@
 </head>
 <body>
 
-    <header class="p-4 md:p-6 bg-cyber-bg-panel border-b border-cyber-neon-blue/30 flex flex-col md:flex-row justify-between items-center">
-        <h1 class="text-2xl md:text-3xl font-bold text-cyber-neon-blue uppercase tracking-widest mb-4 md:mb-0">
-            <span class="text-cyber-neon-pink">Grok</span> Video Generator <span class="text-sm block md:inline">Channel Edition</span>
+    <header class="p-4 md:p-6 bg-cyber-bg-panel border-b border-cyber-neon-blue/30 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+        <h1 class="text-2xl md:text-3xl font-bold text-cyber-neon-blue uppercase tracking-widest text-center md:text-left">
+            <span class="text-cyber-neon-pink">Grok</span> Video Generator <span class="text-sm block md:inline whitespace-nowrap">Channel Translated Press DE</span>
         </h1>
-        <div class="flex space-x-4">
-            <button id="langToggle" class="cyber-button text-sm">Español</button>
-            <a href="#" class="cyber-button text-sm">Community</a>
+        
+        <div class="flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-6">
+            <div class="flex items-center">
+                <span class="text-cyber-text-dim text-xs mr-2 uppercase tracking-wider" data-lang-en="Input Language:" data-lang-es="Idioma de Entrada:" data-lang-de="Eingabesprache:">Input Language:</span>
+                <div class="flex">
+                    <button class="lang-btn active" data-lang="en">EN</button>
+                    <button class="lang-btn" data-lang="es">ES</button>
+                    <button class="lang-btn" data-lang="de">DE</button>
+                </div>
+            </div>
+            <a href="#" class="cyber-button text-sm py-2 px-4">Community</a>
         </div>
     </header>
 
@@ -140,39 +166,39 @@
         <div class="lg:col-span-2 space-y-8">
 
             <section class="p-6 bg-cyber-bg-panel rounded-lg cyber-border">
-                <h2 class="module-header" data-lang-en="Module I: The Scene" data-lang-es="Módulo I: La Escena">Module I: The Scene</h2>
+                <h2 class="module-header" data-lang-en="Module I: The Scene" data-lang-es="Módulo I: La Escena" data-lang-de="Modul I: Die Szene">Module I: The Scene</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                     <div>
-                        <label class="cyber-label" data-lang-en="Subject & Action" data-lang-es="Sujeto y Acción">Subject & Action</label>
-                        <input type="text" id="subjectAction" class="cyber-input" placeholder="e.g., A futuristic cyborg woman running...">
+                        <label class="cyber-label" data-lang-en="Subject & Action" data-lang-es="Sujeto y Acción" data-lang-de="Subjekt & Aktion">Subject & Action</label>
+                        <input type="text" id="subjectAction" class="cyber-input" data-ph-en="e.g., A futuristic cyborg woman running..." data-ph-es="ej., Una mujer cíborg futurista corriendo..." data-ph-de="z.B. Eine futuristische Cyborg-Frau rennt...">
                     </div>
                     <div>
-                        <label class="cyber-label" data-lang-en="Context & Location" data-lang-es="Contexto y Ubicación">Context & Location</label>
-                        <input type="text" id="contextLocation" class="cyber-input" placeholder="e.g., on a rain-slicked neon street in Neo-Tokyo.">
+                        <label class="cyber-label" data-lang-en="Context & Location" data-lang-es="Contexto y Ubicación" data-lang-de="Kontext & Ort">Context & Location</label>
+                        <input type="text" id="contextLocation" class="cyber-input" data-ph-en="e.g., on a rain-slicked neon street in Neo-Tokyo." data-ph-es="ej., en una calle de neón mojada por la lluvia en Neo-Tokyo." data-ph-de="z.B. auf einer regennassen Neonstraße in Neo-Tokio.">
                     </div>
                 </div>
                 <div class="mt-4">
                     <div class="flex justify-between items-center mb-2">
-                        <label class="cyber-label mb-0" data-lang-en="Token Priority" data-lang-es="Prioridad de Tokens">Token Priority</label>
+                        <label class="cyber-label mb-0" data-lang-en="Token Priority" data-lang-es="Prioridad de Tokens" data-lang-de="Token-Priorität">Token Priority</label>
                         <span class="text-cyber-neon-blue text-sm" id="tokenValue">100%</span>
                     </div>
                     <input type="range" id="tokenPriority" min="100" max="140" value="100" class="range-slider">
-                    <p class="text-xs text-gray-400 mt-2" data-lang-en="Adjusts core prompt weight to manage audio token allowance." data-lang-es="Ajusta el peso del prompt principal para gestionar la asignación de tokens de audio.">Adjusts core prompt weight to manage audio token allowance.</p>
+                    <p class="text-xs text-cyber-text-dim mt-2" data-lang-en="Adjusts core prompt weight to manage audio token allowance." data-lang-es="Ajusta el peso del prompt principal para gestionar la asignación de tokens de audio." data-lang-de="Passt die Gewichtung des Haupt-Prompts an, um die Audio-Token-Zuteilung zu verwalten.">Adjusts core prompt weight to manage audio token allowance.</p>
                 </div>
             </section>
 
             <section class="p-6 bg-cyber-bg-panel rounded-lg cyber-border">
-                <h2 class="module-header" data-lang-en="Module II: Visual Style" data-lang-es="Módulo II: Estilo Visual">Module II: Visual Style</h2>
+                <h2 class="module-header" data-lang-en="Module II: Visual Style" data-lang-es="Módulo II: Estilo Visual" data-lang-de="Modul II: Visueller Stil">Module II: Visual Style</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                        <label class="cyber-label" data-lang-en="Select Style" data-lang-es="Seleccionar Estilo">Select Style</label>
+                        <label class="cyber-label" data-lang-en="Select Style" data-lang-es="Seleccionar Estilo" data-lang-de="Stil Auswählen">Select Style</label>
                         <select id="visualStyle" class="cyber-input">
-                            <option value="">-- Select Style --</option>
-                            </select>
+                            <option value="" data-lang-en="-- Select Style --" data-lang-es="-- Seleccionar Estilo --" data-lang-de="-- Stil Auswählen --">-- Select Style --</option>
+                        </select>
                     </div>
                     <div>
                         <div class="flex justify-between items-center mb-2">
-                            <label class="cyber-label mb-0" data-lang-en="Artistic Weight" data-lang-es="Peso Artístico">Artistic Weight</label>
+                            <label class="cyber-label mb-0" data-lang-en="Artistic Weight" data-lang-es="Peso Artístico" data-lang-de="Künstlerische Gewichtung">Artistic Weight</label>
                             <span class="text-cyber-neon-blue text-sm" id="styleWeightValue">100%</span>
                         </div>
                         <input type="range" id="styleWeight" min="0" max="140" value="100" class="range-slider">
@@ -182,23 +208,23 @@
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <section class="p-6 bg-cyber-bg-panel rounded-lg cyber-border">
-                    <h2 class="module-header" data-lang-en="Module III: Cinematography" data-lang-es="Módulo III: Cinematografía">Module III: Cinematography</h2>
+                    <h2 class="module-header" data-lang-en="Module III: Cinematography" data-lang-es="Módulo III: Cinematografía" data-lang-de="Modul III: Kinematographie">Module III: Cinematography</h2>
                     <div class="space-y-4">
                         <div>
-                            <label class="cyber-label" data-lang-en="Shot Type" data-lang-es="Tipo de Plano">Shot Type</label>
+                            <label class="cyber-label" data-lang-en="Shot Type" data-lang-es="Tipo de Plano" data-lang-de="Aufnahmetyp">Shot Type</label>
                             <select id="shotType" class="cyber-input">
-                                <option value="">-- Select Shot Type --</option>
-                                <option value="Extreme Wide Shot">Extreme Wide Shot</option>
-                                <option value="Wide Shot">Wide Shot</option>
-                                <option value="Medium Shot">Medium Shot</option>
-                                <option value="Close-up">Close-up</option>
-                                <option value="Extreme Close-up">Extreme Close-up</option>
+                                <option value="" data-lang-en="-- Select Shot Type --" data-lang-es="-- Seleccionar Tipo de Plano --" data-lang-de="-- Aufnahmetyp Auswählen --">-- Select Shot Type --</option>
+                                <option value="Extreme Wide Shot" data-lang-en="Extreme Wide Shot" data-lang-es="Plano General Extremo" data-lang-de="Extreme Totale">Extreme Wide Shot</option>
+                                <option value="Wide Shot" data-lang-en="Wide Shot" data-lang-es="Plano General" data-lang-de="Totale">Wide Shot</option>
+                                <option value="Medium Shot" data-lang-en="Medium Shot" data-lang-es="Plano Medio" data-lang-de="Halbtotale">Medium Shot</option>
+                                <option value="Close-up" data-lang-en="Close-up" data-lang-es="Primer Plano" data-lang-de="Nahaufnahme">Close-up</option>
+                                <option value="Extreme Close-up" data-lang-en="Extreme Close-up" data-lang-es="Primerísimo Primer Plano" data-lang-de="Extreme Nahaufnahme">Extreme Close-up</option>
                             </select>
                         </div>
                         <div>
-                            <label class="cyber-label" data-lang-en="Lens" data-lang-es="Lente">Lens</label>
+                            <label class="cyber-label" data-lang-en="Lens" data-lang-es="Lente" data-lang-de="Objektiv">Lens</label>
                             <select id="lens" class="cyber-input">
-                                <option value="">-- Select Lens --</option>
+                                <option value="" data-lang-en="-- Select Lens --" data-lang-es="-- Seleccionar Lente --" data-lang-de="-- Objektiv Auswählen --">-- Select Lens --</option>
                                 <option value="16mm Lens">16mm Lens</option>
                                 <option value="35mm Lens">35mm Lens</option>
                                 <option value="50mm Lens">50mm Lens</option>
@@ -210,42 +236,42 @@
                 </section>
 
                 <section class="p-6 bg-cyber-bg-panel rounded-lg cyber-border">
-                    <h2 class="module-header" data-lang-en="Module IV: Light & Atmosphere" data-lang-es="Módulo IV: Luz y Atmósfera">Module IV: Light & Atmosphere</h2>
+                    <h2 class="module-header" data-lang-en="Module IV: Light & Atmosphere" data-lang-es="Módulo IV: Luz y Atmósfera" data-lang-de="Modul IV: Licht & Atmosphäre">Module IV: Light & Atmosphere</h2>
                     <div class="space-y-4">
                         <div>
-                            <label class="cyber-label" data-lang-en="Lighting" data-lang-es="Iluminación">Lighting</label>
+                            <label class="cyber-label" data-lang-en="Lighting" data-lang-es="Iluminación" data-lang-de="Beleuchtung">Lighting</label>
                             <select id="lighting" class="cyber-input">
-                                <option value="">-- Select Lighting --</option>
-                                <option value="Rembrandt Lighting">Rembrandt Lighting</option>
-                                <option value="Dramatic Lighting">Dramatic Lighting</option>
-                                <option value="Soft Lighting">Soft Lighting</option>
-                                <option value="Neon Lighting">Neon Lighting</option>
-                                <option value="Natural Light">Natural Light</option>
-                                <option value="Studio Lighting">Studio Lighting</option>
+                                <option value="" data-lang-en="-- Select Lighting --" data-lang-es="-- Seleccionar Iluminación --" data-lang-de="-- Beleuchtung Auswählen --">-- Select Lighting --</option>
+                                <option value="Rembrandt Lighting" data-lang-en="Rembrandt Lighting" data-lang-es="Iluminación Rembrandt" data-lang-de="Rembrandt-Beleuchtung">Rembrandt Lighting</option>
+                                <option value="Dramatic Lighting" data-lang-en="Dramatic Lighting" data-lang-es="Iluminación Dramática" data-lang-de="Dramatische Beleuchtung">Dramatic Lighting</option>
+                                <option value="Soft Lighting" data-lang-en="Soft Lighting" data-lang-es="Iluminación Suave" data-lang-de="Weiche Beleuchtung">Soft Lighting</option>
+                                <option value="Neon Lighting" data-lang-en="Neon Lighting" data-lang-es="Iluminación Neón" data-lang-de="Neonbeleuchtung">Neon Lighting</option>
+                                <option value="Natural Light" data-lang-en="Natural Light" data-lang-es="Luz Natural" data-lang-de="Natürliches Licht">Natural Light</option>
+                                <option value="Studio Lighting" data-lang-en="Studio Lighting" data-lang-es="Iluminación de Estudio" data-lang-de="Studiobeleuchtung">Studio Lighting</option>
                             </select>
                         </div>
                         <div>
-                            <label class="cyber-label" data-lang-en="Atmosphere/Weather" data-lang-es="Atmósfera/Clima">Atmosphere/Weather</label>
-                            <input type="text" id="atmosphere" class="cyber-input" placeholder="e.g., Fog, Rain, Dust...">
+                            <label class="cyber-label" data-lang-en="Atmosphere/Weather" data-lang-es="Atmósfera/Clima" data-lang-de="Atmosphäre/Wetter">Atmosphere/Weather</label>
+                            <input type="text" id="atmosphere" class="cyber-input" data-ph-en="e.g., Fog, Rain, Dust..." data-ph-es="ej., Niebla, Lluvia, Polvo..." data-ph-de="z.B. Nebel, Regen, Staub...">
                         </div>
                     </div>
                 </section>
             </div>
 
              <section class="p-6 bg-cyber-bg-panel rounded-lg cyber-border">
-                <h2 class="module-header" data-lang-en="Module V: Camera Movement" data-lang-es="Módulo V: Movimiento de Cámara">Module V: Camera Movement</h2>
+                <h2 class="module-header" data-lang-en="Module V: Camera Movement" data-lang-es="Módulo V: Movimiento de Cámara" data-lang-de="Modul V: Kamerabewegung">Module V: Camera Movement</h2>
                 <div>
-                    <label class="cyber-label" data-lang-en="Movement" data-lang-es="Movimiento">Movement</label>
+                    <label class="cyber-label" data-lang-en="Movement" data-lang-es="Movimiento" data-lang-de="Bewegung">Movement</label>
                     <select id="cameraMovement" class="cyber-input">
-                        <option value="">-- Select Movement --</option>
-                        <option value="Static Shot">Static Shot</option>
-                        <option value="Pan Left">Pan Left</option>
-                        <option value="Pan Right">Pan Right</option>
-                        <option value="Tilt Up">Tilt Up</option>
-                        <option value="Tilt Down">Tilt Down</option>
-                        <option value="Handheld Camera">Handheld Camera</option>
-                        <option value="Fast Action Swipe">Fast Action Swipe</option>
-                        <option value="Drone Shot">Drone Shot</option>
+                        <option value="" data-lang-en="-- Select Movement --" data-lang-es="-- Seleccionar Movimiento --" data-lang-de="-- Bewegung Auswählen --">-- Select Movement --</option>
+                        <option value="Static Shot" data-lang-en="Static Shot" data-lang-es="Plano Estático" data-lang-de="Statische Aufnahme">Static Shot</option>
+                        <option value="Pan Left" data-lang-en="Pan Left" data-lang-es="Panorámica Izquierda" data-lang-de="Schwenk nach Links">Pan Left</option>
+                        <option value="Pan Right" data-lang-en="Pan Right" data-lang-es="Panorámica Derecha" data-lang-de="Schwenk nach Rechts">Pan Right</option>
+                        <option value="Tilt Up" data-lang-en="Tilt Up" data-lang-es="Inclinación Arriba" data-lang-de="Neigen nach Oben">Tilt Up</option>
+                        <option value="Tilt Down" data-lang-en="Tilt Down" data-lang-es="Inclinación Abajo" data-lang-de="Neigen nach Unten">Tilt Down</option>
+                        <option value="Handheld Camera" data-lang-en="Handheld Camera" data-lang-es="Cámara en Mano" data-lang-de="Handkamera">Handheld Camera</option>
+                        <option value="Fast Action Swipe" data-lang-en="Fast Action Swipe" data-lang-es="Barrido de Acción Rápida" data-lang-de="Schneller Aktions-Wisch">Fast Action Swipe</option>
+                        <option value="Drone Shot" data-lang-en="Drone Shot" data-lang-es="Plano de Dron" data-lang-de="Drohnenaufnahme">Drone Shot</option>
                     </select>
                 </div>
             </section>
@@ -258,7 +284,7 @@
                 <div class="absolute inset-0 border-2 border-cyber-neon-green rounded-lg opacity-50 pointer-events-none animate-pulse"></div>
 
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="module-header mb-0 text-cyber-neon-green" style="text-shadow: 0 0 5px rgba(57, 255, 20, 0.5);" data-lang-en="Module VI: Audio System" data-lang-es="Módulo VI: Sistema de Audio">Module VI: Audio System</h2>
+                    <h2 class="module-header mb-0 text-cyber-neon-green" style="text-shadow: 0 0 5px rgba(57, 255, 20, 0.5);" data-lang-en="Module VI: Audio System" data-lang-es="Módulo VI: Sistema de Audio" data-lang-de="Modul VI: Audiosystem">Module VI: Audio System</h2>
                     <label class="flex items-center cursor-pointer">
                         <div class="relative">
                             <input type="checkbox" id="audioToggle" class="sr-only">
@@ -270,15 +296,15 @@
 
                 <div id="audioControls" class="space-y-6 opacity-50 pointer-events-none transition-all duration-300">
                     <div>
-                        <h3 class="text-lg font-bold text-cyber-neon-blue mb-3" data-lang-en="Section A: Environment" data-lang-es="Sección A: Entorno">Section A: Environment</h3>
+                        <h3 class="text-lg font-bold text-cyber-neon-blue mb-3" data-lang-en="Section A: Environment" data-lang-es="Sección A: Entorno" data-lang-de="Abschnitt A: Umgebung">Section A: Environment</h3>
                         <div class="space-y-4">
                             <div>
-                                <label class="cyber-label" data-lang-en="SFX/Ambience" data-lang-es="Efectos/Ambiente">SFX/Ambience</label>
-                                <input type="text" id="sfxAmbience" class="cyber-input" placeholder="e.g., distant sirens, rain on pavement...">
+                                <label class="cyber-label" data-lang-en="SFX/Ambience" data-lang-es="Efectos/Ambiente" data-lang-de="SFX/Ambiente">SFX/Ambience</label>
+                                <input type="text" id="sfxAmbience" class="cyber-input" data-ph-en="e.g., distant sirens, rain on pavement..." data-ph-es="ej., sirenas lejanas, lluvia en el pavimento..." data-ph-de="z.B. ferne Sirenen, Regen auf Asphalt...">
                             </div>
                             <div>
-                                <label class="cyber-label" data-lang-en="Music" data-lang-es="Música">Music</label>
-                                <input type="text" id="music" class="cyber-input" placeholder="e.g., dark synthwave, tense underscore...">
+                                <label class="cyber-label" data-lang-en="Music" data-lang-es="Música" data-lang-de="Musik">Music</label>
+                                <input type="text" id="music" class="cyber-input" data-ph-en="e.g., dark synthwave, tense underscore..." data-ph-es="ej., synthwave oscuro, música de fondo tensa..." data-ph-de="z.B. dunkler Synthwave, spannende Untermalung...">
                             </div>
                         </div>
                     </div>
@@ -286,80 +312,80 @@
                     <div>
                         <div class="flex items-center mb-3">
                             <input type="checkbox" id="voiceToggle" class="mr-2 h-5 w-5 accent-cyber-neon-green bg-[#151521] border-cyber-neon-blue rounded">
-                            <label for="voiceToggle" class="text-lg font-bold text-cyber-neon-blue cursor-pointer" data-lang-en="Section B: Voice & Dialogue" data-lang-es="Sección B: Voz y Diálogo">Section B: Voice & Dialogue</label>
+                            <label for="voiceToggle" class="text-lg font-bold text-cyber-neon-blue cursor-pointer" data-lang-en="Section B: Voice & Dialogue" data-lang-es="Sección B: Voz y Diálogo" data-lang-de="Abschnitt B: Stimme & Dialog">Section B: Voice & Dialogue</label>
                         </div>
                         
                         <div id="voiceControls" class="space-y-4 opacity-50 pointer-events-none transition-all duration-300 pl-4 border-l-2 border-cyber-neon-blue/30">
                             <div>
-                                <label class="cyber-label" data-lang-en="Character Name" data-lang-es="Nombre del Personaje">Character Name</label>
-                                <input type="text" id="characterName" class="cyber-input" placeholder="Must match Subject in Module I">
+                                <label class="cyber-label" data-lang-en="Character Name" data-lang-es="Nombre del Personaje" data-lang-de="Charaktername">Character Name</label>
+                                <input type="text" id="characterName" class="cyber-input" data-ph-en="Must match Subject in Module I" data-ph-es="Debe coincidir con el Sujeto en el Módulo I" data-ph-de="Muss mit dem Subjekt in Modul I übereinstimmen">
                             </div>
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="cyber-label" data-lang-en="Voice Type" data-lang-es="Tipo de Voz">Voice Type</label>
+                                    <label class="cyber-label" data-lang-en="Voice Type" data-lang-es="Tipo de Voz" data-lang-de="Stimmtyp">Voice Type</label>
                                     <select id="voiceType" class="cyber-input">
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                        <option value="Robot">Robot</option>
-                                        <option value="Child">Child</option>
+                                        <option value="Male" data-lang-en="Male" data-lang-es="Masculina" data-lang-de="Männlich">Male</option>
+                                        <option value="Female" data-lang-en="Female" data-lang-es="Femenina" data-lang-de="Weiblich">Female</option>
+                                        <option value="Robot" data-lang-en="Robot" data-lang-es="Robot" data-lang-de="Roboter">Robot</option>
+                                        <option value="Child" data-lang-en="Child" data-lang-es="Niño/a" data-lang-de="Kind">Child</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="cyber-label" data-lang-en="Accent" data-lang-es="Acento">Accent</label>
+                                    <label class="cyber-label" data-lang-en="Accent" data-lang-es="Acento" data-lang-de="Akzent">Accent</label>
                                     <select id="accent" class="cyber-input">
-                                        <option value="USA">USA</option>
-                                        <option value="UK">UK</option>
-                                        <option value="Mexico">Mexico</option>
-                                        <option value="Spain">Spain</option>
-                                        <option value="Argentina">Argentina</option>
+                                        <option value="USA" data-lang-en="USA" data-lang-es="EE. UU." data-lang-de="USA">USA</option>
+                                        <option value="UK" data-lang-en="UK" data-lang-es="Reino Unido" data-lang-de="Großbritannien">UK</option>
+                                        <option value="Mexico" data-lang-en="Mexico" data-lang-es="México" data-lang-de="Mexiko">Mexico</option>
+                                        <option value="Spain" data-lang-en="Spain" data-lang-es="España" data-lang-de="Spanien">Spain</option>
+                                        <option value="Argentina" data-lang-en="Argentina" data-lang-es="Argentina" data-lang-de="Argentinien">Argentina</option>
                                     </select>
                                 </div>
                             </div>
                             <div>
-                                <label class="cyber-label" data-lang-en="Emotion" data-lang-es="Emoción">Emotion</label>
+                                <label class="cyber-label" data-lang-en="Emotion" data-lang-es="Emoción" data-lang-de="Emotion">Emotion</label>
                                 <select id="emotion" class="cyber-input">
-                                    <option value="Neutral">Neutral</option>
-                                    <option value="Angry">Angry</option>
-                                    <option value="Happy">Happy</option>
-                                    <option value="Whispering">Whispering</option>
-                                    <option value="Urgent">Urgent</option>
-                                    <option value="Sarcastic">Sarcastic</option>
+                                    <option value="Neutral" data-lang-en="Neutral" data-lang-es="Neutral" data-lang-de="Neutral">Neutral</option>
+                                    <option value="Angry" data-lang-en="Angry" data-lang-es="Enojado" data-lang-de="Wütend">Angry</option>
+                                    <option value="Happy" data-lang-en="Happy" data-lang-es="Feliz" data-lang-de="Glücklich">Happy</option>
+                                    <option value="Whispering" data-lang-en="Whispering" data-lang-es="Susurrando" data-lang-de="Flüsternd">Whispering</option>
+                                    <option value="Urgent" data-lang-en="Urgent" data-lang-es="Urgente" data-lang-de="Dringend">Urgent</option>
+                                    <option value="Sarcastic" data-lang-en="Sarcastic" data-lang-es="Sarcástico" data-lang-de="Sarkastisch">Sarcastic</option>
                                 </select>
                             </div>
                             <div>
                                 <div class="flex justify-between">
-                                    <label class="cyber-label" data-lang-en="Script (Max 10 words)" data-lang-es="Guion (Máx 10 palabras)">Script (Max 10 words)</label>
+                                    <label class="cyber-label" data-lang-en="Script (Max 10 words)" data-lang-es="Guion (Máx 10 palabras)" data-lang-de="Skript (Max. 10 Wörter)">Script (Max 10 words)</label>
                                     <span id="wordCount" class="text-xs text-cyber-neon-pink font-bold">0/10</span>
                                 </div>
-                                <textarea id="script" class="cyber-input h-24 resize-none" placeholder="e.g., We have to go now!"></textarea>
+                                <textarea id="script" class="cyber-input h-24 resize-none" data-ph-en="e.g., We have to go now!" data-ph-es="ej., ¡Tenemos que irnos ahora!" data-ph-de="z.B., Wir müssen jetzt gehen!"></textarea>
                             </div>
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section class="p-6 bg-cyber-bg-panel rounded-lg cyber-border sticky top-8">
-                <h2 class="module-header" data-lang-en="Module VII: Output" data-lang-es="Módulo VII: Salida">Module VII: Output</h2>
+            <section class="p-6 bg-cyber-bg-panel rounded-lg cyber-border sticky top-8 w-full">
+                <h2 class="module-header" data-lang-en="Module VII: Output" data-lang-es="Módulo VII: Salida" data-lang-de="Modul VII: Ausgabe">Module VII: Output</h2>
                 
                 <div class="mb-6 p-4 bg-[#0a0a0f] border border-cyber-neon-blue/50 rounded-md">
                     <h3 class="text-cyber-neon-blue font-bold mb-2 flex items-center">
-                        <span class="text-xl mr-2">🤖</span> <span data-lang-en="Virtual Professor" data-lang-es="Profesor Virtual">Virtual Professor</span>
+                        <span class="text-xl mr-2">🤖</span> <span data-lang-en="Virtual Professor" data-lang-es="Profesor Virtual" data-lang-de="Virtueller Professor">Virtual Professor</span>
                     </h3>
-                    <p id="virtualProfessor" class="text-sm text-gray-300 italic" data-lang-en="I'm ready! Fill in the modules to see what we're building..." data-lang-es="¡Estoy listo! Completa los módulos para ver qué estamos construyendo...">I'm ready! Fill in the modules to see what we're building...</p>
+                    <p id="virtualProfessor" class="text-sm text-cyber-text-dim italic" data-lang-en="I'm ready! Fill in the modules to see what we're building..." data-lang-es="¡Estoy listo! Completa los módulos para ver qué estamos construyendo..." data-lang-de="Ich bin bereit! Füllen Sie die Module aus, um zu sehen, was wir bauen...">I'm ready! Fill in the modules to see what we're building...</p>
                 </div>
 
-                <textarea id="finalPrompt" class="cyber-input h-48 resize-none mb-4 font-mono text-sm" readonly></textarea>
+                <textarea id="finalPrompt" class="cyber-input h-64 resize-none mb-4 font-mono text-sm w-full" readonly></textarea>
                 
                 <div class="flex flex-col space-y-4">
-                    <button id="generateBtn" class="cyber-button bg-cyber-neon-blue/10 w-full py-4 text-lg" data-lang-en="GENERATE PROMPT" data-lang-es="GENERAR PROMPT">GENERATE PROMPT</button>
+                    <button id="generateBtn" class="cyber-button bg-cyber-neon-blue/10 w-full py-4 text-lg" data-lang-en="GENERATE ENGLISH PROMPT" data-lang-es="GENERAR PROMPT EN INGLÉS" data-lang-de="ENGLISCHEN PROMPT GENERIEREN">GENERATE ENGLISH PROMPT</button>
                     <div class="grid grid-cols-2 gap-4">
-                        <button id="copyBtn" class="cyber-button flex justify-center items-center" data-lang-en="Copy to Clipboard" data-lang-es="Copiar al Portapapeles">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
-                            Copy
+                        <button id="copyBtn" class="cyber-button flex justify-center items-center px-2 sm:px-6 text-sm sm:text-base" data-lang-en="Copy to Clipboard" data-lang-es="Copiar" data-lang-de="Kopieren">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" /></svg>
+                            <span class="hidden sm:inline" data-lang-en="Copy" data-lang-es="Copiar" data-lang-de="Kopieren">Copy</span>
                         </button>
-                        <button id="downloadBtn" class="cyber-button flex justify-center items-center" data-lang-en="Download .txt" data-lang-es="Descargar .txt">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                            .txt
+                        <button id="downloadBtn" class="cyber-button flex justify-center items-center px-2 sm:px-6 text-sm sm:text-base" data-lang-en="Download .txt" data-lang-es="Descargar .txt" data-lang-de=".txt Herunterladen">
+                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 sm:mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                            <span class="hidden sm:inline">.txt</span>
                         </button>
                     </div>
                 </div>
@@ -372,15 +398,38 @@
     <script>
         // --- Data & Configuration ---
         const visualStyles = [
-            "Cyberpunk", "Cinematic", "16mm Film", "Lego World", "Pixar Style", "Western", "Anime", "Realistic", 
-            "Noir", "Documentary", "Found Footage", "Retro Sci-Fi", "Fantasy", "Surreal", "Abstract",
-            "Watercolor", "Oil Painting", "Pixel Art", "Gothic", "Steampunk", "Vaporwave",
-            "Horror", "Comedic", "Wes Anderson Style", "Tarantino Style", "Blade Runner Style"
+            { value: "Cyberpunk", en: "Cyberpunk", es: "Cyberpunk", de: "Cyberpunk" },
+            { value: "Cinematic", en: "Cinematic", es: "Cinematográfico", de: "Kinoähnlich" },
+            { value: "16mm Film", en: "16mm Film", es: "Película de 16mm", de: "16mm-Film" },
+            { value: "Lego World", en: "Lego World", es: "Mundo Lego", de: "Lego-Welt" },
+            { value: "Pixar Style", en: "Pixar Style", es: "Estilo Pixar", de: "Pixar-Stil" },
+            { value: "Western", en: "Western", es: "Western", de: "Western" },
+            { value: "Anime", en: "Anime", es: "Anime", de: "Anime" },
+            { value: "Realistic", en: "Realistic", es: "Realista", de: "Realistisch" },
+            { value: "Noir", en: "Noir", es: "Cine Negro", de: "Film Noir" },
+            { value: "Documentary", en: "Documentary", es: "Documental", de: "Dokumentarfilm" },
+            { value: "Found Footage", en: "Found Footage", es: "Metraje Encontrado", de: "Found Footage" },
+            { value: "Retro Sci-Fi", en: "Retro Sci-Fi", es: "Ciencia Ficción Retro", de: "Retro-Sci-Fi" },
+            { value: "Fantasy", en: "Fantasy", es: "Fantasía", de: "Fantasie" },
+            { value: "Surreal", en: "Surreal", es: "Surrealista", de: "Surreal" },
+            { value: "Abstract", en: "Abstract", es: "Abstracto", de: "Abstrakt" },
+            { value: "Watercolor", en: "Watercolor", es: "Acuarela", de: "Aquarell" },
+            { value: "Oil Painting", en: "Oil Painting", es: "Pintura al Óleo", de: "Ölgemälde" },
+            { value: "Pixel Art", en: "Pixel Art", es: "Pixel Art", de: "Pixelkunst" },
+            { value: "Gothic", en: "Gothic", es: "Gótico", de: "Gotisch" },
+            { value: "Steampunk", en: "Steampunk", es: "Steampunk", de: "Steampunk" },
+            { value: "Vaporwave", en: "Vaporwave", es: "Vaporwave", de: "Vaporwave" },
+            { value: "Horror", en: "Horror", es: "Terror", de: "Horror" },
+            { value: "Comedic", en: "Comedic", es: "Cómico", de: "Komödie" },
+            { value: "Wes Anderson Style", en: "Wes Anderson Style", es: "Estilo Wes Anderson", de: "Wes Anderson Stil" },
+            { value: "Tarantino Style", en: "Tarantino Style", es: "Estilo Tarantino", de: "Tarantino-Stil" },
+            { value: "Blade Runner Style", en: "Blade Runner Style", es: "Estilo Blade Runner", de: "Blade Runner Stil" }
         ];
 
         // --- DOM Elements ---
-        const langToggle = document.getElementById('langToggle');
+        const langBtns = document.querySelectorAll('.lang-btn');
         const translatableElements = document.querySelectorAll('[data-lang-en]');
+        const translatablePlaceholders = document.querySelectorAll('[data-ph-en]');
         
         // Sliders & Values
         const tokenPriority = document.getElementById('tokenPriority');
@@ -390,6 +439,14 @@
 
         // Dropdowns
         const visualStyleSelect = document.getElementById('visualStyle');
+        const shotTypeSelect = document.getElementById('shotType');
+        const lensSelect = document.getElementById('lens');
+        const lightingSelect = document.getElementById('lighting');
+        const cameraMovementSelect = document.getElementById('cameraMovement');
+        const voiceTypeSelect = document.getElementById('voiceType');
+        const accentSelect = document.getElementById('accent');
+        const emotionSelect = document.getElementById('emotion');
+
 
         // Audio Toggles
         const audioToggle = document.getElementById('audioToggle');
@@ -411,16 +468,26 @@
 
         // --- Initialization ---
         function init() {
-            // Populate Visual Styles
-            visualStyles.forEach(style => {
+            // Populate Visual Styles with translation data
+            visualStyles.forEach(styleData => {
                 const option = document.createElement('option');
-                option.value = style;
-                option.textContent = style;
+                option.value = styleData.value;
+                // Store translations in data attributes
+                option.setAttribute('data-lang-en', styleData.en);
+                option.setAttribute('data-lang-es', styleData.es);
+                option.setAttribute('data-lang-de', styleData.de);
+                option.textContent = styleData[currentLang]; // Set initial text
                 visualStyleSelect.appendChild(option);
             });
 
-            // Event Listeners
-            langToggle.addEventListener('click', toggleLanguage);
+            // Event Listeners for Language Buttons
+            langBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    setLanguage(btn.getAttribute('data-lang'));
+                });
+            });
+
+            // Other Event Listeners
             tokenPriority.addEventListener('input', () => updateSliderValue(tokenPriority, tokenValue));
             styleWeight.addEventListener('input', () => updateSliderValue(styleWeight, styleWeightValue));
             audioToggle.addEventListener('change', toggleAudioModule);
@@ -437,13 +504,35 @@
         // --- Functions ---
 
         // Language Switching
-        function toggleLanguage() {
-            currentLang = currentLang === 'en' ? 'es' : 'en';
-            langToggle.textContent = currentLang === 'en' ? 'Español' : 'English';
-            
-            translatableElements.forEach(el => {
-                el.textContent = el.getAttribute(`data-lang-${currentLang}`);
+        function setLanguage(lang) {
+            currentLang = lang;
+
+            // Update active button state
+            langBtns.forEach(btn => {
+                if (btn.getAttribute('data-lang') === lang) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
             });
+
+            // Update text content
+            translatableElements.forEach(el => {
+                el.textContent = el.getAttribute(`data-lang-${lang}`);
+            });
+
+            // Update placeholders
+            translatablePlaceholders.forEach(el => {
+                el.placeholder = el.getAttribute(`data-ph-${lang}`);
+            });
+            
+            // Update Dropdown Options used in visual style select
+            Array.from(visualStyleSelect.options).forEach(option => {
+                 if (option.value !== "") {
+                    option.textContent = option.getAttribute(`data-lang-${lang}`);
+                 }
+            });
+
 
             updateVirtualProfessor();
         }
@@ -497,46 +586,54 @@
 
         // Virtual Professor Update
         function updateVirtualProfessor() {
-            let message = currentLang === 'en' ? "I'm waiting for your inputs." : "Estoy esperando tus entradas.";
+            let message = "";
+            switch(currentLang) {
+                case 'en': message = "I'm waiting for your inputs."; break;
+                case 'es': message = "Estoy esperando tus entradas."; break;
+                case 'de': message = "Ich warte auf Ihre Eingaben."; break;
+            }
+            
             const subject = document.getElementById('subjectAction').value;
 
             if (!subject.isEmpty()) {
-                message = currentLang === 'en' 
-                    ? `Okay, we are defining a scene about: "${subject}".` 
-                    : `Bien, estamos definiendo una escena sobre: "${subject}".`;
+                switch(currentLang) {
+                    case 'en': message = `Okay, we are defining a scene about: "${subject}".`; break;
+                    case 'es': message = `Bien, estamos definiendo una escena sobre: "${subject}".`; break;
+                    case 'de': message = `Okay, wir definieren eine Szene über: "${subject}".`; break;
+                }
                 
                 if (audioToggle.checked && voiceToggle.checked && !document.getElementById('characterName').value.isEmpty()) {
-                     message += currentLang === 'en'
-                        ? ` And we are adding dialogue for ${document.getElementById('characterName').value}.`
-                        : ` Y estamos añadiendo diálogo para ${document.getElementById('characterName').value}.`;
+                     switch(currentLang) {
+                        case 'en': message += ` And we are adding dialogue for ${document.getElementById('characterName').value}.`; break;
+                        case 'es': message += ` Y estamos añadiendo diálogo para ${document.getElementById('characterName').value}.`; break;
+                        case 'de': message += ` Und wir fügen einen Dialog für ${document.getElementById('characterName').value} hinzu.`; break;
+                    }
                 }
             }
             virtualProfessor.textContent = message;
         }
 
-        // Core Prompt Generation Logic
+        // Core Prompt Generation Logic - ALWAYS IN ENGLISH
         function generatePrompt() {
             // Gather Inputs
             const subject = document.getElementById('subjectAction').value || 'A scene';
             const context = document.getElementById('contextLocation').value || '';
             const tokenWeight = tokenPriority.value / 100;
             
-            let style = visualStyleSelect.value;
+            let style = visualStyleSelect.value; // value is English
             const artisticWeight = styleWeight.value / 100;
 
-            const shotType = document.getElementById('shotType').value;
-            const lens = document.getElementById('lens').value;
-            const lighting = document.getElementById('lighting').value;
+            const shotType = shotTypeSelect.value; // value is English
+            const lens = lensSelect.value;
+            const lighting = lightingSelect.value; // value is English
             const atmosphere = document.getElementById('atmosphere').value;
-            const movement = document.getElementById('cameraMovement').value;
+            const movement = cameraMovementSelect.value; // value is English
 
             // Build Parts
             let sceneDescription = subject;
             if (context) sceneDescription += `, ${context}`;
 
-            // Apply weights (simple multiplication representation for the prompt string)
-            // Note: Grok's actual interpretation of weights might vary, but this follows the logic of emphasizing parts.
-            // A common way to denote weight in prompts is (text:weight).
+            // Apply weights
             let finalScenePart = `(${sceneDescription}:${tokenWeight.toFixed(1)})`;
             
             let finalStylePart = style ? `(${style}:${artisticWeight.toFixed(1)})` : '';
@@ -571,9 +668,9 @@
                 // Voice Logic (Anti-Babble Structure)
                 if (voiceToggle.checked) {
                     const charName = document.getElementById('characterName').value || 'Character';
-                    const vType = document.getElementById('voiceType').value;
-                    const vAccent = document.getElementById('accent').value;
-                    const vEmotion = document.getElementById('emotion').value;
+                    const vType = voiceTypeSelect.value; // value is English
+                    const vAccent = accentSelect.value; // value is English
+                    const vEmotion = emotionSelect.value; // value is English
                     const vScript = document.getElementById('script').value;
 
                     if (vScript && !vScript.isEmpty()) {
@@ -610,17 +707,20 @@
             finalPrompt.select();
             document.execCommand('copy');
             
-            const originalText = copyBtn.innerHTML;
-            copyBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-cyber-neon-green" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg> Copied!';
+            const originalBtnHtml = copyBtn.innerHTML;
+            const copiedText = currentLang === 'en' ? "Copied!" : (currentLang === 'es' ? "¡Copiado!" : "Kopiert!");
+            
+            copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1 sm:mr-2 text-cyber-neon-green" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg><span class="hidden sm:inline">${copiedText}</span>`;
             setTimeout(() => {
-                copyBtn.innerHTML = originalText;
+                copyBtn.innerHTML = originalBtnHtml;
             }, 2000);
         }
 
         function downloadTxt() {
             const content = finalPrompt.value;
             if (content.isEmpty()) {
-                alert("Please generate a prompt first.");
+                const alertMsg = currentLang === 'en' ? "Please generate a prompt first." : (currentLang === 'es' ? "Por favor, genera un prompt primero." : "Bitte generieren Sie zuerst einen Prompt.");
+                alert(alertMsg);
                 return;
             }
             const element = document.createElement('a');
