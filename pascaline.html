@@ -3,12 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pascaline Simulator — With Lever Animation & Sound</title>
-
-  <meta property="og:title" content="Pascaline Simulator" />
-  <meta property="og:description" content="A mechanical calculator simulator with lever animation and sound effects." />
-  <meta property="og:image" content="preview.jpg" /> 
-  <meta property="og:type" content="website" />
+  <title>Pascaline Simulator — With Subtraction Mode</title>
 
   <style>
     :root {
@@ -22,7 +17,8 @@
       --acc-border: #9f8e76;
       --button-bg: #7b664f;
       --button-hover: #8c7a62;
-      --overlay-comp: rgba(255,255,255,0.6);
+      --button-active: #bfa883; /* New color for active state */
+      --overlay-comp: rgba(255,255,255,0.7); /* Made slightly clearer/lighter per request */
       --lever-color: #7b664f;
     }
     * { box-sizing: border-box; }
@@ -90,13 +86,13 @@
       right: 6px;
       bottom: 6px;
       font-size: 0.85em;
-      color: #555;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      color: #333;
+      font-weight: bold;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.8);
     }
     .input-wheels {
       display: flex;
       justify-content: center;
-      /* Ensure wheels stay in one line and scroll if needed */
       flex-wrap: nowrap; 
       overflow-x: auto; 
       margin-bottom: 10px;
@@ -116,7 +112,7 @@
       user-select: none;
       overflow: hidden;
       transition: transform 0.25s ease-out;
-      flex-shrink: 0; /* Prevent wheels from squishing */
+      flex-shrink: 0;
     }
     .wheel .digits {
       position: absolute;
@@ -148,26 +144,32 @@
       background-blend-mode: multiply;
     }
     .controls {
-      text-align: center;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
       margin: 12px 0 18px;
     }
     .controls button {
       background: var(--button-bg);
       color: var(--acc-win-bg);
       border: none;
-      padding: 8px 14px;
-      margin: 0 4px;
+      padding: 10px 16px;
       font-size: 1em;
       border-radius: 5px;
       cursor: pointer;
-      box-shadow: 0 1px 5px rgba(0,0,0,0.3);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      transition: background 0.2s;
     }
     .controls button:hover {
       background: var(--button-hover);
     }
-    .controls label {
-      margin-left: 8px;
-      font-size: 0.9em;
+    /* Style for the active subtraction mode */
+    .controls button.active-mode {
+      background: var(--button-active);
+      color: var(--text-dark);
+      font-weight: bold;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
     }
 
     .education {
@@ -180,33 +182,20 @@
       color: var(--text-dark);
       line-height: 1.4;
     }
-    .education h2 {
-      margin-top: 0;
-      font-family: serif;
-    }
-    @media (max-width: 400px) {
-      .acc-window { width: 40px; font-size: 1.3em; }
-      .wheel { width: 44px; height: 44px; }
-      .wheel .digits div { font-size: 1.4em; }
-    }
-
-    /* --- Lever SVG container & animation --- */
+    .education h2 { margin-top: 0; font-family: serif; }
+    
     #lever-container {
       position: absolute;
-      top: 10px;
-      left: 10px;
-      width: 60px;
-      height: 60px;
+      top: 10px; left: 10px;
+      width: 60px; height: 60px;
       pointer-events: none;
       z-index: 5;
     }
     #lever {
-      transform-origin: 30px 30px; /* pivot center */
+      transform-origin: 30px 30px;
       transition: transform 0.15s ease-out;
     }
-    .lever-activate {
-      transform: rotate(-30deg);
-    }
+    .lever-activate { transform: rotate(-30deg); }
   </style>
 </head>
 <body>
@@ -222,30 +211,26 @@
       </div>
 
       <div class="accumulator" id="accumulator">
-        <div id="compBar"><span>10’s complement view</span></div>
+        <div id="compBar"><span>COMPLEMENT / SUBTRACT</span></div>
       </div>
       <div class="input-wheels" id="inputWheels"></div>
+      
       <div class="controls">
         <button id="btnAdd">Enter / Add</button>
+        <button id="btnComp">Subtraction Mode</button>
         <button id="btnClear">Clear (Reset)</button>
-        <label><input type="checkbox" id="toggleComp"> Show complement (for subtraction)</label>
       </div>
     </div>
   </div>
 
   <div class="education">
-    <h2>How it Works — Inside the Pascaline</h2>
+    <h2>How to Subtract (100 - 10)</h2>
     <p>
-      The input wheels are circular metal dials with visible spokes, simulating crown‑wheels. Clicking a wheel rotates it one notch clockwise (as if placing a stylus between spokes). The wheel cannot rotate backwards — simulating the back‑stop pawl of the real Pascaline.
-    </p>
-    <p>
-      The accumulator windows above show the cumulative total. Press “Enter / Add” to add the number on the input wheels. If a wheel overflows from 9 → 0, a carry propagates to the next higher-order digit — just like the real carry lever and pawl mechanism. The small lever visible at the top‑left swings each time a carry happens.
-    </p>
-    <p>
-      For subtraction: Subtraction is performed using addition of the **10's complement**. By checking the box, the accumulator windows display the 10's complement of the current total (e.g., if the total is 011, it displays 989). 
-    </p>
-    <p>
-      The “Clear (Reset)” button simulates mechanical clearing: all accumulator wheels are internally set to 9, then adding 1 causes a ripple carry that resets all digits to 0 — same method used historically.
+      1. Enter <b>100</b> using the wheels and press <b>"Enter / Add"</b>. <br>
+      2. Set the wheels to <b>10</b> (the number you want to subtract).<br>
+      3. Press <b>"Subtraction Mode"</b>. The screen will change to show the complement view.<br>
+      4. Press <b>"Enter / Add"</b>. The machine adds the complement of 10.<br>
+      5. Press <b>"Subtraction Mode"</b> again to turn it off. The correct result (90) will be revealed.
     </p>
   </div>
 
@@ -253,12 +238,19 @@
   const NUM = 6;
   let accumulator = new Array(NUM).fill(0);
   let input = new Array(NUM).fill(0);
+  
+  // State for Subtraction Mode
+  let isSubtractionMode = false;
 
   const accContainer = document.getElementById("accumulator");
   const inputWheelsContainer = document.getElementById("inputWheels");
   const compBar = document.getElementById("compBar");
-  const toggleComp = document.getElementById("toggleComp");
   const lever = document.getElementById("lever");
+  
+  // Buttons
+  const btnAdd = document.getElementById("btnAdd");
+  const btnComp = document.getElementById("btnComp");
+  const btnClear = document.getElementById("btnClear");
 
   // --- Build UI ---
   function initAccumulator() {
@@ -321,58 +313,86 @@
     playClick(240, 0.04);
   }
 
-  // --- Refresh accumulator display (FIXED COMPLEMENT LOGIC) ---
-  function refreshAccumulator(showComp = false) {
+  // --- Display Logic ---
+  function refreshAccumulator() {
     const wins = accContainer.querySelectorAll(".acc-window");
 
-    if (!showComp) {
-      // Normal view: just show the digits
+    if (!isSubtractionMode) {
+      // Normal Mode: Show direct values
       for (let i = 0; i < NUM; i++) {
         wins[i].textContent = accumulator[i];
       }
     } else {
-      // Complement view: Calculate 10's complement correctly
-      // 1. Convert current digits to a whole number
+      // Subtraction Mode: Show 10's Complement of the accumulator
       let currentVal = 0;
       for (let i = 0; i < NUM; i++) {
-        currentVal += accumulator[i] * Math.pow(10, (NUM - 1) - i); // Corrected power of 10
+        currentVal += accumulator[i] * Math.pow(10, (NUM - 1) - i);
       }
 
-      // 2. Calculate 10's complement (10^N - val)
+      // 10's complement calculation (10^N - val)
       const maxPower = Math.pow(10, NUM);
       let compVal = (maxPower - currentVal) % maxPower;
 
-      // 3. Convert compVal back to digits for display
+      // Render digits
       for (let i = 0; i < NUM; i++) {
-        // Extract digit at position i
-        const digit = Math.floor(compVal / Math.pow(10, (NUM - 1) - i)) % 10; // Corrected power of 10
+        const digit = Math.floor(compVal / Math.pow(10, (NUM - 1) - i)) % 10;
         wins[i].textContent = digit;
       }
     }
   }
 
-  // --- Add input logic + carry + lever + sound ---
-  // Note: The checkbox now only changes the *view*, not the addition logic itself.
+  // --- Logic Helpers ---
+  function getEffectiveInput() {
+    // If Normal mode, return input as is
+    if (!isSubtractionMode) {
+      return [...input];
+    }
+    
+    // If Subtraction Mode, we must Add the Complement of the input
+    // 1. Convert Input Array to Number
+    let val = 0;
+    for(let i=0; i<NUM; i++) {
+      val += input[i] * Math.pow(10, (NUM-1)-i);
+    }
+    
+    // 2. Calculate Complement of Input (10^N - Input)
+    let max = Math.pow(10, NUM);
+    let compVal = (max - val) % max;
+    
+    // 3. Convert back to array
+    let compInput = [];
+    for(let i=0; i<NUM; i++) {
+      let d = Math.floor(compVal / Math.pow(10, (NUM-1)-i)) % 10;
+      compInput.push(d);
+    }
+    return compInput;
+  }
+
+  // --- Core Operations ---
   function addInput() {
+    // Determine what we are adding (Normal input or Complement input)
+    const valuesToAdd = getEffectiveInput();
+    
     let carry = 0;
     let anyCarry = false;
     for (let i = NUM - 1; i >= 0; i--) {
-      const s = accumulator[i] + input[i] + carry;
+      const s = accumulator[i] + valuesToAdd[i] + carry;
       const newDigit = s % 10;
       carry = Math.floor(s / 10);
-      if (carry > 0) anyCarry = true; // Lever animates on carry Out
+      if (carry > 0) anyCarry = true; 
       accumulator[i] = newDigit;
     }
-    // Refresh display based on current checkbox state
-    refreshAccumulator(toggleComp.checked);
-    resetInput();
+
+    refreshAccumulator();
+    resetInputWheels();
+    
     if (anyCarry) {
       animateLever();
       playClick(180, 0.08);
     }
   }
 
-  function resetInput() {
+  function resetInputWheels() {
     input = new Array(NUM).fill(0);
     wheelElems.forEach(w => {
       w.wheel.style.transform = `rotate(0deg)`;
@@ -381,9 +401,8 @@
   }
 
   function clearAll() {
-    // Simulating the mechanical "ripple clear"
     accumulator = new Array(NUM).fill(9);
-    refreshAccumulator(toggleComp.checked);
+    refreshAccumulator();
     setTimeout(() => {
       let carry = 1;
       let anyCarry = true;
@@ -393,7 +412,7 @@
         carry = Math.floor(s / 10);
         accumulator[i] = newDigit;
       }
-      refreshAccumulator(toggleComp.checked);
+      refreshAccumulator();
       if (anyCarry) {
         animateLever();
         playClick(180, 0.08);
@@ -401,22 +420,32 @@
     }, 300);
   }
 
-  function toggleComplementView() {
-    const show = toggleComp.checked;
-    compBar.style.display = show ? "block" : "none";
-    // Update text to reflect it's the 10's complement
-    compBar.querySelector('span').textContent = "10’s complement view";
-    refreshAccumulator(show);
+  // --- Toggle Mode ---
+  function toggleSubtractionMode() {
+    isSubtractionMode = !isSubtractionMode;
+    
+    // Visual Updates
+    if (isSubtractionMode) {
+      compBar.style.display = "block";
+      btnComp.classList.add("active-mode");
+    } else {
+      compBar.style.display = "none";
+      btnComp.classList.remove("active-mode");
+    }
+    
+    // Update the numbers in the windows immediately
+    refreshAccumulator();
   }
 
-  document.getElementById("btnAdd").addEventListener("click", addInput);
-  document.getElementById("btnClear").addEventListener("click", clearAll);
-  toggleComp.addEventListener("change", toggleComplementView);
+  // --- Event Listeners ---
+  btnAdd.addEventListener("click", addInput);
+  btnClear.addEventListener("click", clearAll);
+  btnComp.addEventListener("click", toggleSubtractionMode);
 
   // --- Init ---
   initAccumulator();
   initWheels();
-  refreshAccumulator(false);
+  refreshAccumulator();
 </script>
 
 </body>
