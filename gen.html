@@ -118,8 +118,8 @@
             </div>
         </div>
         <div class="status-panel">
-            <h4 class="text-xs font-bold mb-2 font-mono" style="color: var(--accent);">ENGINE V4.0 (MOBILE FIX)</h4>
-            <p class="text-[10px] text-gray-400">Optimiert für iPhone/Android Viewport.</p>
+            <h4 class="text-xs font-bold mb-2 font-mono" style="color: var(--accent);">ENGINE V4.0</h4>
+            <p class="text-[10px] text-gray-400">Auto-Start & Touch Control enabled.</p>
         </div>
     </div>
   </div>
@@ -135,9 +135,9 @@
     };
 
     const translations = {
-        es: { lbl_editor:"Editor", btn_load_example:"Cargar Ejemplo", lbl_actions:"Acciones", btn_import:"Importar", lbl_live:"PROYECTAR EN VIVO", example_text:"# Título del Programa\n\n* [INICIO]\n\nEste texto ahora es visible en tu celular.\nLa barra inferior se ajusta automáticamente.\n\n* [PAUSA]" },
-        en: { lbl_editor:"Editor", btn_load_example:"Load Example", lbl_actions:"Actions", btn_import:"Import", lbl_live:"PROJECT LIVE", example_text:"# Show Title\n\n* [START]\n\nThis text is now visible on your phone.\nThe bottom bar adjusts automatically.\n\n* [PAUSE]" },
-        de: { lbl_editor:"Editor", btn_load_example:"Beispiel", lbl_actions:"Aktionen", btn_import:"Import", lbl_live:"LIVE PROJIZIEREN", example_text:"# Sendungstitel\n\n* [START]\n\nDieser Text ist nun auf dem Handy sichtbar.\nDie untere Leiste passt sich an.\n\n* [PAUSE]" }
+        es: { lbl_editor:"Editor", btn_load_example:"Cargar Ejemplo", lbl_actions:"Acciones", btn_import:"Importar", lbl_live:"PROYECTAR EN VIVO", example_text:"# Título del Programa\n\n* [AUTO-START ACTIVADO]\n\nEl texto comenzará a moverse solo en 2 segundos.\n\nPuedes tocar cualquier parte de la pantalla para PAUSAR o CONTINUAR.\n\n* [FIN]" },
+        en: { lbl_editor:"Editor", btn_load_example:"Load Example", lbl_actions:"Actions", btn_import:"Import", lbl_live:"PROJECT LIVE", example_text:"# Show Title\n\n* [AUTO-START ON]\n\nText will scroll automatically in 2 seconds.\n\nTap anywhere on the screen to PAUSE or RESUME.\n\n* [END]" },
+        de: { lbl_editor:"Editor", btn_load_example:"Beispiel", lbl_actions:"Aktionen", btn_import:"Import", lbl_live:"LIVE PROJIZIEREN", example_text:"# Sendungstitel\n\n* [AUTO-START EIN]\n\nText scrollt automatisch in 2 Sekunden.\n\nTippen Sie auf den Bildschirm für PAUSE oder WEITER.\n\n* [ENDE]" }
     };
     let currentLang = 'de';
 
@@ -147,7 +147,7 @@
     function loadExample() { document.getElementById('input').value = translations[currentLang].example_text; }
     function importFile(input) { const f=input.files[0]; if(!f)return; const r=new FileReader(); r.onload=e=>{document.getElementById('input').value=e.target.result}; r.readAsText(f); }
     
-    // --- GENERADOR DEL PLAYER CORREGIDO (MOBILE) ---
+    // --- GENERADOR DEL PLAYER (UPDATED FEATURES) ---
     function parseScript() {
         const raw = document.getElementById('input').value;
         const lines = raw.split('\n');
@@ -171,67 +171,54 @@
     <title>Teleprompter Live</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-        body { background-color: black; color: white; font-family: 'Inter', sans-serif; margin:0; overflow-x:hidden; }
+        body { background-color: black; color: white; font-family: 'Inter', sans-serif; margin:0; overflow-x:hidden; cursor: pointer; }
         
         /* SCROLLABLE AREA */
         #script-container { 
             padding: 20px; 
-            padding-top: 20vh; /* Espacio extra arriba para que no se oculte tras el notch */
+            padding-top: 20vh;
             padding-bottom: 60vh; 
             max-width: 800px; margin: 0 auto; 
             line-height: 1.5; 
-            opacity: 1; /* FORZAR VISIBILIDAD */
+            opacity: 1;
         }
 
         .speaker-text { font-size: 2.8rem; font-weight: 600; color: #ffffff; margin-bottom: 1.5rem; }
         .instruction { font-size: 1.5rem; color: #FCD34D; font-style: italic; background: #333; padding: 10px; border-left: 4px solid #F59E0B; margin-bottom: 2rem; }
         .timestamp { font-size: 2rem; font-weight: 800; color: #60A5FA; border-top: 1px solid #444; padding-top: 2rem; margin-top: 3rem; text-transform: uppercase; }
 
-        /* CONTROL BAR (MOBILE OPTIMIZED) */
+        /* CONTROL BAR (FIXED) */
         #controls { 
             position: fixed; bottom: 0; left: 0; right: 0; 
             background-color: #111; border-top: 1px solid #333; 
             padding: 10px; 
-            padding-bottom: env(safe-area-inset-bottom, 10px); /* iPhone Home Bar fix */
+            padding-bottom: env(safe-area-inset-bottom, 10px); 
             display: flex; align-items: center; gap: 8px; 
             z-index: 9999;
             justify-content: center;
-            overflow-x: auto; /* Permitir scroll si no cabe */
+            overflow-x: auto;
+            cursor: default; /* Avoid toggle trigger on controls */
         }
 
-        /* ESTILOS ESPECÍFICOS MÓVIL */
         @media (max-width: 600px) {
-            #controls { 
-                justify-content: flex-start; /* Alinear al inicio para permitir scroll natural */
-                padding-left: 10px; padding-right: 10px;
-            }
-            .btn-main, #save-btn, #mirror-btn { 
-                height: 38px !important; 
-                min-width: 38px !important; 
-                padding: 0 10px !important; 
-            }
-            #play-pause-btn { 
-                min-width: auto !important; /* Quitar ancho fijo */
-                padding: 0 15px !important;
-                font-size: 0.8rem;
-            }
+            #controls { justify-content: flex-start; padding-left: 10px; padding-right: 10px; }
+            .btn-main, #save-btn { height: 38px !important; min-width: 38px !important; padding: 0 10px !important; }
+            #play-pause-btn { min-width: auto !important; padding: 0 15px !important; font-size: 0.8rem; }
             .stepper-btn { width: 34px !important; height: 34px !important; }
             .value-display { font-size: 0.8rem; min-width: 20px; }
-            .speaker-text { font-size: 2rem; } /* Fuente base más pequeña en móvil */
+            .speaker-text { font-size: 2rem; }
         }
 
         .btn-main { height: 48px; padding: 0 20px; border-radius: 8px; font-weight: 700; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition:0.2s; }
         #play-pause-btn { background-color: #10B981; min-width: 100px; } 
         #play-pause-btn.paused { background-color: #EF4444; } 
-        #reset-btn, #mirror-btn { background-color: #374151; }
+        #save-btn { background-color: #7C3AED; }
         
         .control-group { display: flex; align-items: center; gap: 2px; background: #222; padding: 3px; border-radius: 8px; border: 1px solid #444; flex-shrink: 0; }
         .stepper-btn { width: 44px; height: 44px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; color: white; background: transparent; }
         .theme-speed .stepper-btn { background: #1E40AF; }
         .theme-font .stepper-btn { background: #92400E; }
         .value-display { font-family: monospace; font-weight: bold; min-width: 30px; text-align: center; }
-
-        .mirror-x { transform: scaleX(-1); } .mirror-y { transform: scaleY(-1); }
         .svg-icon { width: 20px; height: 20px; fill: currentColor; }
     </style>
 </head>
@@ -239,10 +226,11 @@
   <div id="script-container"></div>
   <div id="controls">
     <button id="play-pause-btn" class="btn-main">START</button>
-    <button id="reset-btn" class="btn-main"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+    
     <div class="control-group theme-speed"><button class="stepper-btn" id="s-">-</button><div class="value-display" id="s-val">3</div><button class="stepper-btn" id="s+">+</button></div>
     <div class="control-group theme-font"><button class="stepper-btn" id="f-">-</button><div class="value-display" id="f-val">3</div><button class="stepper-btn" id="f+">+</button></div>
-    <button id="mirror-btn" class="btn-main"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg></button>
+    
+    <button id="save-btn" class="btn-main" title="Guardar"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg></button>
   </div>
   <script>
     const data = JSON.parse('${jsonString}');
@@ -253,13 +241,13 @@
         el.innerText = i.content; cont.appendChild(el);
     });
 
-    let state = { speed:3, font:3, playing:false, mirror:0 };
+    let state = { speed:3, font:3, playing:false };
     let anim;
     
     function update() {
         document.getElementById('s-val').innerText = state.speed;
         document.getElementById('f-val').innerText = state.font;
-        const fs = 20 + (state.font * 4); // Base font size calc
+        const fs = 20 + (state.font * 4);
         document.querySelectorAll('.speaker-text').forEach(e => e.style.fontSize = fs+'px');
     }
     
@@ -268,20 +256,40 @@
         window.scrollBy(0, state.speed * 0.4);
         anim = requestAnimationFrame(loop);
     }
-    
-    document.getElementById('play-pause-btn').onclick = function() {
+
+    function togglePlay() {
         state.playing = !state.playing;
-        this.innerText = state.playing ? "PAUSE" : "START";
-        this.classList.toggle('paused', state.playing);
+        const btn = document.getElementById('play-pause-btn');
+        btn.innerText = state.playing ? "PAUSE" : "START";
+        btn.classList.toggle('paused', state.playing);
         if(state.playing) loop(); else cancelAnimationFrame(anim);
+    }
+    
+    // --- CONTROLS LOGIC ---
+    document.getElementById('play-pause-btn').onclick = (e) => { e.stopPropagation(); togglePlay(); };
+    
+    // Touch anywhere to play/pause (Except Controls)
+    document.body.onclick = (e) => {
+        if (!e.target.closest('#controls')) togglePlay();
     };
 
-    document.getElementById('reset-btn').onclick = () => { window.scrollTo(0,0); state.playing=false; cancelAnimationFrame(anim); document.getElementById('play-pause-btn').innerText="START"; document.getElementById('play-pause-btn').classList.remove('paused'); };
+    // Prevent clicks on controls from triggering body click
+    document.getElementById('controls').onclick = (e) => { e.stopPropagation(); };
+
     document.getElementById('s-').onclick = () => { if(state.speed>0) state.speed--; update(); };
     document.getElementById('s+').onclick = () => { if(state.speed<20) state.speed++; update(); };
     document.getElementById('f-').onclick = () => { if(state.font>0) state.font--; update(); };
     document.getElementById('f+').onclick = () => { if(state.font<15) state.font++; update(); };
-    document.getElementById('mirror-btn').onclick = () => { state.mirror=(state.mirror+1)%3; cont.className=''; if(state.mirror===1)cont.classList.add('mirror-x'); if(state.mirror===2)cont.classList.add('mirror-y'); };
+
+    // SAVE FILE LOGIC
+    document.getElementById('save-btn').onclick = () => {
+        const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'teleprompter-recording.html';
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+
+    // AUTO-START
+    setTimeout(() => { if(!state.playing) togglePlay(); }, 2000);
 
     update();
   <\/script>
@@ -302,7 +310,6 @@
     
     function generatePDF() { window.print(); }
 
-    // Init
     document.addEventListener('DOMContentLoaded', () => setLang('de'));
   </script>
 </body>
