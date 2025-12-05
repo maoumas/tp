@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TPascal.com - Tools für TranslatedPress</title>
+
+    <meta property="og:title" content="TPascal.com Hub" />
+    <meta property="og:description" content="Zentrum für Anwendungen, Skripte und Ressourcen für die TranslatedPress-Community." />
+    <meta property="og:image" content="og-image-tpascal.png" /> <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://tpascal.com" />
+    <meta name="theme-color" content="#020617">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* --- THEME VARIABLES (Consistent with admin.html) --- */
+        :root {
+            --bg-app: #020617;
+            --bg-panel: #172554;
+            --accent: #facc15;
+            --accent-hover: #eab308;
+            --accent-text: #000000;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #1e3a8a;
+            --input-bg: #0f172a;
+        }
+
+        body {
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+
+        /* Main Container Panel styling */
+        .main-container {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        /* LANGUAGE SWITCHER BUTTONS */
+        .lang-group {
+            display: flex;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px;
+        }
+
+        .lang-btn {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+
+        .lang-btn.active {
+            background: var(--accent);
+            color: var(--accent-text);
+        }
+
+        .lang-btn:hover:not(.active) {
+            color: var(--text-main);
+        }
+
+        /* Content Styling */
+        .content { display: none; padding: 30px; }
+        .content.active { display: block; }
+
+        h1 {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 800;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: -0.05em;
+        }
+
+        h3 {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+        
+        h3 a { color: var(--accent); text-decoration: none; border-bottom: 1px dotted var(--accent); }
+
+        p { color: var(--text-muted); line-height: 1.6; }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* App Cards styling */
+        .app-card {
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 20px;
+            text-align: left;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .app-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .app-card h3 {
+            color: var(--accent);
+            margin-bottom: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .app-card i { font-size: 1.2rem; }
+
+        .app-card p { font-size: 0.9em; }
+
+        /* Directory List styling */
+        .directory-list li {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+        }
+
+        .directory-list a {
+            text-decoration: none;
+            color: var(--accent);
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .directory-list a:hover { color: var(--accent-hover); text-decoration: underline;}
+
+        hr { border-color: var(--border); opacity: 0.5; margin: 30px 0; }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 0.85em;
+            color: var(--text-muted);
+            padding-top: 20px;
+            border-top: 1px dashed var(--border);
+        }
+
+        footer a { color: var(--accent); text-decoration: none; }
+        footer a:hover { text-decoration: underline; }
+        
+        .banner-img {
+             width: 100%;
+             border-radius: 6px;
+             border: 1px solid var(--border);
+             margin-bottom: 30px;
+             opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="main-container">
+        <div class="flex justify-between items-center p-4 border-b border-[#1e3a8a] bg-[#0f172a]">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-network-wired text-2xl" style="color: var(--accent);"></i>
+                <span class="font-bold tracking-tight text-lg" style="color: var(--text-main);">TPASCAL <span style="color: var(--accent);">HUB</span></span>
+            </div>
+            <div class="lang-group">
+                <button class="lang-btn" onclick="setLanguage('es')">ES</button>
+                <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+                <button class="lang-btn active" onclick="setLanguage('de')">DE</button>
+            </div>
+        </div>
+
+        <div id="de" class="content active">
+            <img src="../pascaline.png" alt="Banner von TPascal.com" class="banner-img">
+            
+            <div class="text-center mb-10">
+                <h1 class="text-3xl mb-2">Willkommen auf TPascal.com</h1>
+                <h3 class="text-xl mb-6">Das Zentrum für Anwendungen und Tools des Kanals <a href="https://www.youtube.com/@TranslatedPressDE" target="_blank">TranslatedPress</a>.</h3>
+                <p class="max-w-2xl mx-auto text-lg">
+                    Hier finden Sie eine Sammlung von Dienstprogrammen, Skripten und Ressourcen, die entwickelt wurden, um die Erstellung von Inhalten, die Produktivität und die Gemeinschaft von TranslatedPress zu unterstützen. Von spezialisierten Taschenrechnern bis hin zu Automatisierungstools ist alles darauf ausgelegt, praktisch und direkt zu sein.
+                </p>
+            </div>
+
+            <h2 class="section-header">
+                <i class="fa-solid fa-rocket"></i> Hervorgehobene Anwendungen
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <a href="https://tpascal.com/pascaline.html" class="app-card">
+                    <h3><i class="fa-solid fa-calculator"></i> Pascal-Rechner</h3>
+                    <p>Eine digitale Nachbildung des historischen mechanischen Taschenrechners. Perfekt für Bildungsdemonstrationen.</p>
+                </a>
+                <a href="https://github.com/maoumas/arti/blob/main/tp-gen.html" class="app-card">
+                    <h3><i class="fa-solid fa-scroll"></i> Teleprompter Master</h3>
+                    <p>Das ultimative Tool für die Aufnahme Ihrer Videos mit Skripten, Geschwindigkeitskontrolle und Spiegelmodus.</p>
+                </a>
+                <a href="https://tpascal.com/tp-gen" class="app-card">
+                    <h3><i class="fa-solid fa-image"></i> Thumbnail-Generator</h3>
+                    <p>Erstellen Sie schnelle und konsistente Vorlagen für die Cover Ihrer YouTube-Videos.</p>
+                </a>
+            </div>
+
+            <h2 class="section-header">
+                <i class="fa-solid fa-folder-open"></i> Vollständiges Verzeichnis
+            </h2>
+            <p class="mb-4">Wenn Sie eine Listenansicht aller in diesem Verzeichnis verfügbaren Dateien bevorzugen:</p>
+            <ul class="directory-list">
+                <li><i class="fa-regular fa-file-code"></i> <a href="teleprompter-master.html">teleprompter-master.html</a> - Die neueste Version unseres Teleprompter-Tools.</li>
+                <li><i class="fa-regular fa-file-lines"></i> <a href="anleitung-rechner.md">anleitung-rechner.md</a> - Dokumentation für den Taschenrechner.</li>
+                <li><i class="fa-brands fa-python"></i> <a href="automatisierungs-skript.py">automatisierungs-skript.py</a> - Python-Skript für wiederkehrende Aufgaben.</li>
+                <li><i class="fa-regular fa-folder"></i> <a href="grafik-ressourcen/">grafik-ressourcen/</a> - Ordner mit Symbolen und Logos des Kanals.</li>
+                <li class="italic opacity-50"><i class="fa-solid fa-plus"></i> Fügen Sie hier manuell die Links zu den neuen Dateien hinzu...</li>
+            </ul>
+
+            <footer>
+                <p>Entwickelt mit <i class="fa-solid fa-heart text-red-500"></i> für die Gemeinschaft von <b>TranslatedPress</b>.<br>
+                <a href="https://www.youtube.com/@TranslatedPressDE"><i class="fa-brands fa-youtube"></i> YouTube-Kanal</a> | <a href="https://github.com/IHR_BENUTZERNAME"><i class="fa-brands fa-github"></i> GitHub-Profil</a></p>
+            </footer>
+        </div>
+
+        <div id="en" class="content">
+            <img src="../pascaline.png" alt="TPascal.com Banner" class="banner-img">
+            
+            <div class="text-center mb-10">
+                <h1 class="text-3xl mb-2">Welcome to TPascal.com</h1>
+                <h3 class="text-xl mb-6">The hub for applications and tools for the <a href="https://www.youtube.com/@TranslatedPressDE" target="_blank">TranslatedPress</a> channel.</h3>
+                <p class="max-w-2xl mx-auto text-lg">
+                    Here you will find a collection of utilities, scripts, and resources developed to support content creation, productivity, and the TranslatedPress community. From specialized calculators to automation tools, everything is designed to be practical and direct.
+                </p>
+            </div>
+
+            <h2 class="section-header">
+                <i class="fa-solid fa-rocket"></i> Featured Applications
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <a href="https://tpascal.com/pascaline.html" class="app-card">
+                    <h3><i class="fa-solid fa-calculator"></i> Pascal Calculator</h3>
+                    <p>A digital recreation of the historic mechanical calculator. Perfect for educational demonstrations.</p>
+                </a>
+                <a href="https://github.com/YOUR_USERNAME/YOUR_REPOSITORY/blob/main/tp-gen.html" class="app-card">
+                    <h3><i class="fa-solid fa-scroll"></i> Teleprompter Master</h3>
+                    <p>The ultimate tool for recording your videos with scripts, speed control, and mirror mode.</p>
+                </a>
+                <a href="https://github.com/YOUR_USERNAME/YOUR_REPOSITORY/blob/main/FILENAME_3.md" class="app-card">
+                    <h3><i class="fa-solid fa-image"></i> Thumbnail Generator</h3>
+                    <p>Create quick and consistent templates for your YouTube video covers.</p>
+                </a>
+            </div>
+
+            <h2 class="section-header">
+                <i class="fa-solid fa-folder-open"></i> Complete Directory
+            </h2>
+            <p class="mb-4">If you prefer a list view of all files available in this directory:</p>
+            <ul class="directory-list">
+                <li><i class="fa-regular fa-file-code"></i> <a href="teleprompter-master.html">teleprompter-master.html</a> - The latest version of our Teleprompter tool.</li>
+                <li><i class="fa-regular fa-file-lines"></i> <a href="calculator-guide.md">calculator-guide.md</a> - Documentation for the calculator.</li>
+                <li><i class="fa-brands fa-python"></i> <a href="automation-script.py">automation-script.py</a> - Python script for recurring tasks.</li>
+                <li><i class="fa-regular fa-folder"></i> <a href="graphic-resources/">graphic-resources/</a> - Folder with channel icons and logos.</li>
+                <li class="italic opacity-50"><i class="fa-solid fa-plus"></i> Manually add links to new files you upload here...</li>
+            </ul>
+
+            <footer>
+                <p>Developed with <i class="fa-solid fa-heart text-red-500"></i> for the <b>TranslatedPress</b> community.<br>
+                <a href="https://www.youtube.com/@TranslatedPressDE"><i class="fa-brands fa-youtube"></i> YouTube channel</a> | <a href="https://github.com/YOUR_USERNAME"><i class="fa-brands fa-github"></i> GitHub Profile</a></p>
+            </footer>
+        </div>
+
+        <div id="es" class="content">
+            <img src="og-image-tpascal.png" alt="Banner de TPascal.com" class="banner-img">
+            
+            <div class="text-center mb-10">
+                <h1 class="text-3xl mb-2">Bienvenido a TPascal.com</h1>
+                <h3 class="text-xl mb-6">El centro de aplicaciones y herramientas del canal <a href="https://www.youtube.com/@TranslatedPressDE" target="_blank">TranslatedPress</a>.</h3>
+                <p class="max-w-2xl mx-auto text-lg">
+                    Aquí encontrarás una colección de utilidades, scripts y recursos desarrollados para apoyar la creación de contenido, la productividad y la comunidad de TranslatedPress. Desde calculadoras especializadas hasta herramientas de automatización, todo está pensado para ser práctico y directo.
+                </p>
+            </div>
+
+            <h2 class="section-header">
+                <i class="fa-solid fa-rocket"></i> Aplicaciones Destacadas
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <a href="https://tpascal.com/pascaline.html" class="app-card">
+                    <h3><i class="fa-solid fa-calculator"></i> Calculadora Pascal</h3>
+                    <p>Una recreación digital de la histórica calculadora mecánica. Perfecta para demostraciones educativas.</p>
+                </a>
+                <a href="https://tpascal.com/tp-gen.html" class="app-card">
+                    <h3><i class="fa-solid fa-scroll"></i> Teleprompter Master</h3>
+                    <p>La herramienta definitiva para grabar tus vídeos con guiones, control de velocidad y modo espejo.</p>
+                </a>
+                <a href="https://github.com/TU_USUARIO/TU_REPOSITORIO/blob/main/NOMBRE_DEL_ARCHIVO_3.md" class="app-card">
+                    <h3><i class="fa-solid fa-image"></i> Generador de Miniaturas</h3>
+                    <p>Crea plantillas rápidas y consistentes para las portadas de tus vídeos de YouTube.</p>
+                </a>
+            </div>
+
+            <h2 class="section-header">
+                <i class="fa-solid fa-folder-open"></i> Directorio Completo
+            </h2>
+            <p class="mb-4">Si prefieres una vista de lista de todos los archivos disponibles en este directorio:</p>
+            <ul class="directory-list">
+                <li><i class="fa-regular fa-file-code"></i> <a href="teleprompter-master.html">teleprompter-master.html</a> - La última versión de nuestra herramienta de teleprompter.</li>
+                <li><i class="fa-regular fa-file-lines"></i> <a href="guia-calculadora.md">guia-calculadora.md</a> - Documentación para la calculadora.</li>
+                <li><i class="fa-brands fa-python"></i> <a href="script-automatizacion.py">script-automatizacion.py</a> - Script de Python para tareas recurrentes.</li>
+                <li><i class="fa-regular fa-folder"></i> <a href="recursos-graficos/">recursos-graficos/</a> - Carpeta con iconos y logos del canal.</li>
+                <li class="italic opacity-50"><i class="fa-solid fa-plus"></i> Añade aquí manualmente los enlaces a los nuevos archivos que subas...</li>
+            </ul>
+
+            <footer>
+                <p>Desarrollado con <i class="fa-solid fa-heart text-red-500"></i> para la comunidad de <b>TranslatedPress</b>.<br>
+                <a href="https://www.youtube.com/@TranslatedPressDE"><i class="fa-brands fa-youtube"></i> Canal de YouTube</a> | <a href="https://github.com/TU_USUARIO"><i class="fa-brands fa-github"></i> Perfil de GitHub</a></p>
+            </footer>
+        </div>
+
+    </div>
+
+    <script>
+        function setLanguage(lang) {
+            // 1. Hide all content divs
+            document.querySelectorAll('.content').forEach(div => {
+                div.classList.remove('active');
+            });
+            // 2. Show selected content
+            document.getElementById(lang).classList.add('active');
+            
+            // 3. Update button states
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if(btn.textContent.toLowerCase() === lang) {
+                    btn.classList.add('active');
+                }
+            });
+
+            // 4. Update document language for accessibility
+            document.documentElement.lang = lang;
+        }
+    </script>
+
+</body>
+</html>
