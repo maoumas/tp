@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Creador de Miniaturas para Web</title>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --accent-color: #007bff;
+            --panel-bg: #2d2d2d;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 { margin-bottom: 20px; text-align: center; }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 25px;
+            max-width: 1200px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .controls-panel {
+            flex: 1;
+            min-width: 320px;
+        }
+
+        .preview-panel {
+            flex: 1.5;
+            min-width: 400px;
+            align-items: center;
+        }
+
+<<<<<<< HEAD
+        /* Elementos del Formulario  */
+=======
+        /* Elementos del Formulario */
+>>>>>>> f13cdd145e0f4a9007047a2057e80c122536ac72
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 8px;
+            color: var(--accent-color);
+            font-size: 0.95rem;
+        }
+
+        input[type="text"], textarea, input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background-color: #404040;
+            color: white;
+            box-sizing: border-box;
+            font-size: 1rem;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            border-color: var(--accent-color);
+            outline: none;
+        }
+
+        textarea { resize: vertical; height: 80px; font-family: monospace; }
+
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s ease;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background-color: var(--accent-color); color: white; }
+        .btn-primary:hover { background-color: #0056b3; transform: translateY(-2px); }
+        
+        .btn-secondary { background-color: #555; color: white; }
+        .btn-secondary:hover { background-color: #666; }
+
+        .btn-success { background-color: #28a745; color: white; margin-top: auto; width: 100%; }
+        .btn-success:hover { background-color: #1e7e34; transform: translateY(-2px); }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+        .input-group textarea {
+            flex-grow: 1;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+        .input-group button {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            padding: 0 15px;
+        }
+
+        .divider { height: 1px; background-color: #555; margin: 15px 0; }
+
+        /* Estilos del Canvas */
+        .canvas-wrapper {
+            width: 100%;
+            position: relative;
+            /* Relación de aspecto 16:9 (720 / 1280 = 0.5625) */
+            padding-bottom: 56.25%; 
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 3px solid #444;
+            background-color: #000;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        #previewCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* La imagen se mostrará cuando cargue */
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.2rem;
+            z-index: 10;
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>Creador de Miniaturas para Web</h1>
+
+    <div class="container">
+        <div class="panel controls-panel">
+            <div>
+                <label for="titleText">1. Título (Franja Azul Superior)</label>
+                <input type="text" id="titleText" placeholder="Ingresa el título principal aquí...">
+            </div>
+
+            <div>
+                <label for="descText">2. Descripción (Franja Negra Media)</label>
+                <input type="text" id="descText" placeholder="Ingresa la descripción aquí...">
+            </div>
+
+            <div class="divider"></div>
+
+            <div>
+                <label for="grokIdea">3. Describe el Fondo para Grok</label>
+                <input type="text" id="grokIdea" placeholder="ej., Un centro de datos futurista con luces de neón...">
+                <button id="genPromptBtn" class="btn-primary" style="margin-top: 10px; width: 100%;">Generar Prompt para Grok</button>
+            </div>
+
+            <div>
+                <label for="grokPromptOutput">Prompt para Grok:</label>
+                <div class="input-group">
+                    <textarea id="grokPromptOutput" readonly placeholder="El prompt aparecerá aquí..."></textarea>
+                    <button id="copyPromptBtn" class="btn-secondary" title="Copiar al portapapeles">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div>
+                <label for="bgUpload">4. Subir Imagen Generada por Grok</label>
+                <input type="file" id="bgUpload" accept="image/png, image/jpeg, image/webp">
+            </div>
+        </div>
+
+        <div class="panel preview-panel">
+            <label>Previsualización en Vivo</label>
+            <div class="canvas-wrapper">
+                <div id="loadingMsg" class="loading-overlay">Cargando plantilla...</div>
+                <canvas id="previewCanvas" width="1280" height="720"></canvas>
+            </div>
+            <button id="downloadBtn" class="btn-success" disabled>Descargar Miniatura Final</button>
+        </div>
+    </div>
+
+
+    <script>
+        // --- Configuración ---
+        const TEMPLATE_URL = 'template.png'; 
+
+        // Configuración de posición y estilo del texto
+        // AJUSTA ESTOS VALORES si el texto no se alinea perfectamente con tu plantilla.
+        const config = {
+            title: {
+                x: 640,      // Centro horizontal (1280 / 2)
+                y: 135,      // Posición vertical aproximada en la franja azul
+                fontSize: 70,
+                fontFamily: "Arial, sans-serif",
+                color: "#FFFFFF",
+                maxWidth: 1180,
+                align: "center" // Alineación del texto
+            },
+            description: {
+                x: 640,
+                y: 425,     // Posición vertical aproximada en la franja negra
+                fontSize: 42,
+                fontFamily: "Arial, sans-serif",
+                color: "#FFFFFF",
+                maxWidth: 1180,
+                align: "center"
+            }
+        };
+
+        // --- Elementos del DOM ---
+        const canvas = document.getElementById('previewCanvas');
+        const ctx = canvas.getContext('2d');
+        const titleInput = document.getElementById('titleText');
+        const descInput = document.getElementById('descText');
+        const grokIdeaInput = document.getElementById('grokIdea');
+        const genPromptBtn = document.getElementById('genPromptBtn');
+        const grokPromptOutput = document.getElementById('grokPromptOutput');
+        const copyPromptBtn = document.getElementById('copyPromptBtn');
+        const bgUpload = document.getElementById('bgUpload');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const loadingMsg = document.getElementById('loadingMsg');
+
+        // --- Variables de Estado ---
+        let templateImg = new Image();
+        let backgroundImg = null;
+        let isTemplateLoaded = false;
+
+        // --- Inicialización ---
+        // Cargar la imagen de plantilla al iniciar
+        templateImg.crossOrigin = "anonymous"; // Importante si se sirve desde otro origen
+        templateImg.onload = () => {
+            isTemplateLoaded = true;
+            loadingMsg.style.display = 'none'; // Ocultar mensaje de carga
+            downloadBtn.disabled = false; // Habilitar descarga
+            drawCanvas(); // Dibujar estado inicial
+            console.log("Plantilla cargada correctamente.");
+        };
+        templateImg.onerror = () => {
+             loadingMsg.textContent = "Error: No se encontró 'template.png'. Asegúrate de que el archivo esté en la misma carpeta.";
+             loadingMsg.style.color = "#ff6b6b";
+             console.error("Error cargando la imagen de plantilla.");
+        }
+        // Iniciar carga (asegúrate de que el archivo exista)
+        templateImg.src = TEMPLATE_URL;
+
+
+        // --- Función Principal de Dibujado ---
+        function drawCanvas() {
+            // 1. Limpiar Canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 2. Dibujar Capa de Fondo (si existe)
+            // Se dibuja PRIMERO para estar detrás de la plantilla
+            if (backgroundImg) {
+                // Dibujar imagen estirada para cubrir todo el canvas
+                ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
+            } else {
+                // Color de fondo por defecto si no hay imagen
+                ctx.fillStyle = "#222";
+                ctx.fillRect(0,0, canvas.width, canvas.height);
+            }
+
+            // 3. Dibujar Capa de Plantilla (Las franjas)
+            // Se dibuja SEGUNDO para estar sobre el fondo
+            if (isTemplateLoaded) {
+                 ctx.drawImage(templateImg, 0, 0, canvas.width, canvas.height);
+            }
+
+            // 4. Dibujar Texto del Título
+            drawText(titleInput.value, config.title);
+
+            // 5. Dibujar Texto de la Descripción
+            drawText(descInput.value, config.description);
+        }
+
+        // Función auxiliar para dibujar texto con configuración
+        function drawText(text, cfg) {
+            if (!text) return;
+            ctx.fillStyle = cfg.color;
+            ctx.font = `bold ${cfg.fontSize}px ${cfg.fontFamily}`;
+            ctx.textAlign = cfg.align;
+            ctx.textBaseline = 'middle'; // Centra verticalmente en la coordenada Y
+            ctx.fillText(text, cfg.x, cfg.y, cfg.maxWidth);
+        }
+
+
+        // --- Event Listeners ---
+
+        // Actualizar canvas al escribir
+        titleInput.addEventListener('input', drawCanvas);
+        descInput.addEventListener('input', drawCanvas);
+
+        // Generar Prompt para Grok
+        genPromptBtn.addEventListener('click', () => {
+            const idea = grokIdeaInput.value.trim();
+            if (!idea) {
+                alert("Por favor, ingresa una idea para el fondo primero.");
+                return;
+            }
+            // Un prompt estructurado para pedir un fondo de imagen
+            const prompt = `Crea una imagen de fondo de alta calidad y relación de aspecto panorámica para una miniatura web. La imagen debe tener un tono oscuro para que el texto superpuesto sea legible. Descripción: ${idea}. Sin texto en la imagen misma.`;
+            grokPromptOutput.value = prompt;
+        });
+
+        // Botón de Copiar Prompt
+        copyPromptBtn.addEventListener('click', async () => {
+            const textToCopy = grokPromptOutput.value;
+            if (!textToCopy) return;
+
+            try {
+                await navigator.clipboard.writeText(textToCopy);
+                // Feedback visual temporal
+                const originalHTML = copyPromptBtn.innerHTML;
+                copyPromptBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                setTimeout(() => {
+                    copyPromptBtn.innerHTML = originalHTML;
+                }, 1500);
+            } catch (err) {
+                console.error('Error al copiar: ', err);
+                alert('No se pudo copiar el texto automáticamente.');
+            }
+        });
+
+        // Manejar Subida de Imagen de Fondo
+        bgUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    backgroundImg = img;
+                    drawCanvas(); // Redibujar con el nuevo fondo
+                    console.log("Fondo cargado correctamente.");
+                };
+                img.onerror = () => {
+                    alert("Error al cargar la imagen de fondo. Intenta con otro archivo.");
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Descargar Imagen Final
+        downloadBtn.addEventListener('click', () => {
+            if (!isTemplateLoaded) {
+                 alert("Espera a que la plantilla se cargue correctamente.");
+                 return;
+            }
+            // Crear enlace temporal para descarga
+            const link = document.createElement('a');
+            link.download = 'miniatura-web-final.png';
+            // Convertir contenido del canvas a URL de datos PNG de alta calidad
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+        });
+
+        // Intentar dibujar al inicio por si la imagen ya está en caché
+        if (templateImg.complete && templateImg.naturalWidth !== 0) {
+             isTemplateLoaded = true;
+             loadingMsg.style.display = 'none';
+             downloadBtn.disabled = false;
+             drawCanvas();
+        }
+
+    </script>
+</body>
+</html>
