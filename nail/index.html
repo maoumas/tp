@@ -56,11 +56,7 @@
             align-items: center;
         }
 
-<<<<<<< HEAD
-        /* Elementos del Formulario  */
-=======
         /* Elementos del Formulario */
->>>>>>> f13cdd145e0f4a9007047a2057e80c122536ac72
         label {
             font-weight: 600;
             display: block;
@@ -193,7 +189,7 @@
                 <div class="input-group">
                     <textarea id="grokPromptOutput" readonly placeholder="El prompt aparecerá aquí..."></textarea>
                     <button id="copyPromptBtn" class="btn-secondary" title="Copiar al portapapeles">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoi
                     </button>
                 </div>
             </div>
@@ -226,7 +222,7 @@
         const config = {
             title: {
                 x: 640,      // Centro horizontal (1280 / 2)
-                y: 135,      // Posición vertical aproximada en la franja azul
+                y: 425,      // <-- CAMBIADO: título en 425 (franja negra)
                 fontSize: 70,
                 fontFamily: "Arial, sans-serif",
                 color: "#FFFFFF",
@@ -235,7 +231,7 @@
             },
             description: {
                 x: 640,
-                y: 425,     // Posición vertical aproximada en la franja negra
+                y: 650,     // <-- CAMBIADO: descripción en 650 (franja azul, más abajo)
                 fontSize: 42,
                 fontFamily: "Arial, sans-serif",
                 color: "#FFFFFF",
@@ -335,7 +331,7 @@
                 return;
             }
             // Un prompt estructurado para pedir un fondo de imagen
-            const prompt = `Crea una imagen de fondo de alta calidad y relación de aspecto panorámica para una miniatura web. La imagen debe tener un tono oscuro para que el texto superpuesto sea legible. Descripción: ${idea}. Sin texto en la imagen misma.`;
+            const prompt = `Crea una imagen de fondo de alta calidad y relación de aspecto panorámica para una miniatura web. La imagen debe tener un tono oscuro para que el texto superpuesto s[...]
             grokPromptOutput.value = prompt;
         });
 
@@ -348,7 +344,7 @@
                 await navigator.clipboard.writeText(textToCopy);
                 // Feedback visual temporal
                 const originalHTML = copyPromptBtn.innerHTML;
-                copyPromptBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                copyPromptBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#4CAF50" stroke-width="3" stroke-linecap="round" [...]
                 setTimeout(() => {
                     copyPromptBtn.innerHTML = originalHTML;
                 }, 1500);
