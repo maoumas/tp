@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thumbnail Generator Pro v2</title>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Bebas+Neue&family=Oswald:wght@700&family=Roboto:ital,wght@0,700;1,700&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --accent-color: #E62117; /* YouTube Red */
+            --panel-bg: #1e1e1e;
+            --input-bg: #2d2d2d;
+            --border-color: #444;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* --- Header --- */
+        .header-actions {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        
+        .lang-group { display: flex; gap: 5px; }
+        
+        .lang-btn {
+            padding: 6px 10px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+        .lang-btn.active { background: var(--accent-color); border-color: var(--accent-color); color: white; }
+
+        h1 { margin: 0; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- Layout --- */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 1100px;
+            width: 100%;
+        }
+
+        .panel {
+            background-color: var(--panel-bg);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #333;
+        }
+
+        /* --- Preview Area & Drag Drop --- */
+        .preview-panel { width: 100%; position: relative; }
+        
+        .canvas-wrapper {
+            width: 100%;
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 */
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            background-color: #000;
+            cursor: move; /* Indica que se puede mover */
+        }
+        
+        #previewCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        /* YouTube Fake Overlay (Preview Mode) */
+        .yt-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; display: none;
+        }
+        .yt-time {
+            position: absolute; bottom: 10px; right: 10px;
+            background: rgba(0,0,0,0.8); color: white;
+            padding: 3px 6px; border-radius: 4px; font-weight: bold; font-size: 12px;
+        }
+        .yt-progress {
+            position: absolute; bottom: 0; left: 0; width: 100%; height: 4px;
+            background: #ccc;
+        }
+        .yt-progress-red { width: 70%; height: 100%; background: #f00; }
+
+        /* --- Controls Grid --- */
+        .controls-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .control-section { display: flex; flex-direction: column; gap: 15px; }
+        .control-group { display: flex; flex-direction: column; gap: 6px; }
+        
+        label { font-weight: 700; color: #aaa; font-size: 0.85rem; text-transform: uppercase; }
+        
+        input, select, textarea {
+            width: 100%; padding: 10px; border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--input-bg); color: white;
+            box-sizing: border-box; font-family: inherit;
+        }
+        
+        /* Controles de Fuente Inline */
+        .font-controls { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 5px; align-items: center; }
+        .color-picker-wrapper { position: relative; height: 38px; }
+        input[type="color"] { height: 100%; padding: 0; border: none; cursor: pointer; }
+        .checkbox-btn {
+            height: 38px; width: 38px; display: flex; align-items: center; justify-content: center;
+            background: var(--input-bg); border: 1px solid var(--border-color); cursor: pointer; border-radius: 4px;
+            font-style: italic; font-weight: bold; font-family: serif;
+        }
+        .checkbox-btn.active { background: var(--accent-color); color: white; }
+
+        /* Drop Zone */
+        .drop-zone {
+            border: 2px dashed var(--border-color); padding: 20px; text-align: center;
+            border-radius: 6px; cursor: pointer; transition: 0.2s;
+        }
+        .drop-zone:hover { border-color: var(--accent-color); background: #252525; }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer;
+            font-weight: bold; text-transform: uppercase; font-size: 0.9rem; transition: 0.2s;
+        }
+        .btn-primary { background: var(--accent-color); color: white; }
+        .btn-secondary { background: #444; color: white; }
+        .btn-success { background: #28a745; color: white; width: 100%; margin-top: 10px; padding: 15px;}
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .toolbar { display: flex; gap: 10px; margin-top: 10px; }
+
+        /* Mobile tweaks */
+        @media (max-width: 600px) {
+            .font-controls { grid-template-columns: 1fr 1fr; }
+            .header-actions { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-actions">
+        <h1 data-translate="mainTitle">Thumbnail Generator Pro</h1>
+        <div class="lang-group">
+            <button class="lang-btn" onclick="setLanguage('es')">ES</button>
+            <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+            <button class="lang-btn active" onclick="setLanguage('de')">DE</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        
+        <div class="panel preview-panel">
+            <div class="canvas-wrapper" id="canvasContainer">
+                <canvas id="previewCanvas" width="1280" height="720"></canvas>
+                <div class="yt-overlay" id="ytOverlay">
+                    <div class="yt-time">12:45</div>
+                    <div class="yt-progress"><div class="yt-progress-red"></div></div>
+                </div>
+            </div>
+            <div class="toolbar">
+                <button class="btn btn-secondary" id="togglePreviewBtn" data-translate="btnPreview">YouTube Preview</button>
+                <button class="btn btn-secondary" onclick="resetBgTransform()" data-translate="btnResetImg">Reset Image</button>
+                <button class="btn btn-primary" id="savePresetBtn" data-translate="btnSave">Save Settings</button>
+            </div>
+            <button id="downloadBtn" class="btn-success" data-translate="downloadBtn">DOWNLOAD FINAL IMAGE (HD)</button>
+        </div>
+
+        <div class="panel controls-panel">
+            
+            <div class="control-section">
+                <div class="control-group">
+                    <label data-translate="lblTemplate">Template</label>
+                    <select id="templateSelect">
+                        <option value="template1.png">Template 1 (Standard)</option>
+                        <option value="template2.png">Template 2</option>
+                        <option value="template3.png">Template 3</option>
+                        <option value="none">No Template (Image Only)</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label data-translate="lblTitle">Headline</label>
+                    <input type="text" id="titleText" placeholder="THE TRUTH ABOUT..." value="">
+                    
+                    <div class="font-controls">
+                        <select id="titleFont">
+                            <option value="'Anton', sans-serif">Anton (Bold)</option>
+                            <option value="'Bebas Neue', cursive">Bebas Neue</option>
+                            <option value="'Oswald', sans-serif">Oswald</option>
+                            <option value="'Montserrat', sans-serif">Montserrat</option>
+                        </select>
+                        <div class="color-picker-wrapper" title="Text Color">
+                            <input type="color" id="titleColor" value="#FFFFFF">
+                        </div>
+                        <div class="color-picker-wrapper" title="Background Color">
+                            <input type="color" id="titleBgColor" value="#CC0000">
+                        </div>
+                        <button class="checkbox-btn" id="titleItalicBtn" title="Italic">I</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label data-translate="lblDesc">Subtitle</label>
+                    <input type="text" id="descText" placeholder="Details here..." value="">
+                    
+                    <div class="font-controls">
+                        <select id="descFont">
+                            <option value="'Oswald', sans-serif">Oswald</option>
+                            <option value="'Anton', sans-serif" selected>Anton</option>
+                            <option value="'Roboto', sans-serif">Roboto</option>
+                        </select>
+                        <div class="color-picker-wrapper">
+                            <input type="color" id="descColor" value="#FFFFFF">
+                        </div>
+                         <div class="color-picker-wrapper">
+                            <input type="color" id="descBgColor" value="#000000">
+                        </div>
+                        <button class="checkbox-btn" id="descItalicBtn">I</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                
+                <div class="control-group">
+                    <label data-translate="lblImage">Background Image</label>
+                    <div class="drop-zone" id="dropZone">
+                        <span data-translate="txtDrop">Drag & Drop Image Here<br>or Click to Upload</span>
+                        <input type="file" id="bgUpload" accept="image/*" style="display:none">
+                    </div>
+                    <small style="color:#666; font-size: 0.75rem;">* Scroll to Zoom, Drag to Move</small>
+                </div>
+
+                <div style="border-top: 1px solid #444; margin: 10px 0;"></div>
+
+                <div class="control-group">
+                    <label>AI Prompt Generator (Grok)</label>
+                    <input type="text" id="grokIdea" placeholder="e.g. Angry politician in rain..." data-translate-ph="phGrokIdea">
+                    
+                    <div style="display:flex; gap:10px; margin-top:5px;">
+                        <select id="grokStyle">
+                            <option value="photorealistic, dramatic lighting, 8k">Realistic/Dramatic</option>
+                            <option value="cartoon, vibrant colors, bold lines">Cartoon/Vibrant</option>
+                            <option value="black and white, noir, mysterious">Noir/B&W</option>
+                        </select>
+                        <button id="genPromptBtn" class="btn-primary" style="flex:1;" data-translate="btnGen">Generate & Open</button>
+                    </div>
+                    <textarea id="grokOutput" readonly style="height: 60px; margin-top:5px; font-size:0.8rem; color:#888;"></textarea>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURATION ---
+        const canvas = document.getElementById('previewCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // State Variables
+        let state = {
+            template: null,
+            bgImage: null,
+            bgX: 0,
+            bgY: 0,
+            bgScale: 1,
+            isDragging: false,
+            lastX: 0,
+            lastY: 0,
+            titleItalic: false,
+            descItalic: false,
+            templateName: 'template1.png'
+        };
+
+        // Default Configs for Text Areas (Bounding Boxes)
+        const templateConfigs = {
+            'template1.png': {
+                title: { x: 640, y: 600, w: 1200, h: 120, maxS: 90, align: 'center' },
+                desc:  { x: 640, y: 480, w: 1000, h: 80,  maxS: 50, align: 'center' }
+            },
+            'template2.png': {
+                title: { x: 50, y: 620, w: 1180, h: 100, maxS: 80, align: 'left' },
+                desc:  { x: 50, y: 520, w: 1180, h: 80,  maxS: 45, align: 'left' }
+            },
+            'template3.png': {
+                title: { x: 640, y: 360, w: 1000, h: 150, maxS: 100, align: 'center' },
+                desc:  { x: 640, y: 500, w: 800, h: 80, maxS: 50, align: 'center' }
+            },
+            'none': {
+                title: { x: 640, y: 600, w: 1200, h: 150, maxS: 100, align: 'center' },
+                desc:  { x: 640, y: 450, w: 1200, h: 80, maxS: 60, align: 'center' }
+            }
+        };
+
+        // --- TRANSLATIONS (German Default) ---
+        const translations = {
+            de: {
+                mainTitle: "Thumbnail Generator Pro",
+                lblTemplate: "Vorlage wählen",
+                lblTitle: "Schlagzeile",
+                lblDesc: "Untertitel / Beschreibung",
+                lblImage: "Hintergrundbild",
+                txtDrop: "Bild hier ablegen oder klicken",
+                phGrokIdea: "Idee (z.B. Schockierter Mann...)",
+                btnGen: "Generieren & Grok öffnen",
+                btnPreview: "YouTube Vorschau",
+                btnResetImg: "Bild zurücksetzen",
+                btnSave: "Einstellungen speichern",
+                downloadBtn: "THUMBNAIL HERUNTERLADEN (HD)",
+                promptPrefix: "Erstelle ein YouTube Thumbnail Hintergrundbild. Seitenverhältnis 16:9. Keine Schrift. Stil: "
+            },
+            en: {
+                mainTitle: "Thumbnail Generator Pro",
+                lblTemplate: "Select Template",
+                lblTitle: "Headline",
+                lblDesc: "Subtitle",
+                lblImage: "Background Image",
+                txtDrop: "Drag & Drop or Click",
+                phGrokIdea: "Idea (e.g. Shocked man...)",
+                btnGen: "Generate & Open Grok",
+                btnPreview: "YouTube Preview",
+                btnResetImg: "Reset Image",
+                btnSave: "Save Settings",
+                downloadBtn: "DOWNLOAD THUMBNAIL",
+                promptPrefix: "Create a YouTube thumbnail background image. 16:9 aspect ratio. No text. Style: "
+            },
+            es: {
+                mainTitle: "Generador de Miniaturas",
+                lblTemplate: "Plantilla",
+                lblTitle: "Título Principal",
+                lblDesc: "Subtítulo",
+                lblImage: "Imagen de Fondo",
+                txtDrop: "Arrastra o Clic aquí",
+                phGrokIdea: "Idea (ej. Hombre sorprendido...)",
+                btnGen: "Generar y Abrir Grok",
+                btnPreview: "Vista Previa YT",
+                btnResetImg: "Resetear Imagen",
+                btnSave: "Guardar Ajustes",
+                downloadBtn: "DESCARGAR IMAGEN",
+                promptPrefix: "Crea una imagen de fondo para miniatura de YouTube. Ratio 16:9. Sin texto. Estilo: "
+            }
+        };
+        let currentLang = 'de';
+
+        // --- CORE DRAWING FUNCTION ---
+        function draw() {
+            // 1. Clear & Black Background
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 2. Draw User Background Image (with Pan/Zoom)
+            if (state.bgImage) {
+                ctx.save();
+                // Translate to center of canvas, apply scale/move, then translate back logic implies:
+                // Just applying transform matrix
+                ctx.translate(canvas.width/2 + state.bgX, canvas.height/2 + state.bgY);
+                ctx.scale(state.bgScale, state.bgScale);
+                ctx.drawImage(state.bgImage, -state.bgImage.width/2, -state.bgImage.height/2);
+                ctx.restore();
+            }
+
+            // 3. Draw Template Overlay
+            if (state.template && state.templateName !== 'none') {
+                ctx.drawImage(state.template, 0, 0, canvas.width, canvas.height);
+            }
+
+            // 4. Draw Text
+            const cfg = templateConfigs[state.templateName] || templateConfigs['none'];
+            
+            drawRichText(
+                document.getElementById('titleText').value.toUpperCase(),
+                cfg.title,
+                document.getElementById('titleFont').value,
+                document.getElementById('titleColor').value,
+                document.getElementById('titleBgColor').value,
+                state.titleItalic
+            );
+
+            drawRichText(
+                document.getElementById('descText').value,
+                cfg.desc,
+                document.getElementById('descFont').value,
+                document.getElementById('descColor').value,
+                document.getElementById('descBgColor').value,
+                state.descItalic
+            );
+        }
+
+        // --- ADVANCED TEXT RENDERER (Supports Background Boxes) ---
+        function drawRichText(text, box, font, color, bgColor, italic) {
+            if (!text) return;
+            
+            let fontSize = box.maxS;
+            const minFontSize = 20;
+            const style = italic ? 'italic bold' : 'bold';
+            
+            ctx.textAlign = box.align;
+            ctx.textBaseline = 'top';
+
+            // Measure and fit
+            let lines = [];
+            do {
+                ctx.font = `${style} ${fontSize}px ${font.split(',')[0]}`; // Use font name only for measuring
+                lines = getLines(ctx, text, box.w);
+                let h = lines.length * (fontSize * 1.2);
+                if (h <= box.h || fontSize <= minFontSize) break;
+                fontSize -= 2;
+            } while (fontSize > minFontSize);
+
+            // Final Setup
+            ctx.font = `${style} ${fontSize}px ${font}`;
+            const lineHeight = fontSize * 1.2;
+            const totalH = lines.length * lineHeight;
+            let y = box.y + (box.h - totalH) / 2; // Vertical Center
+
+            lines.forEach(line => {
+                const metrics = ctx.measureText(line);
+                const textW = metrics.width;
+                const padding = fontSize * 0.2;
+                
+                // Calculate Box X based on alignment
+                let bgX = box.x;
+                if (box.align === 'center') bgX = box.x - textW/2;
+                if (box.align === 'right') bgX = box.x - textW;
+
+                // Draw Background Box if color is not transparent (simple check, user can set alpha in future)
+                if (bgColor !== '#000000' && bgColor !== '#ffffff') { // Simplification: assume default black/white might not want box unless changed, but here we enforce user input
+                     ctx.fillStyle = bgColor;
+                     ctx.fillRect(bgX - padding, y, textW + (padding*2), lineHeight);
+                } else if (bgColor !== 'transparent') {
+                     // If user explicitly picked a color, draw it
+                     ctx.fillStyle = bgColor;
+                     ctx.fillRect(bgX - padding, y, textW + (padding*2), lineHeight);
+                }
+
+                // Draw Text
+                ctx.fillStyle = color;
+                // Add Drop Shadow for contrast
+                ctx.shadowColor = "rgba(0,0,0,0.5)";
+                ctx.shadowBlur = 4;
+                ctx.fillText(line, box.x, y + (lineHeight - fontSize)/2); // small adjustment
+                ctx.shadowBlur = 0;
+
+                y += lineHeight;
+            });
+        }
+
+        function getLines(ctx, text, maxWidth) {
+            var words = text.split(" ");
+            var lines = [];
+            var currentLine = words[0];
+
+            for (var i = 1; i < words.length; i++) {
+                var word = words[i];
+                var width = ctx.measureText(currentLine + " " + word).width;
+                if (width < maxWidth) {
+                    currentLine += " " + word;
+                } else {
+                    lines.push(currentLine);
+                    currentLine = word;
+                }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
+        // --- IMAGE MANIPULATION LOGIC ---
+        function resetBgTransform() {
+            state.bgX = 0; state.bgY = 0; state.bgScale = 1;
+            draw();
+        }
+
+        // Mouse Events for Canvas
+        const canvasContainer = document.getElementById('canvasContainer');
+        
+        canvas.addEventListener('mousedown', (e) => {
+            state.isDragging = true;
+            state.lastX = e.clientX;
+            state.lastY = e.clientY;
+        });
+
+        window.addEventListener('mouseup', () => { state.isDragging = false; });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!state.isDragging || !state.bgImage) return;
+            const dx = e.clientX - state.lastX;
+            const dy = e.clientY - state.lastY;
+            state.bgX += dx;
+            state.bgY += dy;
+            state.lastX = e.clientX;
+            state.lastY = e.clientY;
+            draw();
+        });
+
+        canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (!state.bgImage) return;
+            const scaleFactor = 0.05;
+            if (e.deltaY < 0) state.bgScale += scaleFactor;
+            else state.bgScale = Math.max(0.1, state.bgScale - scaleFactor);
+            draw();
+        }, { passive: false });
+
+
+        // --- UI & EVENTS ---
+        
+        // 1. Template Loading
+        document.getElementById('templateSelect').addEventListener('change', (e) => {
+            state.templateName = e.target.value;
+            if (state.templateName === 'none') {
+                state.template = null;
+                draw();
+            } else {
+                const img = new Image();
+                img.onload = () => { state.template = img; draw(); };
+                img.src = state.templateName;
+            }
+        });
+
+        // 2. Drag & Drop Image
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('bgUpload');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.style.borderColor = '#fff'; });
+        dropZone.addEventListener('dragleave', () => { dropZone.style.borderColor = '#444'; });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#444';
+            handleFile(e.dataTransfer.files[0]);
+        });
+        fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
+
+        function handleFile(file) {
+            if (!file || !file.type.startsWith('image/')) return;
+            const reader = new FileReader();
+            reader.onload = (evt) => {
+                const img = new Image();
+                img.onload = () => { 
+                    state.bgImage = img; 
+                    // Fit image to canvas initially
+                    const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+                    state.bgScale = scale;
+                    draw(); 
+                };
+                img.src = evt.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 3. Text & Font Inputs (Live Update)
+        const inputs = ['titleText', 'descText', 'titleFont', 'descFont', 'titleColor', 'descColor', 'titleBgColor', 'descBgColor'];
+        inputs.forEach(id => {
+            document.getElementById(id).addEventListener('input', draw);
+        });
+
+        // 4. Italics Toggles
+        document.getElementById('titleItalicBtn').addEventListener('click', function() {
+            state.titleItalic = !state.titleItalic;
+            this.classList.toggle('active');
+            draw();
+        });
+        document.getElementById('descItalicBtn').addEventListener('click', function() {
+            state.descItalic = !state.descItalic;
+            this.classList.toggle('active');
+            draw();
+        });
+
+        // 5. Grok Workflow
+        document.getElementById('genPromptBtn').addEventListener('click', () => {
+            const idea = document.getElementById('grokIdea').value;
+            const style = document.getElementById('grokStyle').value;
+            const prefix = translations[currentLang].promptPrefix;
+            
+            const fullPrompt = `${prefix} ${style}. Details: ${idea}`;
+            document.getElementById('grokOutput').value = fullPrompt;
+            
+            // Copy to clipboard
+            navigator.clipboard.writeText(fullPrompt);
+            // Open Grok
+            window.open('https://grok.com', '_blank');
+        });
+
+        // 6. YouTube Preview Toggle
+        document.getElementById('togglePreviewBtn').addEventListener('click', () => {
+            const overlay = document.getElementById('ytOverlay');
+            overlay.style.display = (overlay.style.display === 'block') ? 'none' : 'block';
+        });
+
+        // 7. Download
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'thumbnail_pro.png';
+            link.href = canvas.toDataURL('image/png', 1.0);
+            link.click();
+        });
+
+        // 8. Localization System
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector(`.lang-btn[onclick="setLanguage('${lang}')"]`).classList.add('active');
+            
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                el.textContent = translations[lang][el.dataset.translate];
+            });
+            document.querySelectorAll('[data-translate-ph]').forEach(el => {
+                el.placeholder = translations[lang][el.dataset.translatePh];
+            });
+        }
+
+        // 9. Save/Load Settings
+        document.getElementById('savePresetBtn').addEventListener('click', () => {
+            const settings = {
+                titleFont: document.getElementById('titleFont').value,
+                titleColor: document.getElementById('titleColor').value,
+                titleBgColor: document.getElementById('titleBgColor').value,
+                // ... add others as needed
+            };
+            localStorage.setItem('thumbGenSettings', JSON.stringify(settings));
+            alert('Settings Saved!');
+        });
+        
+        // --- INIT ---
+        window.onload = () => {
+            setLanguage('de'); // Default DE
+            // Load Template 1
+            const img = new Image();
+            img.onload = () => { state.template = img; draw(); };
+            img.src = 'template1.png';
+            
+            // Load settings if exist
+            const saved = localStorage.getItem('thumbGenSettings');
+            if(saved) {
+                const s = JSON.parse(saved);
+                if(s.titleFont) document.getElementById('titleFont').value = s.titleFont;
+                if(s.titleColor) document.getElementById('titleColor').value = s.titleColor;
+                if(s.titleBgColor) document.getElementById('titleBgColor').value = s.titleBgColor;
+            }
+        };
+
+    </script>
+</body>
+</html>
