@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tutor-Center</title> <meta property="og:title" content="Tutor-Center">
+    <title>Tutor-Center</title>
+
+    <meta property="og:title" content="Tutor-Center">
     <meta property="og:description" content="Central access to production manuals and tools for TranslatedPress.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://tpascal.com/tutor/">
@@ -134,11 +136,11 @@
             </div>
 
             <div class="flex justify-center gap-6 mb-6 text-sm">
-                <a href="https://youtube.com/@translatedpressde" target="_blank" class="text-[#E62117] hover:text-white transition-colors font-bold flex items-center gap-2">
+                <a href="https://youtube.com/@translatedpressde" target="_blank" class="text-[#FF0000] hover:text-white transition-colors font-bold flex items-center gap-2">
                     <i class="fa-brands fa-youtube"></i> YouTube-Kanal
                 </a>
                 <span class="text-gray-600">|</span>
-                <a href="https://github.com/maoumas/arti/tree/main" target="_blank" class="text-[#E62117] hover:text-white transition-colors font-bold flex items-center gap-2">
+                <a href="https://github.com/maoumas/" target="_blank" class="text-[#FFD700] hover:text-white transition-colors font-bold flex items-center gap-2">
                     <i class="fa-brands fa-github"></i> GitHub-Profil
                 </a>
             </div>
@@ -187,7 +189,7 @@
             },
             {
                 id: 3,
-                filename: "https://github.com/maoumas/arti/tree/main", 
+                filename: "https://github.com/maoumas/", 
                 icon: "fa-github",
                 iconColor: "text-gray-100",
                 title: {
@@ -204,7 +206,6 @@
         ];
 
         // --- UI TEXTS ---
-        // CHANGED: "Tutor-Center" in titles
         const uiText = {
             de: { title: "Willkommen im Tutor-Center", sub: "Wähle ein Modul aus, um die Produktion zu starten oder Anleitungen zu lesen.", btn: "Öffnen", langLabel: "Deutsch" },
             en: { title: "Welcome to the Tutor-Center", sub: "Select a module to start production or read guides.", btn: "Open", langLabel: "English" },
@@ -223,7 +224,6 @@
                 const card = document.createElement('div');
                 card.className = "tutorial-card rounded-xl p-6 flex flex-col justify-between h-full";
                 
-                // CHANGED: Flex layout for Icon and Title on the same line
                 card.innerHTML = `
                     <div>
                         <div class="flex items-center gap-4 mb-4">
