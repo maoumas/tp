@@ -128,29 +128,16 @@
 
     </main>
 
-    <footer class="border-t border-[#333] py-10 bg-[#1e1e1e] mt-auto">
-        <div class="max-w-7xl mx-auto px-4 text-center">
-            
-            <div class="text-gray-400 mb-2 font-medium">
-                Entwickelt mit <i class="fa-solid fa-heart text-[#E62117] mx-1"></i> für die Gemeinschaft von <span class="font-bold text-white">TranslatedPress</span>.
-            </div>
-
-            <div class="flex justify-center gap-6 mb-6 text-sm">
-                <a href="https://youtube.com/@translatedpressde" target="_blank" class="text-[#FF0000] hover:text-white transition-colors font-bold flex items-center gap-2">
-                    <i class="fa-brands fa-youtube"></i> YouTube-Kanal
-                </a>
-                <span class="text-gray-600">|</span>
-                <a href="https://github.com/maoumas/" target="_blank" class="text-[#FFD700] hover:text-white transition-colors font-bold flex items-center gap-2">
-                    <i class="fa-brands fa-github"></i> GitHub-Profil
-                </a>
-            </div>
-
-            <div class="text-gray-600 text-[10px] flex flex-col gap-1 border-t border-[#333] pt-4 w-fit mx-auto">
-                <p>&copy; 2025 Mauricio Umana. All rights reserved.</p>
-                <p>Legal Note: Use of these tools implies acceptance of internal production guidelines.</p>
-            </div>
-        </div>
-    </footer>
+    <div id="footer-container"></div>
+    <script>
+        // Load shared footer
+        fetch('../footer.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('footer-container').innerHTML = html;
+            })
+            .catch(err => console.error('Failed to load footer:', err));
+    </script>
 
     <script>
         // --- TUTORIAL DATA ---

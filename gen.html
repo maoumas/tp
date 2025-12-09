@@ -355,5 +355,16 @@
     // Init with Deutsch
     document.addEventListener('DOMContentLoaded', () => setLang('de'));
   </script>
+
+  <div id="footer-container"></div>
+  <script>
+    // Load shared footer
+    fetch('footer.html')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('footer-container').innerHTML = html;
+        })
+        .catch(err => console.error('Failed to load footer:', err));
+  </script>
 </body>
 </html>

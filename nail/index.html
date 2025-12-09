@@ -360,11 +360,16 @@
         </div>
     </div>
 
-    <footer>
-                <p>Desarrollado con <i class="fa-solid fa-heart text-red-500"></i> para la comunidad de <b>TranslatedPress</b>.<br>
-                <a href="https://www.youtube.com/@TranslatedPressDE"><i class="fa-brands fa-youtube"></i> Canal de YouTube</a> | <a href="https://github.com/maoumas"><i class="fa-brands fa-github"></i> GitHub</a>
-                </p>
-            </footer>
+    <div id="footer-container"></div>
+    <script>
+        // Load shared footer
+        fetch('../footer.html')
+            .then(response => response.text())
+            .then(html => {
+                document.getElementById('footer-container').innerHTML = html;
+            })
+            .catch(err => console.error('Failed to load footer:', err));
+    </script>
 
     <script>
         // --- CONFIGURATION ---

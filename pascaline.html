@@ -345,6 +345,8 @@
     <a href="https://lpascal.com/prompt/index.html" class="footer-btn" id="btn-video">Video Prompt Generator</a>
   </div>
 
+  <div id="footer-container"></div>
+
 </div>
 
 <script>
@@ -592,6 +594,16 @@
   initAccumulator();
   initWheels();
   refreshAccumulator();
+</script>
+
+<script>
+  // Load shared footer
+  fetch('footer.html')
+      .then(response => response.text())
+      .then(html => {
+          document.getElementById('footer-container').innerHTML = html;
+      })
+      .catch(err => console.error('Failed to load footer:', err));
 </script>
 
 </body>

@@ -1,0 +1,71 @@
+<footer id="shared-footer" style="
+    margin-top: auto;
+    width: 100%;
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid var(--border-color, var(--border, #333));
+    color: var(--text-muted, var(--text-color, #666));
+    font-size: 0.85rem;
+">
+    <p style="margin-bottom: 10px;">
+        <span class="footer-text-de" style="display: none;">
+            Entwickelt mit ❤️ für die Gemeinschaft von <b style="color: var(--text-main, var(--text-color, #e0e0e0));">TranslatedPress</b>.<br>
+        </span>
+        <span class="footer-text-en" style="display: none;">
+            Developed with ❤️ for the <b style="color: var(--text-main, var(--text-color, #e0e0e0));">TranslatedPress</b> community.<br>
+        </span>
+        <span class="footer-text-es" style="display: block;">
+            Desarrollado con ❤️ para la comunidad de <b style="color: var(--text-main, var(--text-color, #e0e0e0));">TranslatedPress</b>.<br>
+        </span>
+        <a href="https://www.youtube.com/@TranslatedPressDE" 
+           style="color: var(--accent, var(--accent-color, #E62117)); text-decoration: none; font-weight: bold;"
+           target="_blank">
+            <i class="fa-brands fa-youtube"></i> YouTube
+        </a> | 
+        <a href="https://github.com/maoumas" 
+           style="color: var(--accent, var(--accent-color, #E62117)); text-decoration: none; font-weight: bold;"
+           target="_blank">
+            <i class="fa-brands fa-github"></i> GitHub
+        </a>
+    </p>
+    <div style="font-size: 0.75rem; margin-top: 15px; padding-top: 10px; border-top: 1px solid var(--border-color, var(--border, #333333)); opacity: 0.7;">
+        <p class="copyright-de" style="display: none; margin: 5px 0;">
+            © 2025 Mauricio Umana. Alle Rechte vorbehalten.
+        </p>
+        <p class="copyright-en" style="display: none; margin: 5px 0;">
+            © 2025 Mauricio Umana. All rights reserved.
+        </p>
+        <p class="copyright-es" style="display: block; margin: 5px 0;">
+            © 2025 Mauricio Umana. Todos los derechos reservados.
+        </p>
+    </div>
+</footer>
+
+<script>
+// Auto-detect language and show appropriate footer text
+(function() {
+    const htmlLang = document.documentElement.lang || 'es';
+    const lang = htmlLang.substring(0, 2).toLowerCase();
+    
+    // Hide all language versions first
+    const allTexts = document.querySelectorAll('.footer-text-de, .footer-text-en, .footer-text-es, .copyright-de, .copyright-en, .copyright-es');
+    allTexts.forEach(el => el.style.display = 'none');
+    
+    // Show the appropriate language
+    const textToShow = document.querySelector(`.footer-text-${lang}`);
+    const copyrightToShow = document.querySelector(`.copyright-${lang}`);
+    
+    if (textToShow) {
+        textToShow.style.display = 'block';
+    } else {
+        // Default to English if language not found
+        document.querySelector('.footer-text-en').style.display = 'block';
+    }
+    
+    if (copyrightToShow) {
+        copyrightToShow.style.display = 'block';
+    } else {
+        document.querySelector('.copyright-en').style.display = 'block';
+    }
+})();
+</script>
