@@ -212,6 +212,30 @@
         footer a { color: var(--accent-color); text-decoration: none; font-weight: bold; }
         footer a:hover { text-decoration: underline; }
         .legal-note { font-size: 0.75rem; margin-top: 5px; opacity: 0.7; }
+				        /* Estilos de la barra de herramientas */
+        .toolbar { 
+            display: flex; 
+            gap: 10px; 
+            margin-top: 10px; 
+            width: 100%; /* Asegura que use todo el ancho */
+        }
+
+        /* --- AJUSTE PARA MÓVILES (Celulares) --- */
+        @media (max-width: 600px) {
+            .toolbar {
+                gap: 5px; /* Reducir espacio entre botones */
+            }
+
+            .toolbar .btn {
+                flex: 1; /* Obliga a los botones a estirarse y compartir el espacio equitativamente */
+                font-size: 0.65rem; /* Texto más pequeño para que quepa */
+                padding: 12px 2px; /* Reducir relleno lateral */
+                white-space: nowrap; /* Evita que el texto del botón se parta en dos líneas */
+                min-width: 0; /* Permite que el botón se encoja más si es necesario */
+                text-overflow: clip; /* Corta el texto si es extremadamente largo (opcional) */
+            }
+        }
+
 
     </style>
 </head>
