@@ -367,6 +367,14 @@
             .then(response => response.text())
             .then(html => {
                 document.getElementById('footer-container').innerHTML = html;
+                // Run language detection after footer is loaded
+                const lang = (document.documentElement.lang || 'de').substring(0, 2).toLowerCase();
+                const validLang = ['de', 'en', 'es'].includes(lang) ? lang : 'de';
+                document.querySelectorAll('.footer-text-de, .footer-text-en, .footer-text-es, .copyright-de, .copyright-en, .copyright-es').forEach(el => el.style.display = 'none');
+                const textToShow = document.querySelector(`.footer-text-${validLang}`);
+                const copyrightToShow = document.querySelector(`.copyright-${validLang}`);
+                if (textToShow) textToShow.style.display = 'block';
+                if (copyrightToShow) copyrightToShow.style.display = 'block';
             })
             .catch(err => console.error('Failed to load footer:', err));
     </script>

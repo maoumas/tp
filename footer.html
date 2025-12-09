@@ -35,37 +35,8 @@
         <p class="copyright-en" style="display: none; margin: 5px 0;">
             © 2025 Mauricio Umana. All rights reserved.
         </p>
-        <p class="copyright-es" style="display: block; margin: 5px 0;">
+        <p class="copyright-es" style="display: none; margin: 5px 0;">
             © 2025 Mauricio Umana. Todos los derechos reservados.
         </p>
     </div>
 </footer>
-
-<script>
-// Auto-detect language and show appropriate footer text
-(function() {
-    const htmlLang = document.documentElement.lang || 'es';
-    const lang = htmlLang.substring(0, 2).toLowerCase();
-    
-    // Hide all language versions first
-    const allTexts = document.querySelectorAll('.footer-text-de, .footer-text-en, .footer-text-es, .copyright-de, .copyright-en, .copyright-es');
-    allTexts.forEach(el => el.style.display = 'none');
-    
-    // Show the appropriate language
-    const textToShow = document.querySelector(`.footer-text-${lang}`);
-    const copyrightToShow = document.querySelector(`.copyright-${lang}`);
-    
-    if (textToShow) {
-        textToShow.style.display = 'block';
-    } else {
-        // Default to English if language not found
-        document.querySelector('.footer-text-en').style.display = 'block';
-    }
-    
-    if (copyrightToShow) {
-        copyrightToShow.style.display = 'block';
-    } else {
-        document.querySelector('.copyright-en').style.display = 'block';
-    }
-})();
-</script>
