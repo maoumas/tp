@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Arti's Tutorial Center</title>
-
-    <meta property="og:title" content="Arti's Tutorial Center">
+    <title>Tutor-Center</title> <meta property="og:title" content="Tutor-Center">
     <meta property="og:description" content="Central access to production manuals and tools for TranslatedPress.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://tpascal.com/tutor/">
@@ -16,7 +14,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
         
-        /* Dark Theme Variables matching Thumbnail Generator */
+        /* Dark Theme Variables */
         :root {
             --bg-color: #121212;
             --panel-bg: #1e1e1e;
@@ -32,7 +30,7 @@
             color: var(--text-main);
         }
 
-        /* Custom Glass Header for Dark Mode */
+        /* Custom Glass Header */
         .glass-header {
             background: rgba(30, 30, 30, 0.95);
             backdrop-filter: blur(10px);
@@ -81,17 +79,17 @@
         }
     </style>
 </head>
-<body class="antialiased">
+<body class="antialiased flex flex-col min-h-screen">
 
     <nav class="glass-header fixed w-full z-10 top-0">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center">
                 <div class="flex items-center gap-3">
                     <div class="bg-[#E62117] text-white w-10 h-10 rounded flex items-center justify-center font-bold text-xl shadow-lg">
-                        A
+                        T
                     </div>
                     <div class="flex flex-col">
-                        <span class="font-bold text-xl tracking-tight text-white">Tutorial Center</span>
+                        <span class="font-bold text-xl tracking-tight text-white">Tutor-Center</span>
                         <span class="text-xs text-gray-400 uppercase tracking-wider">For Arti @ TranslatedPress</span>
                     </div>
                 </div>
@@ -112,11 +110,11 @@
         </div>
     </nav>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12">
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12 flex-grow">
         
-        <div class="text-center mb-16">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight" id="heroTitle">
-                Willkommen im Kontrollzentrum
+        <div class="text-center mb-16 px-2">
+            <h1 class="text-2xl sm:text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight whitespace-nowrap" id="heroTitle">
+                Willkommen im Tutor-Center
             </h1>
             <p class="text-lg text-gray-400 max-w-2xl mx-auto" id="heroSubtitle">
                 Wähle ein Modul aus, um die Produktion zu starten oder Anleitungen zu lesen.
@@ -128,19 +126,26 @@
 
     </main>
 
-    <footer class="border-t border-[#333] mt-auto py-10 bg-[#1e1e1e]">
+    <footer class="border-t border-[#333] py-10 bg-[#1e1e1e] mt-auto">
         <div class="max-w-7xl mx-auto px-4 text-center">
-            <div class="mb-4">
-                <a href="https://youtube.com/@translatedpressde" target="_blank" class="inline-flex items-center gap-2 text-gray-300 hover:text-[#E62117] transition-colors font-bold text-lg">
-                    <i class="fa-brands fa-youtube"></i> @translatedpressde
+            
+            <div class="text-gray-400 mb-2 font-medium">
+                Entwickelt mit <i class="fa-solid fa-heart text-[#E62117] mx-1"></i> für die Gemeinschaft von <span class="font-bold text-white">TranslatedPress</span>.
+            </div>
+
+            <div class="flex justify-center gap-6 mb-6 text-sm">
+                <a href="https://youtube.com/@translatedpressde" target="_blank" class="text-[#E62117] hover:text-white transition-colors font-bold flex items-center gap-2">
+                    <i class="fa-brands fa-youtube"></i> YouTube-Kanal
+                </a>
+                <span class="text-gray-600">|</span>
+                <a href="https://github.com/maoumas/arti/tree/main" target="_blank" class="text-[#E62117] hover:text-white transition-colors font-bold flex items-center gap-2">
+                    <i class="fa-brands fa-github"></i> GitHub-Profil
                 </a>
             </div>
-            <div class="text-gray-500 text-sm flex flex-col gap-2">
+
+            <div class="text-gray-600 text-[10px] flex flex-col gap-1 border-t border-[#333] pt-4 w-fit mx-auto">
                 <p>&copy; 2025 Mauricio Umana. All rights reserved.</p>
-                <p class="text-xs opacity-70">
-                    Legal Note: Use of these tools implies acceptance of internal production guidelines. 
-                    Unauthorized distribution is prohibited.
-                </p>
+                <p>Legal Note: Use of these tools implies acceptance of internal production guidelines.</p>
             </div>
         </div>
     </footer>
@@ -152,9 +157,9 @@
                 id: 1,
                 filename: "manual-pro.html", 
                 icon: "fa-book-open",
-                iconColor: "text-blue-400", // Adjusted for dark mode contrast
+                iconColor: "text-blue-400", 
                 title: {
-                    de: "Das Regiebuch (Produktion)",
+                    de: "Das Regiebuch",
                     en: "Production Manual",
                     es: "Manual de Producción"
                 },
@@ -170,9 +175,9 @@
                 icon: "fa-youtube",
                 iconColor: "text-red-500",
                 title: {
-                    de: "YouTube Studio Guide",
-                    en: "YouTube Studio Guide",
-                    es: "Guía de YouTube Studio"
+                    de: "YouTube Studio",
+                    en: "YouTube Studio",
+                    es: "YouTube Studio"
                 },
                 desc: {
                     de: "Wie man Abspanne (End Screens) und Links hinzufügt.",
@@ -199,10 +204,11 @@
         ];
 
         // --- UI TEXTS ---
+        // CHANGED: "Tutor-Center" in titles
         const uiText = {
-            de: { title: "Willkommen im Kontrollzentrum", sub: "Wähle ein Modul aus, um die Produktion zu starten oder Anleitungen zu lesen.", btn: "Öffnen", langLabel: "Deutsch" },
-            en: { title: "Welcome to Control Center", sub: "Select a module to start production or read guides.", btn: "Open", langLabel: "English" },
-            es: { title: "Bienvenido al Centro de Control", sub: "Selecciona un módulo para iniciar producción o leer guías.", btn: "Abrir", langLabel: "Español" }
+            de: { title: "Willkommen im Tutor-Center", sub: "Wähle ein Modul aus, um die Produktion zu starten oder Anleitungen zu lesen.", btn: "Öffnen", langLabel: "Deutsch" },
+            en: { title: "Welcome to the Tutor-Center", sub: "Select a module to start production or read guides.", btn: "Open", langLabel: "English" },
+            es: { title: "Bienvenido al Tutor-Center", sub: "Selecciona un módulo para iniciar producción o leer guías.", btn: "Abrir", langLabel: "Español" }
         };
 
         // --- APP LOGIC ---
@@ -217,12 +223,15 @@
                 const card = document.createElement('div');
                 card.className = "tutorial-card rounded-xl p-6 flex flex-col justify-between h-full";
                 
+                // CHANGED: Flex layout for Icon and Title on the same line
                 card.innerHTML = `
                     <div>
-                        <div class="w-12 h-12 bg-[#2d2d2d] rounded-lg flex items-center justify-center text-2xl mb-5 border border-[#444]">
-                            <i class="fa-brands ${t.icon} ${t.icon.includes('fa-') ? 'fa-solid' : ''} ${t.iconColor}"></i>
+                        <div class="flex items-center gap-4 mb-4">
+                            <div class="w-12 h-12 bg-[#2d2d2d] rounded-lg flex-shrink-0 flex items-center justify-center text-2xl border border-[#444]">
+                                <i class="fa-brands ${t.icon} ${t.icon.includes('fa-') ? 'fa-solid' : ''} ${t.iconColor}"></i>
+                            </div>
+                            <h3 class="text-xl font-bold text-gray-100 leading-tight">${t.title[currentLang]}</h3>
                         </div>
-                        <h3 class="text-xl font-bold text-gray-100 mb-2">${t.title[currentLang]}</h3>
                         <p class="text-gray-400 mb-6 leading-relaxed text-sm">
                             ${t.desc[currentLang]}
                         </p>
