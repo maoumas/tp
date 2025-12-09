@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arti's Tutorial Center</title>
+
+    <meta property="og:title" content="Arti's Tutorial Center">
+    <meta property="og:description" content="Central access to production manuals and tools for TranslatedPress.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://tpascal.com/tutor/">
+    <meta property="og:site_name" content="tpascal.com">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap');
+        
+        /* Dark Theme Variables matching Thumbnail Generator */
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #1e1e1e;
+            --accent-color: #E62117; /* YouTube Red */
+            --text-main: #e0e0e0;
+            --text-muted: #aaaaaa;
+            --border-color: #333333;
+        }
+
+        body { 
+            font-family: 'Roboto', sans-serif; 
+            background-color: var(--bg-color);
+            color: var(--text-main);
+        }
+
+        /* Custom Glass Header for Dark Mode */
+        .glass-header {
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        /* Card Styling */
+        .tutorial-card {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        .tutorial-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Buttons */
+        .btn-action {
+            background-color: transparent;
+            border: 1px solid #555;
+            color: white;
+            transition: 0.2s;
+        }
+        .btn-action:hover {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        /* Language Menu */
+        .lang-menu-content {
+            background-color: var(--panel-bg);
+            border: 1px solid var(--border-color);
+        }
+        .lang-item:hover {
+            background-color: #333;
+            color: var(--accent-color);
+        }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.2s ease-out forwards; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <nav class="glass-header fixed w-full z-10 top-0">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="bg-[#E62117] text-white w-10 h-10 rounded flex items-center justify-center font-bold text-xl shadow-lg">
+                        A
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="font-bold text-xl tracking-tight text-white">Tutorial Center</span>
+                        <span class="text-xs text-gray-400 uppercase tracking-wider">For Arti @ TranslatedPress</span>
+                    </div>
+                </div>
+
+                <div class="relative">
+                    <button id="langBtn" onclick="toggleLanguageMenu(event)" class="flex items-center gap-2 bg-[#2d2d2d] border border-[#444] px-4 py-2 rounded text-sm font-medium hover:bg-[#3d3d3d] transition-colors focus:outline-none text-gray-200">
+                        <i class="fa-solid fa-globe text-[#E62117]"></i>
+                        <span id="currentLangDisplay">Deutsch</span>
+                        <i class="fa-solid fa-chevron-down text-xs text-gray-500"></i>
+                    </button>
+                    <div id="langDropdown" class="hidden absolute right-0 mt-2 w-40 lang-menu-content rounded shadow-xl overflow-hidden fade-in z-50">
+                        <a href="#" onclick="selectLanguage('de', event)" class="lang-item block px-4 py-3 text-sm text-gray-300 transition-colors border-b border-[#333]">Deutsch</a>
+                        <a href="#" onclick="selectLanguage('en', event)" class="lang-item block px-4 py-3 text-sm text-gray-300 transition-colors border-b border-[#333]">English</a>
+                        <a href="#" onclick="selectLanguage('es', event)" class="lang-item block px-4 py-3 text-sm text-gray-300 transition-colors">Español</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-12">
+        
+        <div class="text-center mb-16">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight" id="heroTitle">
+                Willkommen im Kontrollzentrum
+            </h1>
+            <p class="text-lg text-gray-400 max-w-2xl mx-auto" id="heroSubtitle">
+                Wähle ein Modul aus, um die Produktion zu starten oder Anleitungen zu lesen.
+            </p>
+        </div>
+
+        <div id="tutorialGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            </div>
+
+    </main>
+
+    <footer class="border-t border-[#333] mt-auto py-10 bg-[#1e1e1e]">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="mb-4">
+                <a href="https://youtube.com/@translatedpressde" target="_blank" class="inline-flex items-center gap-2 text-gray-300 hover:text-[#E62117] transition-colors font-bold text-lg">
+                    <i class="fa-brands fa-youtube"></i> @translatedpressde
+                </a>
+            </div>
+            <div class="text-gray-500 text-sm flex flex-col gap-2">
+                <p>&copy; 2025 Mauricio Umana. All rights reserved.</p>
+                <p class="text-xs opacity-70">
+                    Legal Note: Use of these tools implies acceptance of internal production guidelines. 
+                    Unauthorized distribution is prohibited.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- TUTORIAL DATA ---
+        const tutorials = [
+            {
+                id: 1,
+                filename: "manual-pro.html", 
+                icon: "fa-book-open",
+                iconColor: "text-blue-400", // Adjusted for dark mode contrast
+                title: {
+                    de: "Das Regiebuch (Produktion)",
+                    en: "Production Manual",
+                    es: "Manual de Producción"
+                },
+                desc: {
+                    de: "Schritt-für-Schritt-Anleitung für NotebookLM & Gemini Shows.",
+                    en: "Step-by-step guide for NotebookLM & Gemini shows.",
+                    es: "Guía paso a paso para los shows de NotebookLM y Gemini."
+                }
+            },
+            {
+                id: 2,
+                filename: "yt-studio.html", 
+                icon: "fa-youtube",
+                iconColor: "text-red-500",
+                title: {
+                    de: "YouTube Studio Guide",
+                    en: "YouTube Studio Guide",
+                    es: "Guía de YouTube Studio"
+                },
+                desc: {
+                    de: "Wie man Abspanne (End Screens) und Links hinzufügt.",
+                    en: "How to add End Screens and links to your videos.",
+                    es: "Cómo agregar pantallas finales y enlaces a tus videos."
+                }
+            },
+            {
+                id: 3,
+                filename: "https://github.com/maoumas/arti/tree/main", 
+                icon: "fa-github",
+                iconColor: "text-gray-100",
+                title: {
+                    de: "Arti Repository",
+                    en: "Arti Repository",
+                    es: "Repositorio Arti"
+                },
+                desc: {
+                    de: "Direkter Link zum GitHub Quellcode.",
+                    en: "Direct link to GitHub source code.",
+                    es: "Enlace directo al código fuente en GitHub."
+                }
+            }
+        ];
+
+        // --- UI TEXTS ---
+        const uiText = {
+            de: { title: "Willkommen im Kontrollzentrum", sub: "Wähle ein Modul aus, um die Produktion zu starten oder Anleitungen zu lesen.", btn: "Öffnen", langLabel: "Deutsch" },
+            en: { title: "Welcome to Control Center", sub: "Select a module to start production or read guides.", btn: "Open", langLabel: "English" },
+            es: { title: "Bienvenido al Centro de Control", sub: "Selecciona un módulo para iniciar producción o leer guías.", btn: "Abrir", langLabel: "Español" }
+        };
+
+        // --- APP LOGIC ---
+        let currentLang = localStorage.getItem('arti_lang') || 'de';
+
+        // 1. Render Grid Function
+        function renderGrid() {
+            const grid = document.getElementById('tutorialGrid');
+            grid.innerHTML = ''; 
+
+            tutorials.forEach(t => {
+                const card = document.createElement('div');
+                card.className = "tutorial-card rounded-xl p-6 flex flex-col justify-between h-full";
+                
+                card.innerHTML = `
+                    <div>
+                        <div class="w-12 h-12 bg-[#2d2d2d] rounded-lg flex items-center justify-center text-2xl mb-5 border border-[#444]">
+                            <i class="fa-brands ${t.icon} ${t.icon.includes('fa-') ? 'fa-solid' : ''} ${t.iconColor}"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-100 mb-2">${t.title[currentLang]}</h3>
+                        <p class="text-gray-400 mb-6 leading-relaxed text-sm">
+                            ${t.desc[currentLang]}
+                        </p>
+                    </div>
+                    <a href="${t.filename}" class="btn-action w-full block text-center font-bold py-3 px-4 rounded-lg uppercase tracking-wide text-sm">
+                        ${uiText[currentLang].btn} <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </a>
+                `;
+                grid.appendChild(card);
+            });
+
+            // Update UI Texts
+            document.getElementById('heroTitle').textContent = uiText[currentLang].title;
+            document.getElementById('heroSubtitle').textContent = uiText[currentLang].sub;
+            document.getElementById('currentLangDisplay').textContent = uiText[currentLang].langLabel;
+        }
+
+        // 2. Menu Logic
+        function toggleLanguageMenu(event) {
+            event.stopPropagation(); 
+            const menu = document.getElementById('langDropdown');
+            menu.classList.toggle('hidden');
+        }
+
+        function selectLanguage(lang, event) {
+            event.preventDefault(); 
+            currentLang = lang;
+            localStorage.setItem('arti_lang', lang);
+            document.getElementById('langDropdown').classList.add('hidden');
+            renderGrid();
+        }
+
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById('langDropdown');
+            const btn = document.getElementById('langBtn');
+            if (!menu.classList.contains('hidden') && !btn.contains(event.target) && !menu.contains(event.target)) {
+                menu.classList.add('hidden');
+            }
+        });
+
+        // Initial Render
+        document.addEventListener('DOMContentLoaded', () => {
+            renderGrid();
+        });
+
+    </script>
+</body>
+</html>

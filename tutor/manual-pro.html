@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <!-- METADATOS REDES SOCIALES -->
+    <meta property="og:title" content="Produktions-Handbuch | Manual de Producción">
+    <meta property="og:description" content="Guide for NotebookLM & Gemini Shows.">
+    <meta property="og:image" content="https://zmau.dev/img/arti_preview.png">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://zmau.dev/tutor/manual-pro.html">
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produktions-Handbuch für Arti</title>
+
+    <!-- Tailwind & FontAwesome -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --card-color: #ffffff;
+            --primary-color: #1a73e8;
+            --secondary-color: #ea4335;
+            --text-color: #333333;
+            --text-light: #666666;
+            --success-color: #34a853;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .container-custom {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Hero Image */
+        .hero-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            border-radius: 15px 15px 0 0;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: -20px;
+            display: block;
+        }
+
+        /* Header */
+        .header-card {
+            text-align: center;
+            margin-bottom: 50px;
+            background: white;
+            padding: 40px 20px 20px;
+            border-radius: 0 0 15px 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 10;
+        }
+
+        .header-card h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            margin-top: 0;
+            font-weight: 700;
+        }
+
+        .header-card p {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            margin-bottom: 0;
+        }
+
+        /* Steps */
+        .step-card {
+            background: var(--card-color);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border-left: 6px solid var(--primary-color);
+            position: relative;
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            background: var(--primary-color);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(26, 115, 232, 0.4);
+        }
+
+        .step-title {
+            font-size: 1.5rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: #2c3e50;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-weight: 700;
+        }
+
+        .tool-badge {
+            font-size: 0.8rem;
+            background: #e8f0fe;
+            color: var(--primary-color);
+            padding: 5px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        /* Prompt Box */
+        .prompt-box {
+            background-color: #f8f9fa;
+            border: 1px dashed #ccc;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+            color: #444;
+            margin-top: 15px;
+            white-space: pre-wrap;
+        }
+
+        .prompt-label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: var(--success-color);
+            font-family: sans-serif;
+        }
+
+        /* Warning Box */
+        .warning-box {
+            background-color: #fce8e6;
+            border-left: 4px solid var(--secondary-color);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .warning-title {
+            color: var(--secondary-color);
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        /* Language Button */
+        .lang-btn-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 50;
+        }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <!-- Language Switcher -->
+    <div class="lang-btn-container relative">
+        <button id="langBtn" onclick="toggleLanguageMenu(event)" class="flex items-center gap-2 bg-white/90 backdrop-blur border border-gray-300 px-4 py-2 rounded-full text-sm font-medium hover:bg-white shadow-sm transition-all text-gray-700">
+            <i class="fa-solid fa-globe text-blue-500"></i>
+            <span id="currentLangDisplay">Deutsch</span>
+            <i class="fa-solid fa-chevron-down text-xs text-gray-400"></i>
+        </button>
+        <!-- Dropdown -->
+        <div id="langDropdown" class="hidden absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden z-50">
+            <a href="#" onclick="changeLanguage('de', event)" class="block px-4 py-3 text-sm hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-gray-50">Deutsch</a>
+            <a href="#" onclick="changeLanguage('en', event)" class="block px-4 py-3 text-sm hover:bg-blue-50 hover:text-blue-700 transition-colors border-b border-gray-50">English</a>
+            <a href="#" onclick="changeLanguage('es', event)" class="block px-4 py-3 text-sm hover:bg-blue-50 hover:text-blue-700 transition-colors">Español</a>
+        </div>
+    </div>
+
+    <div class="container-custom mt-8">
+        
+        <!-- Hero Image -->
+        <img src="http://zmau.dev/img/IMG_tutor.JPG" alt="Studio Regieplatz" class="hero-image">
+
+        <div class="header-card">
+            <h1><i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="mainTitle">Das Regiebuch</span></h1>
+            <p data-i18n="mainSubtitle">Hallo Arti! Hier ist deine Schritt-für-Schritt-Anleitung, um aus bloßen Informationen eine großartige Sendung zu machen.</p>
+        </div>
+
+        <!-- STEP 1 -->
+        <div class="step-card">
+            <div class="step-number">1</div>
+            <h2 class="step-title">
+                <span data-i18n="step1Title">Material sammeln</span>
+                <span class="tool-badge">NotebookLM & Gemini</span>
+            </h2>
+            
+            <p data-i18n="step1Desc">Zuerst füttern wir unser "Super-Gehirn" (NotebookLM) mit Wissen. Lade PDFs, Texte oder normale YouTube-Links hoch.</p>
+
+            <div class="warning-box">
+                <span class="warning-title"><i class="fa-solid fa-triangle-exclamation"></i> <span data-i18n="warnTitle">Spezialfall: Live-Streams</span></span>
+                <span data-i18n="warnText">NotebookLM kann keine YouTube-Live-Videos direkt lesen.</span>
+                <br><br>
+                <strong data-i18n="warnTrick">Der Trick:</strong>
+                <ol style="margin: 10px 0 0 20px;" class="list-decimal">
+                    <li data-i18n="warnStep1">Gehe zu <strong>Gemini</strong>.</li>
+                    <li data-i18n="warnStep2">Gib Gemini den Link zum Live-Video.</li>
+                    <li data-i18n="warnStep3">Befehl: <em>"Mache eine detaillierte Analyse dieses Videos."</em></li>
+                    <li data-i18n="warnStep4">Kopiere die Antwort von Gemini und füge sie als Text in NotebookLM ein.</li>
+                </ol>
+            </div>
+
+            <div class="flex gap-4 items-start mt-4 text-gray-600">
+                <i class="fa-solid fa-globe text-xl mt-1"></i>
+                <div>
+                    <strong data-i18n="newFeatureTitle">Neu: Internet-Suche</strong><br>
+                    <span data-i18n="newFeatureDesc">Aktiviere in NotebookLM die Internet-Funktion, um brandaktuelle Fakten hinzuzufügen.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="step-card">
+            <div class="step-number">2</div>
+            <h2 class="step-title">
+                <span data-i18n="step2Title">Das Skript schreiben</span>
+                <span class="tool-badge">NotebookLM</span>
+            </h2>
+            
+            <p data-i18n="step2Desc">Jetzt bitten wir NotebookLM, aus dem gesammelten Material einen perfekten Moderationstext (Teleprompter) zu erstellen. Kopiere diesen Befehl genau so:</p>
+
+            <div class="prompt-box">
+<span class="prompt-label" data-i18n="promptLabel1">BEFEHL FÜR DAS SKRIPT:</span>
+<span data-i18n="promptText1">## Inhaltliche und stilistische Anforderungen
+
+1.  **Betone die offizielle Aktivierung:** Beginne damit, dass die Benennung der Operation durch Kriegsminister Pete Hegseth/Hexath als **"Operation Southern Spear"** bedeutet, dass die Mission offiziell aktiviert wurde und es **kein Zurück mehr** gibt.
+2.  **Vergleiche Deklaration vs. Realität (Sarkasmus):** Stelle die offiziellen Ziele den offensichtlichen, nicht deklarierten Zielen sarkastisch gegenüber.
+3.  **Fokus auf das beispiellose militärische Gerät:** Beschreibe die Aufrüstung (USS Gerald R. Ford, 15.000 Soldaten).
+4.  **Hervorhebung der Kontroverse:** Integriere die Kritik an den Tötungen.
+5.  **Strategische Tiefe:** Erkläre, dass die Operation die Wurzel des Problems angreift.
+
+**Beginne dein Skript sofort mit dem Titel und dem Inhalt.**</span>
+            </div>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="step-card">
+            <div class="step-number">3</div>
+            <h2 class="step-title">
+                <span data-i18n="step3Title">Die Bilder (Slides) erstellen</span>
+                <span class="tool-badge">Gemini</span>
+            </h2>
+            
+            <p data-i18n="step3Desc">Sobald wir den Text haben, brauchen wir visuelle Unterstützung für den Hintergrund. Wir gehen zurück zu Gemini und sagen:</p>
+
+            <div class="prompt-box">
+<span class="prompt-label" data-i18n="promptLabel2">BEFEHL FÜR DIE BILDER:</span>
+<span data-i18n="promptText2">Handeln Sie mit der ganzen Professionalität und Ernsthaftigkeit dieser Nachricht und erstellen Sie mir eine Präsentation mit journalistischen Bildern und etwas Satire im Stil moderner Karikaturen, speziell für mein älteres deutsches Publikum, von unserem Kanal @translatedPressDE, um es zu informieren und zu unterhalten. Alles auf Deutsch für mein Publikum.</span>
+            </div>
+
+            <p class="mt-4 text-gray-500 italic" data-i18n="step3Tip">Tipp: Gemini erstellt daraus den Code oder die Struktur, die wir dann als PowerPoint oder HTML speichern.</p>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="step-card">
+            <div class="step-number">4</div>
+            <h2 class="step-title">
+                <span data-i18n="step4Title">Die Show starten</span>
+                <span class="tool-badge">Mission Control</span>
+            </h2>
+            
+            <p data-i18n="step4Intro">Jetzt hast du alles:</p>
+            <ul class="list-none pl-0 mt-2 space-y-2">
+                <li><i class="fa-solid fa-check text-green-600 mr-2"></i> <span data-i18n="check1">Das Wissen (aus NotebookLM)</span></li>
+                <li><i class="fa-solid fa-check text-green-600 mr-2"></i> <span data-i18n="check2">Das Skript (Der Teleprompter)</span></li>
+                <li><i class="fa-solid fa-check text-green-600 mr-2"></i> <span data-i18n="check3">Die Bilder (Die Präsentation)</span></li>
+            </ul>
+            <p class="mt-4" data-i18n="step4Action">Gehe zu deinem <strong>Mission Control Dashboard</strong>, öffne die beiden Dateien und starte die Aufnahme. Du bist bereit!</p>
+        </div>
+
+        <div class="text-center text-gray-500 italic mt-12 pb-8" data-i18n="footerQuote">
+            "Technik ist nur das Werkzeug. Dein Talent macht die Show."
+        </div>
+
+    </div>
+
+    <!-- JAVASCRIPT FOR TRANSLATIONS -->
+    <script>
+        const translations = {
+            de: {
+                mainTitle: "Das Regiebuch",
+                mainSubtitle: "Hallo Arti! Hier ist deine Schritt-für-Schritt-Anleitung, um aus bloßen Informationen eine großartige Sendung zu machen.",
+                step1Title: "Material sammeln",
+                step1Desc: "Zuerst füttern wir unser \"Super-Gehirn\" (NotebookLM) mit Wissen. Lade PDFs, Texte oder normale YouTube-Links hoch.",
+                warnTitle: "Spezialfall: Live-Streams",
+                warnText: "NotebookLM kann keine YouTube-Live-Videos direkt lesen.",
+                warnTrick: "Der Trick:",
+                warnStep1: "Gehe zu <strong>Gemini</strong>.",
+                warnStep2: "Gib Gemini den Link zum Live-Video.",
+                warnStep3: "Befehl: <em>\"Mache eine detaillierte Analyse dieses Videos.\"</em>",
+                warnStep4: "Kopiere die Antwort von Gemini und füge sie als Text in NotebookLM ein.",
+                newFeatureTitle: "Neu: Internet-Suche",
+                newFeatureDesc: "Aktiviere in NotebookLM die Internet-Funktion, um brandaktuelle Fakten hinzuzufügen.",
+                step2Title: "Das Skript schreiben",
+                step2Desc: "Jetzt bitten wir NotebookLM, aus dem gesammelten Material einen perfekten Moderationstext (Teleprompter) zu erstellen. Kopiere diesen Befehl genau so:",
+                promptLabel1: "BEFEHL FÜR DAS SKRIPT:",
+                promptText1: "## Inhaltliche und stilistische Anforderungen\n\n1. **Betone die offizielle Aktivierung:** Beginne damit, dass die Benennung der Operation durch Kriegsminister Pete Hegseth/Hexath als **\"Operation Southern Spear\"** bedeutet, dass die Mission offiziell aktiviert wurde und es **kein Zurück mehr** gibt.\n2. **Vergleiche Deklaration vs. Realität (Sarkasmus):** Stelle die offiziellen Ziele den offensichtlichen, nicht deklarierten Zielen sarkastisch gegenüber.\n3. **Fokus auf das beispiellose militärische Gerät:** Beschreibe die Aufrüstung (USS Gerald R. Ford, 15.000 Soldaten).\n4. **Hervorhebung der Kontroverse:** Integriere die Kritik an den Tötungen.\n5. **Strategische Tiefe:** Erkläre, dass die Operation die Wurzel des Problems angreift.\n\n**Beginne dein Skript sofort mit dem Titel und dem Inhalt.**",
+                step3Title: "Die Bilder (Slides) erstellen",
+                step3Desc: "Sobald wir den Text haben, brauchen wir visuelle Unterstützung für den Hintergrund. Wir gehen zurück zu Gemini und sagen:",
+                promptLabel2: "BEFEHL FÜR DIE BILDER:",
+                promptText2: "Handeln Sie mit der ganzen Professionalität und Ernsthaftigkeit dieser Nachricht und erstellen Sie mir eine Präsentation mit journalistischen Bildern und etwas Satire im Stil moderner Karikaturen, speziell für mein älteres deutsches Publikum, von unserem Kanal @translatedPressDE, um es zu informieren und zu unterhalten. Alles auf Deutsch für mein Publikum.",
+                step3Tip: "Tipp: Gemini erstellt daraus den Code oder die Struktur, die wir dann als PowerPoint oder HTML speichern.",
+                step4Title: "Die Show starten",
+                step4Intro: "Jetzt hast du alles:",
+                check1: "Das Wissen (aus NotebookLM)",
+                check2: "Das Skript (Der Teleprompter)",
+                check3: "Die Bilder (Die Präsentation)",
+                step4Action: "Gehe zu deinem <strong>Mission Control Dashboard</strong>, öffne die beiden Dateien und starte die Aufnahme. Du bist bereit!",
+                footerQuote: "\"Technik ist nur das Werkzeug. Dein Talent macht die Show.\""
+            },
+            en: {
+                mainTitle: "The Production Manual",
+                mainSubtitle: "Hello Arti! Here is your step-by-step guide to turning raw information into a great show.",
+                step1Title: "Gather Material",
+                step1Desc: "First, we feed our \"Super-Brain\" (NotebookLM) with knowledge. Upload PDFs, texts, or regular YouTube links.",
+                warnTitle: "Special Case: Live Streams",
+                warnText: "NotebookLM cannot read YouTube Live videos directly.",
+                warnTrick: "The Trick:",
+                warnStep1: "Go to <strong>Gemini</strong>.",
+                warnStep2: "Give Gemini the link to the live video.",
+                warnStep3: "Command: <em>\"Do a detailed analysis of this video.\"</em>",
+                warnStep4: "Copy Gemini's answer and paste it as text into NotebookLM.",
+                newFeatureTitle: "New: Internet Search",
+                newFeatureDesc: "Enable the Internet function in NotebookLM to add breaking facts.",
+                step2Title: "Write the Script",
+                step2Desc: "Now we ask NotebookLM to create a perfect moderation text (Teleprompter) from the collected material. Copy this command exactly:",
+                promptLabel1: "COMMAND FOR SCRIPT:",
+                promptText1: "## Content and Stylistic Requirements\n\n1. **Emphasize Official Activation:** Start by stating that War Minister Pete Hegseth/Hexath naming the operation **\"Operation Southern Spear\"** means the mission is officially activated and there is **no turning back**.\n2. **Compare Declaration vs. Reality (Sarcasm):** Sarcastically contrast official goals with obvious, undeclared goals.\n3. **Focus on Unprecedented Military Gear:** Describe the buildup (USS Gerald R. Ford, 15,000 troops).\n4. **Highlight Controversy:** Integrate criticism of the killings.\n5. **Strategic Depth:** Explain that the operation attacks the root of the problem.\n\n**Start your script immediately with the title and content.**",
+                step3Title: "Create Images (Slides)",
+                step3Desc: "Once we have the text, we need visual support for the background. We go back to Gemini and say:",
+                promptLabel2: "COMMAND FOR IMAGES:",
+                promptText2: "Act with the full professionalism and seriousness of this news and create a presentation for me with journalistic images and some satire in the style of modern caricatures, specifically for my older German audience, from our channel @translatedPressDE, to inform and entertain them. Everything in German for my audience.",
+                step3Tip: "Tip: Gemini creates the code or structure from this, which we then save as PowerPoint or HTML.",
+                step4Title: "Start the Show",
+                step4Intro: "Now you have everything:",
+                check1: "The Knowledge (from NotebookLM)",
+                check2: "The Script (The Teleprompter)",
+                check3: "The Images (The Presentation)",
+                step4Action: "Go to your <strong>Mission Control Dashboard</strong>, open both files, and start recording. You are ready!",
+                footerQuote: "\"Technology is just the tool. Your talent makes the show.\""
+            },
+            es: {
+                mainTitle: "Manual de Producción",
+                mainSubtitle: "¡Hola Arti! Aquí tienes tu guía paso a paso para convertir información en bruto en un gran programa.",
+                step1Title: "Recopilar Material",
+                step1Desc: "Primero alimentamos nuestro \"Super-Cerebro\" (NotebookLM) con conocimiento. Sube PDFs, textos o enlaces normales de YouTube.",
+                warnTitle: "Caso Especial: Transmisiones en Vivo",
+                warnText: "NotebookLM no puede leer videos en vivo de YouTube directamente.",
+                warnTrick: "El Truco:",
+                warnStep1: "Ve a <strong>Gemini</strong>.",
+                warnStep2: "Dale a Gemini el enlace del video en vivo.",
+                warnStep3: "Comando: <em>\"Haz un análisis detallado de este video.\"</em>",
+                warnStep4: "Copia la respuesta de Gemini y pégala como texto en NotebookLM.",
+                newFeatureTitle: "Nuevo: Búsqueda en Internet",
+                newFeatureDesc: "Activa la función de Internet en NotebookLM para agregar hechos de última hora.",
+                step2Title: "Escribir el Guion",
+                step2Desc: "Ahora le pedimos a NotebookLM que cree un texto de moderación perfecto (Teleprompter) a partir del material recopilado. Copia este comando exactamente:",
+                promptLabel1: "COMANDO PARA EL GUION:",
+                promptText1: "## Requisitos de Contenido y Estilo\n\n1. **Enfatiza la Activación Oficial:** Comienza indicando que el nombramiento de la operación por el Ministro de Guerra Pete Hegseth/Hexath como **\"Operación Southern Spear\"** significa que la misión está oficialmente activada y **no hay vuelta atrás**.\n2. **Compara Declaración vs. Realidad (Sarcasmo):** Contrasta sarcásticamente los objetivos oficiales con los objetivos obvios no declarados.\n3. **Enfoque en Equipo Militar Sin Precedentes:** Describe el despliegue (USS Gerald R. Ford, 15,000 soldados).\n4. **Resalta la Controversia:** Integra la crítica sobre los asesinatos.\n5. **Profundidad Estratégica:** Explica que la operación ataca la raíz del problema.\n\n**Comienza tu guion inmediatamente con el título y el contenido.**",
+                step3Title: "Crear Imágenes (Diapositivas)",
+                step3Desc: "Una vez que tenemos el texto, necesitamos apoyo visual para el fondo. Volvemos a Gemini y decimos:",
+                promptLabel2: "COMANDO PARA IMÁGENES:",
+                promptText2: "Actúe con toda la profesionalidad y seriedad de esta noticia y créeme una presentación con imágenes periodísticas y algo de sátira al estilo de las caricaturas modernas, específicamente para mi audiencia alemana mayor, de nuestro canal @translatedPressDE, para informarles y entretenerles. Todo en alemán para mi audiencia.",
+                step3Tip: "Consejo: Gemini crea el código o la estructura a partir de esto, que luego guardamos como PowerPoint o HTML.",
+                step4Title: "Comenzar el Show",
+                step4Intro: "Ahora tienes todo:",
+                check1: "El Conocimiento (de NotebookLM)",
+                check2: "El Guion (El Teleprompter)",
+                check3: "Las Imágenes (La Presentación)",
+                step4Action: "Ve a tu <strong>Mission Control Dashboard</strong>, abre ambos archivos e inicia la grabación. ¡Estás listo!",
+                footerQuote: "\"La tecnología es solo la herramienta. Tu talento hace el show.\""
+            }
+        };
+
+        // --- LÓGICA DE IDIOMA ---
+        let currentLang = localStorage.getItem('arti_lang') || 'de';
+
+        function updateContent() {
+            // Actualizar textos simples
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[currentLang][key]) {
+                    // Si el contenido tiene HTML (como <strong> o <em>), usamos innerHTML
+                    if (translations[currentLang][key].includes('<')) {
+                        el.innerHTML = translations[currentLang][key];
+                    } else {
+                        // Para texto plano y los prompts (para mantener saltos de línea usamos innerText)
+                        el.innerText = translations[currentLang][key];
+                    }
+                }
+            });
+
+            // Actualizar etiqueta del botón
+            const labels = { de: 'Deutsch', en: 'English', es: 'Español' };
+            document.getElementById('currentLangDisplay').innerText = labels[currentLang];
+        }
+
+        // Toggle Menú
+        function toggleLanguageMenu(event) {
+            event.stopPropagation();
+            document.getElementById('langDropdown').classList.toggle('hidden');
+        }
+
+        // Cambiar Idioma
+        function changeLanguage(lang, event) {
+            event.preventDefault();
+            currentLang = lang;
+            localStorage.setItem('arti_lang', lang);
+            updateContent();
+            document.getElementById('langDropdown').classList.add('hidden');
+        }
+
+        // Cerrar menú al hacer clic fuera
+        document.addEventListener('click', () => {
+            document.getElementById('langDropdown').classList.add('hidden');
+        });
+
+        // Iniciar
+        document.addEventListener('DOMContentLoaded', updateContent);
+
+    </script>
+</body>
+</html>
+
