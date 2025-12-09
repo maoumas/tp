@@ -220,19 +220,24 @@
             width: 100%; /* Asegura que use todo el ancho */
         }
 
-        /* --- AJUSTE PARA MÓVILES (Celulares) --- */
+                /* --- AJUSTE PARA MÓVILES (Celulares) --- */
         @media (max-width: 600px) {
             .toolbar {
-                gap: 5px; /* Reducir espacio entre botones */
+                gap: 4px; /* Espacio mínimo entre botones */
+                align-items: stretch; /* Estira los botones para que tengan la misma altura */
             }
 
             .toolbar .btn {
-                flex: 1; /* Obliga a los botones a estirarse y compartir el espacio equitativamente */
-                font-size: 0.65rem; /* Texto más pequeño para que quepa */
-                padding: 12px 2px; /* Reducir relleno lateral */
-                white-space: nowrap; /* Evita que el texto del botón se parta en dos líneas */
-                min-width: 0; /* Permite que el botón se encoja más si es necesario */
-                text-overflow: clip; /* Corta el texto si es extremadamente largo (opcional) */
+                flex: 1;            /* Reparte el ancho equitativamente (33% c/u) */
+                font-size: 0.7rem;  /* Tamaño legible */
+                padding: 4px 2px;   /* Menos relleno vertical para compensar las dos líneas */
+                
+                /* CLAVE PARA LAS DOS LÍNEAS: */
+                white-space: normal; /* Permite que el texto baje a la segunda línea */
+                line-height: 1.1;    /* Pega las líneas verticalmente para que entren bien */
+                text-align: center;  /* Asegura que el texto quede centrado */
+                height: auto;        /* Deja que el botón crezca según el texto */
+                min-height: 44px;    /* Altura mínima para que sea fácil de tocar */
             }
         }
 
