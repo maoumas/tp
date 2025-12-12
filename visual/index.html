@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visor Markdown Web</title>
+    <title>Visor Markdown Móvil</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     
@@ -36,10 +37,12 @@
             color: var(--text-main);
             height: 100vh;
             display: flex;
-            transition: background-color 0.3s, color 0.3s;
+            /* Por defecto: Lado a lado (Desktop) */
+            flex-direction: row; 
             overflow: hidden; 
         }
 
+        /* --- ESTILOS DE BARRA LATERAL (Desktop) --- */
         .sidebar {
             width: 260px;
             background-color: var(--bg-sidebar);
@@ -47,13 +50,17 @@
             flex-direction: column;
             padding: 20px;
             border-right: 1px solid rgba(128, 128, 128, 0.1);
+            z-index: 10;
         }
 
         .logo {
             font-size: 1.5rem;
             font-weight: bold;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
         .btn {
@@ -66,9 +73,7 @@
             cursor: pointer;
             transition: background 0.2s;
             font-weight: 500;
-            margin-bottom: 10px;
             text-align: center;
-            display: block;
             width: 100%;
         }
 
@@ -77,15 +82,20 @@
         .spacer { flex: 1; }
 
         .controls { display: flex; flex-direction: column; gap: 10px; }
-        label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; display: block;}
+        
         select {
             width: 100%; padding: 8px; border-radius: 6px;
             background-color: var(--bg-app); color: var(--text-main);
-            border: 1px solid rgba(128,128,128,0.3); cursor: pointer;
+            border: 1px solid rgba(128,128,128,0.3);
         }
 
+        /* --- ÁREA PRINCIPAL --- */
         .main-content {
-            flex: 1; padding: 20px; display: flex; flex-direction: column;
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            position: relative;
         }
 
         .markdown-card {
@@ -96,50 +106,100 @@
             overflow-y: auto;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             max-width: 900px;
-            margin: 0 auto;
             width: 100%;
+            margin: 0 auto;
         }
 
         #fileInput { display: none; }
 
         /* Estilos Markdown */
-        .markdown-body { line-height: 1.6; }
-        .markdown-body h1, .markdown-body h2 { border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom: 0.3em; margin-top: 24px; color: var(--accent-color); }
+        .markdown-body { line-height: 1.6; font-size: 16px; }
+        .markdown-body h1 { font-size: 2em; border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom: 0.3em; margin-top: 0; color: var(--accent-color); }
+        .markdown-body h2 { margin-top: 24px; color: var(--accent-color); }
+        .markdown-body p { margin-bottom: 16px; }
         .markdown-body code { background-color: rgba(128,128,128,0.2); padding: 2px 4px; border-radius: 4px; font-family: monospace; }
-        .markdown-body pre { background-color: rgba(0,0,0,0.3); padding: 16px; border-radius: 8px; overflow: auto; }
-        .markdown-body blockquote { border-left: 4px solid var(--accent-color); padding-left: 16px; color: var(--text-muted); }
-        .markdown-body img { max-width: 100%; border-radius: 8px; }
-        
-        /* Mensaje de error visual */
-        .error-msg { color: #ff6b6b; border: 1px solid #ff6b6b; padding: 10px; border-radius: 5px; background: rgba(255, 107, 107, 0.1); }
+        .markdown-body pre { background-color: rgba(0,0,0,0.3); padding: 16px; border-radius: 8px; overflow-x: auto; }
+        .markdown-body img { max-width: 100%; border-radius: 8px; height: auto; }
+
+        /* =========================================
+           DISEÑO RESPONSIVO (MÓVIL)
+           Se activa cuando la pantalla es menor a 768px
+           ========================================= */
+        @media (max-width: 768px) {
+            body {
+                /* Cambiamos a columna: Barra arriba, contenido abajo */
+                flex-direction: column; 
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto; /* Altura automática */
+                flex-direction: row; /* Elementos en fila horizontal */
+                align-items: center;
+                justify-content: space-between;
+                padding: 15px;
+                border-right: none;
+                border-bottom: 1px solid rgba(128, 128, 128, 0.1);
+            }
+
+            .logo {
+                margin-bottom: 0; /* Quitar margen inferior */
+                font-size: 1.2rem;
+            }
+
+            /* Botón más compacto */
+            .btn {
+                width: auto;
+                padding: 8px 15px;
+                font-size: 0.85rem;
+            }
+
+            /* Ocultamos cosas no esenciales para ahorrar espacio */
+            .spacer, .controls label { display: none; }
+            
+            .controls {
+                flex-direction: row;
+                width: auto;
+            }
+
+            select {
+                padding: 6px;
+                width: auto;
+            }
+
+            .main-content {
+                padding: 10px; /* Menos padding en móvil */
+            }
+
+            .markdown-card {
+                padding: 20px; /* Menos padding interno */
+            }
+        }
     </style>
 </head>
 <body>
 
     <aside class="sidebar">
-        <div class="logo">📄 MD Viewer</div>
+        <div class="logo">📄 <span style="display:inline-block">MD Viewer</span></div>
         
-        <button class="btn" onclick="triggerFileInput()">Abrir Archivo MD</button>
-        <input type="file" id="fileInput" accept=".md,.txt,.markdown">
-
-        <div class="spacer"></div>
-
-        <div class="controls">
-            <div>
-                <label>Apariencia</label>
+        <div style="display:flex; gap:10px; align-items:center;">
+            <div class="controls">
                 <select id="themeSelector" onchange="toggleTheme(this.value)">
-                    <option value="dark">Dark Mode</option>
-                    <option value="light">Light Mode</option>
+                    <option value="dark">🌙 Dark</option>
+                    <option value="light">☀️ Light</option>
                 </select>
             </div>
+            <button class="btn" onclick="triggerFileInput()">Abrir Archivo</button>
         </div>
+        
+        <input type="file" id="fileInput" accept=".md,.txt,.markdown">
     </aside>
 
     <main class="main-content">
         <div id="markdown-container" class="markdown-card markdown-body">
             <div style="text-align: center; color: var(--text-muted); margin-top: 20%;">
-                <h2>Listo para abrir</h2>
-                <p>Selecciona un archivo .md para comenzar.</p>
+                <h3>Vista Móvil Lista</h3>
+                <p>Toca "Abrir Archivo" arriba.</p>
             </div>
         </div>
     </main>
@@ -149,49 +209,23 @@
         const container = document.getElementById('markdown-container');
         const root = document.documentElement;
 
-        // Función para activar el input oculto de forma segura
-        function triggerFileInput() {
-            fileInput.click();
-        }
+        function triggerFileInput() { fileInput.click(); }
 
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
-            // Feedback visual de "Cargando..."
-            container.innerHTML = "<p style='text-align:center; color: var(--text-muted)'>Leyendo archivo...</p>";
-
+            container.innerHTML = "<p style='text-align:center; color: var(--text-muted)'>Procesando...</p>";
             const reader = new FileReader();
             
             reader.onload = function(e) {
-                const markdownText = e.target.result;
-                
                 try {
-                    // Verificar si la librería cargó
-                    if (typeof marked === 'undefined') {
-                        throw new Error("La librería 'marked' no se cargó. Verifica tu conexión a internet.");
-                    }
-
-                    // Intentar convertir
-                    const htmlContent = marked.parse(markdownText);
-                    container.innerHTML = htmlContent;
-
+                    if (typeof marked === 'undefined') throw new Error("Sin conexión a la librería Markdown");
+                    container.innerHTML = marked.parse(e.target.result);
                 } catch (error) {
-                    console.error(error);
-                    container.innerHTML = `
-                        <div class="error-msg">
-                            <h3>⚠️ Error al renderizar</h3>
-                            <p>${error.message}</p>
-                            <small>Abre la consola (F12) para más detalles.</small>
-                        </div>
-                    `;
+                    container.innerHTML = `<div style="color:red">Error: ${error.message}</div>`;
                 }
             };
-
-            reader.onerror = function() {
-                container.innerHTML = "<div class='error-msg'>Error al leer el archivo del disco.</div>";
-            };
-
             reader.readAsText(file);
         });
 
