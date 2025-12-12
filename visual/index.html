@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Visor Markdown Móvil</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
@@ -35,14 +34,15 @@
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-app);
             color: var(--text-main);
+            /* Importante: Fija la altura al 100% de la ventana */
             height: 100vh;
+            width: 100vw;
             display: flex;
-            /* Por defecto: Lado a lado (Desktop) */
             flex-direction: row; 
-            overflow: hidden; 
+            overflow: hidden; /* Evita scroll en el body completo */
         }
 
-        /* --- ESTILOS DE BARRA LATERAL (Desktop) --- */
+        /* --- BARRA LATERAL --- */
         .sidebar {
             width: 260px;
             background-color: var(--bg-sidebar);
@@ -51,6 +51,7 @@
             padding: 20px;
             border-right: 1px solid rgba(128, 128, 128, 0.1);
             z-index: 10;
+            flex-shrink: 0; /* Evita que la barra se aplaste */
         }
 
         .logo {
@@ -58,9 +59,7 @@
             font-weight: bold;
             margin-bottom: 30px;
             color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            display: flex; align-items: center; gap: 8px;
         }
 
         .btn {
@@ -76,11 +75,9 @@
             text-align: center;
             width: 100%;
         }
-
         .btn:hover { background-color: var(--accent-hover); }
 
         .spacer { flex: 1; }
-
         .controls { display: flex; flex-direction: column; gap: 10px; }
         
         select {
@@ -89,90 +86,85 @@
             border: 1px solid rgba(128,128,128,0.3);
         }
 
-        /* --- ÁREA PRINCIPAL --- */
+        /* --- CONTENEDOR PRINCIPAL --- */
         .main-content {
-            flex: 1;
-            padding: 20px;
+            flex: 1; /* Toma el espacio restante */
             display: flex;
             flex-direction: column;
+            /* CRUCIAL: min-height: 0 permite que el hijo (card) haga scroll */
+            min-height: 0; 
+            min-width: 0;
             position: relative;
+            padding: 20px;
         }
 
         .markdown-card {
             background-color: var(--bg-card);
-            flex: 1;
             border-radius: var(--border-radius);
             padding: 40px;
-            overflow-y: auto;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             max-width: 900px;
             width: 100%;
             margin: 0 auto;
+            
+            /* --- MAGIA DEL SCROLL --- */
+            flex: 1; /* Ocupa todo el alto disponible */
+            overflow-y: auto; /* Activa el scroll vertical */
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch; /* Scroll suave en iPhone/Android */
+            
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         #fileInput { display: none; }
 
         /* Estilos Markdown */
-        .markdown-body { line-height: 1.6; font-size: 16px; }
-        .markdown-body h1 { font-size: 2em; border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom: 0.3em; margin-top: 0; color: var(--accent-color); }
+        .markdown-body { line-height: 1.6; font-size: 16px; padding-bottom: 50px; } /* padding-bottom extra para leer el final cómodo */
+        .markdown-body h1 { font-size: 1.8em; border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom: 0.3em; margin-top: 0; color: var(--accent-color); }
         .markdown-body h2 { margin-top: 24px; color: var(--accent-color); }
         .markdown-body p { margin-bottom: 16px; }
         .markdown-body code { background-color: rgba(128,128,128,0.2); padding: 2px 4px; border-radius: 4px; font-family: monospace; }
-        .markdown-body pre { background-color: rgba(0,0,0,0.3); padding: 16px; border-radius: 8px; overflow-x: auto; }
-        .markdown-body img { max-width: 100%; border-radius: 8px; height: auto; }
+        .markdown-body pre { background-color: rgba(0,0,0,0.3); padding: 16px; border-radius: 8px; overflow-x: auto; max-width: 100%; }
+        .markdown-body img { max-width: 100%; height: auto; border-radius: 8px; }
 
         /* =========================================
            DISEÑO RESPONSIVO (MÓVIL)
-           Se activa cuando la pantalla es menor a 768px
            ========================================= */
         @media (max-width: 768px) {
             body {
-                /* Cambiamos a columna: Barra arriba, contenido abajo */
-                flex-direction: column; 
+                flex-direction: column; /* Apilar verticalmente */
             }
 
             .sidebar {
                 width: 100%;
-                height: auto; /* Altura automática */
-                flex-direction: row; /* Elementos en fila horizontal */
+                /* Altura fija para la barra superior en móvil */
+                height: 70px; 
+                flex-direction: row;
                 align-items: center;
-                justify-content: space-between;
-                padding: 15px;
+                padding: 10px 15px;
                 border-right: none;
                 border-bottom: 1px solid rgba(128, 128, 128, 0.1);
             }
 
-            .logo {
-                margin-bottom: 0; /* Quitar margen inferior */
-                font-size: 1.2rem;
-            }
-
-            /* Botón más compacto */
+            .logo { margin-bottom: 0; font-size: 1.1rem; white-space: nowrap;}
+            
             .btn {
-                width: auto;
-                padding: 8px 15px;
-                font-size: 0.85rem;
+                width: auto; padding: 8px 12px; font-size: 0.8rem;
             }
 
-            /* Ocultamos cosas no esenciales para ahorrar espacio */
             .spacer, .controls label { display: none; }
             
-            .controls {
-                flex-direction: row;
-                width: auto;
-            }
-
-            select {
-                padding: 6px;
-                width: auto;
-            }
+            .controls { flex-direction: row; width: auto; }
+            select { padding: 6px; width: auto; font-size: 0.8rem;}
 
             .main-content {
-                padding: 10px; /* Menos padding en móvil */
+                padding: 10px;
+                /* Asegura que el contenido ocupe el resto de la pantalla menos la barra */
+                height: calc(100vh - 70px); 
             }
 
             .markdown-card {
-                padding: 20px; /* Menos padding interno */
+                padding: 20px;
+                padding-bottom: 80px; /* Espacio extra al final para scroll cómodo en móvil */
             }
         }
     </style>
@@ -180,16 +172,16 @@
 <body>
 
     <aside class="sidebar">
-        <div class="logo">📄 <span style="display:inline-block">MD Viewer</span></div>
+        <div class="logo">📄 MD Viewer</div>
         
-        <div style="display:flex; gap:10px; align-items:center;">
+        <div style="display:flex; gap:10px; align-items:center; margin-left: auto;">
             <div class="controls">
                 <select id="themeSelector" onchange="toggleTheme(this.value)">
-                    <option value="dark">🌙 Dark</option>
-                    <option value="light">☀️ Light</option>
+                    <option value="dark">🌙</option>
+                    <option value="light">☀️</option>
                 </select>
             </div>
-            <button class="btn" onclick="triggerFileInput()">Abrir Archivo</button>
+            <button class="btn" onclick="triggerFileInput()">Abrir</button>
         </div>
         
         <input type="file" id="fileInput" accept=".md,.txt,.markdown">
@@ -197,9 +189,9 @@
 
     <main class="main-content">
         <div id="markdown-container" class="markdown-card markdown-body">
-            <div style="text-align: center; color: var(--text-muted); margin-top: 20%;">
-                <h3>Vista Móvil Lista</h3>
-                <p>Toca "Abrir Archivo" arriba.</p>
+            <div style="text-align: center; color: var(--text-muted); margin-top: 30%;">
+                <h3>Esperando archivo...</h3>
+                <p>Toca "Abrir" arriba.</p>
             </div>
         </div>
     </main>
@@ -215,15 +207,18 @@
             const file = e.target.files[0];
             if (!file) return;
 
-            container.innerHTML = "<p style='text-align:center; color: var(--text-muted)'>Procesando...</p>";
-            const reader = new FileReader();
+            container.innerHTML = "<p style='text-align:center; color: var(--text-muted); margin-top:20px'>Procesando...</p>";
             
+            const reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    if (typeof marked === 'undefined') throw new Error("Sin conexión a la librería Markdown");
+                    if (typeof marked === 'undefined') throw new Error("Falta internet para cargar la librería.");
+                    // Convertir
                     container.innerHTML = marked.parse(e.target.result);
+                    // IMPORTANTE: Forzar scroll al inicio
+                    container.scrollTop = 0;
                 } catch (error) {
-                    container.innerHTML = `<div style="color:red">Error: ${error.message}</div>`;
+                    container.innerHTML = `<div style="color:red; text-align:center; margin-top:20px">${error.message}</div>`;
                 }
             };
             reader.readAsText(file);
