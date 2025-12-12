@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor Markdown Web</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <style>
+        :root {
+            /* Variables de color para Modo Oscuro (Por defecto) */
+            --bg-app: #242424;
+            --bg-sidebar: #1a1a1a;
+            --bg-card: #2b2b2b;
+            --text-main: #ffffff;
+            --text-muted: #a0a0a0;
+            --accent-color: #3B8ED0;
+            --accent-hover: #36719f;
+            --border-radius: 10px;
+        }
+
+        /* Estilos para Modo Claro */
+        [data-theme="light"] {
+            --bg-app: #f0f0f0;
+            --bg-sidebar: #ffffff;
+            --bg-card: #ffffff;
+            --text-main: #333333;
+            --text-muted: #666666;
+            --accent-color: #1F6AA5;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            transition: background-color 0.3s, color 0.3s;
+            overflow: hidden; /* Evita scroll en el body, solo en el contenido */
+        }
+
+        /* --- BARRA LATERAL --- */
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-sidebar);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            border-right: 1px solid rgba(128, 128, 128, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 40px;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-weight: 500;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .btn:hover { background-color: var(--accent-hover); }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .spacer { flex: 1; }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; display: block;}
+        
+        select {
+            width: 100%;
+            padding: 8px;
+            border-radius: 6px;
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            border: 1px solid rgba(128,128,128,0.3);
+            cursor: pointer;
+        }
+
+        /* --- ÁREA PRINCIPAL --- */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .markdown-card {
+            background-color: var(--bg-card);
+            flex: 1;
+            border-radius: var(--border-radius);
+            padding: 40px;
+            overflow-y: auto;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: background-color 0.3s;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Input de archivo oculto */
+        #fileInput { display: none; }
+
+        /* Estilos del contenido Markdown Renderizado */
+        .markdown-body {
+            line-height: 1.6;
+        }
+        .markdown-body h1, .markdown-body h2 { border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom: 0.3em; margin-top: 24px;}
+        .markdown-body code { background-color: rgba(128,128,128,0.2); padding: 2px 4px; border-radius: 4px; font-family: monospace; }
+        .markdown-body pre { background-color: rgba(0,0,0,0.3); padding: 16px; border-radius: 8px; overflow: auto; }
+        .markdown-body blockquote { border-left: 4px solid var(--accent-color); padding-left: 16px; color: var(--text-muted); }
+        .markdown-body img { max-width: 100%; border-radius: 8px; }
+        
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #777; }
+
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="logo">📄 MD Viewer</div>
+        
+        <button class="btn" onclick="document.getElementById('fileInput').click()">Abrir Archivo MD</button>
+        <input type="file" id="fileInput" accept=".md,.txt">
+
+        <div class="spacer"></div>
+
+        <div class="controls">
+            <div>
+                <label>Apariencia</label>
+                <select id="themeSelector" onchange="toggleTheme(this.value)">
+                    <option value="dark">Dark Mode</option>
+                    <option value="light">Light Mode</option>
+                </select>
+            </div>
+            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 20px; text-align: center;">
+                v1.0.0 Web Build
+            </div>
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div id="markdown-container" class="markdown-card markdown-body">
+            <div style="text-align: center; color: var(--text-muted); margin-top: 20%;">
+                <h2>No hay archivo cargado</h2>
+                <p>Haz clic en "Abrir Archivo MD" para visualizar tu contenido.</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Referencias
+        const fileInput = document.getElementById('fileInput');
+        const container = document.getElementById('markdown-container');
+        const root = document.documentElement;
+
+        // Función: Leer archivo y renderizar
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const markdownText = e.target.result;
+                // Usamos la librería 'marked' para convertir a HTML
+                const htmlContent = marked.parse(markdownText);
+                container.innerHTML = htmlContent;
+            };
+            reader.readAsText(file);
+        });
+
+        // Función: Cambiar Tema
+        function toggleTheme(theme) {
+            if (theme === 'light') {
+                root.setAttribute('data-theme', 'light');
+            } else {
+                root.removeAttribute('data-theme');
+            }
+        }
+    </script>
+</body>
+</html>
