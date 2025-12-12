@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Visor Markdown Web</title>
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     
     <style>
         :root {
-            /* Variables de color para Modo Oscuro (Por defecto) */
             --bg-app: #242424;
             --bg-sidebar: #1a1a1a;
             --bg-card: #2b2b2b;
@@ -19,7 +19,6 @@
             --border-radius: 10px;
         }
 
-        /* Estilos para Modo Claro */
         [data-theme="light"] {
             --bg-app: #f0f0f0;
             --bg-sidebar: #ffffff;
@@ -38,10 +37,9 @@
             height: 100vh;
             display: flex;
             transition: background-color 0.3s, color 0.3s;
-            overflow: hidden; /* Evita scroll en el body, solo en el contenido */
+            overflow: hidden; 
         }
 
-        /* --- BARRA LATERAL --- */
         .sidebar {
             width: 260px;
             background-color: var(--bg-sidebar);
@@ -49,7 +47,6 @@
             flex-direction: column;
             padding: 20px;
             border-right: 1px solid rgba(128, 128, 128, 0.1);
-            transition: background-color 0.3s;
         }
 
         .logo {
@@ -57,9 +54,6 @@
             font-weight: bold;
             margin-bottom: 40px;
             color: var(--text-main);
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
 
         .btn {
@@ -74,47 +68,24 @@
             font-weight: 500;
             margin-bottom: 10px;
             text-align: center;
+            display: block;
+            width: 100%;
         }
 
         .btn:hover { background-color: var(--accent-hover); }
 
-        .btn-outline {
-            background-color: transparent;
-            border: 2px solid var(--accent-color);
-            color: var(--accent-color);
-        }
-        
-        .btn-outline:hover {
-            background-color: var(--accent-color);
-            color: white;
-        }
-
         .spacer { flex: 1; }
 
-        .controls {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
+        .controls { display: flex; flex-direction: column; gap: 10px; }
         label { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 5px; display: block;}
-        
         select {
-            width: 100%;
-            padding: 8px;
-            border-radius: 6px;
-            background-color: var(--bg-app);
-            color: var(--text-main);
-            border: 1px solid rgba(128,128,128,0.3);
-            cursor: pointer;
+            width: 100%; padding: 8px; border-radius: 6px;
+            background-color: var(--bg-app); color: var(--text-main);
+            border: 1px solid rgba(128,128,128,0.3); cursor: pointer;
         }
 
-        /* --- ÁREA PRINCIPAL --- */
         .main-content {
-            flex: 1;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
+            flex: 1; padding: 20px; display: flex; flex-direction: column;
         }
 
         .markdown-card {
@@ -124,31 +95,23 @@
             padding: 40px;
             overflow-y: auto;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: background-color 0.3s;
             max-width: 900px;
             margin: 0 auto;
             width: 100%;
         }
 
-        /* Input de archivo oculto */
         #fileInput { display: none; }
 
-        /* Estilos del contenido Markdown Renderizado */
-        .markdown-body {
-            line-height: 1.6;
-        }
-        .markdown-body h1, .markdown-body h2 { border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom: 0.3em; margin-top: 24px;}
+        /* Estilos Markdown */
+        .markdown-body { line-height: 1.6; }
+        .markdown-body h1, .markdown-body h2 { border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom: 0.3em; margin-top: 24px; color: var(--accent-color); }
         .markdown-body code { background-color: rgba(128,128,128,0.2); padding: 2px 4px; border-radius: 4px; font-family: monospace; }
         .markdown-body pre { background-color: rgba(0,0,0,0.3); padding: 16px; border-radius: 8px; overflow: auto; }
         .markdown-body blockquote { border-left: 4px solid var(--accent-color); padding-left: 16px; color: var(--text-muted); }
         .markdown-body img { max-width: 100%; border-radius: 8px; }
         
-        /* Scrollbar personalizada */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #777; }
-
+        /* Mensaje de error visual */
+        .error-msg { color: #ff6b6b; border: 1px solid #ff6b6b; padding: 10px; border-radius: 5px; background: rgba(255, 107, 107, 0.1); }
     </style>
 </head>
 <body>
@@ -156,8 +119,8 @@
     <aside class="sidebar">
         <div class="logo">📄 MD Viewer</div>
         
-        <button class="btn" onclick="document.getElementById('fileInput').click()">Abrir Archivo MD</button>
-        <input type="file" id="fileInput" accept=".md,.txt">
+        <button class="btn" onclick="triggerFileInput()">Abrir Archivo MD</button>
+        <input type="file" id="fileInput" accept=".md,.txt,.markdown">
 
         <div class="spacer"></div>
 
@@ -169,49 +132,72 @@
                     <option value="light">Light Mode</option>
                 </select>
             </div>
-            <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 20px; text-align: center;">
-                v1.0.0 Web Build
-            </div>
         </div>
     </aside>
 
     <main class="main-content">
         <div id="markdown-container" class="markdown-card markdown-body">
             <div style="text-align: center; color: var(--text-muted); margin-top: 20%;">
-                <h2>No hay archivo cargado</h2>
-                <p>Haz clic en "Abrir Archivo MD" para visualizar tu contenido.</p>
+                <h2>Listo para abrir</h2>
+                <p>Selecciona un archivo .md para comenzar.</p>
             </div>
         </div>
     </main>
 
     <script>
-        // Referencias
         const fileInput = document.getElementById('fileInput');
         const container = document.getElementById('markdown-container');
         const root = document.documentElement;
 
-        // Función: Leer archivo y renderizar
+        // Función para activar el input oculto de forma segura
+        function triggerFileInput() {
+            fileInput.click();
+        }
+
         fileInput.addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
 
+            // Feedback visual de "Cargando..."
+            container.innerHTML = "<p style='text-align:center; color: var(--text-muted)'>Leyendo archivo...</p>";
+
             const reader = new FileReader();
+            
             reader.onload = function(e) {
                 const markdownText = e.target.result;
-                // Usamos la librería 'marked' para convertir a HTML
-                const htmlContent = marked.parse(markdownText);
-                container.innerHTML = htmlContent;
+                
+                try {
+                    // Verificar si la librería cargó
+                    if (typeof marked === 'undefined') {
+                        throw new Error("La librería 'marked' no se cargó. Verifica tu conexión a internet.");
+                    }
+
+                    // Intentar convertir
+                    const htmlContent = marked.parse(markdownText);
+                    container.innerHTML = htmlContent;
+
+                } catch (error) {
+                    console.error(error);
+                    container.innerHTML = `
+                        <div class="error-msg">
+                            <h3>⚠️ Error al renderizar</h3>
+                            <p>${error.message}</p>
+                            <small>Abre la consola (F12) para más detalles.</small>
+                        </div>
+                    `;
+                }
             };
+
+            reader.onerror = function() {
+                container.innerHTML = "<div class='error-msg'>Error al leer el archivo del disco.</div>";
+            };
+
             reader.readAsText(file);
         });
 
-        // Función: Cambiar Tema
         function toggleTheme(theme) {
-            if (theme === 'light') {
-                root.setAttribute('data-theme', 'light');
-            } else {
-                root.removeAttribute('data-theme');
-            }
+            if (theme === 'light') root.setAttribute('data-theme', 'light');
+            else root.removeAttribute('data-theme');
         }
     </script>
 </body>
