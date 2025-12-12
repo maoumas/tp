@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pascaline Simulator - For Arti</title>
+  <style>
+    /* ... existing styles ... */
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- page content -->
+</div>
+
+<div id="included-footer"></div>
+<script>
+fetch('/footer.html')
+  .then(r => { if(!r.ok) throw new Error('Footer '+r.status); return r.text(); })
+  .then(html => {
+    const container = document.getElementById('included-footer');
+    container.innerHTML = html;
+    container.querySelectorAll('script').forEach(oldScript => {
+      const s = document.createElement('script');
+      if (oldScript.src) s.src = oldScript.src;
+      else s.textContent = oldScript.textContent;
+      document.body.appendChild(s);
+      oldScript.remove();
+    });
+  })
+  .catch(err => console.error('Footer load failed:', err));
+</script>
+
+<script>
+  // existing pascaline scripts...
+  initAccumulator();
+  initWheels();
+  refreshAccumulator();
+</script>
+</body>
+</html>

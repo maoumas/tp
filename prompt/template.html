@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TPascal.com - Template</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    /* --- 1. VARIABLES DINÁMICAS (ESTILO DE ADMIN.HTML - TEMA ORIGINAL) --- */
+    :root {
+        /* Tema original (Original) */
+        --bg-app: #020617;     [span_0](start_span)/* Fondo general (oscuro)[span_0](end_span) */
+        --bg-panel: #172554;   [span_1](start_span)/* Fondo de paneles (azul oscuro)[span_1](end_span) */
+        --accent: #facc15;     [span_2](start_span)/* Color de acento (amarillo dorado)[span_2](end_span) */
+        --accent-hover: #eab308; [span_3](start_span)/* Hover del acento[span_3](end_span) */
+        --accent-text: #000000; [span_4](start_span)/* Texto sobre color de acento[span_4](end_span) */
+        --text-main: #f8fafc;   [span_5](start_span)/* Texto principal (blanco/claro)[span_5](end_span) */
+        --text-muted: #94a3b8;  [span_6](start_span)/* Texto secundario (gris claro)[span_6](end_span) */
+        --border: #1e3a8a;     [span_7](start_span)/* Color de bordes[span_7](end_span) */
+        --input-bg: #0f172a;   [span_8](start_span)/* Fondo de campos de entrada[span_8](end_span) */
+        --alert: #ef4444;       [span_9](start_span)/* Color de alerta (rojo)[span_9](end_span) */
+    }
+
+    body {
+        background-color: var(--bg-app);
+        color: var(--text-main);
+        font-family: 'Inter', sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow-x: hidden;
+        transition: background-color 0.3s ease, color 0.3s ease;
+        /* Eliminamos padding-top del body ya que el language bar es parte del layout */
+        margin: 0;
+    }
+
+    /* LANGUAGE BAR */
+    .language-bar {
+        background: var(--input-bg); [span_10](start_span)/* Un fondo ligeramente diferente al panel[span_10](end_span) */
+        border-bottom: 1px solid var(--border); [span_11](start_span)/* Separador sutil[span_11](end_span) */
+        padding: 8px 20px;
+        display: flex;
+        justify-content: flex-end; /* Alinear a la derecha */
+        align-items: center;
+        gap: 10px;
+        font-family: 'JetBrains Mono', monospace; /* Fuente mono para los códigos de idioma */
+        font-size: 0.8rem;
+    }
+
+    .lang-btn {
+        background: transparent;
+        border: 1px solid var(--text-muted);
+        color: var(--text-muted);
+        padding: 4px 8px;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .lang-btn:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+        background: rgba(255,255,255,0.05); [span_12](start_span)/* Un ligero hover, como btn-secondary en admin.html[span_12](end_span) */
+    }
+
+    /* Estilo para el idioma activo */
+    .lang-btn.active {
+        background: var(--accent);
+        color: var(--accent-text);
+        border-color: var(--accent);
+        font-weight: 800;
+    }
+
+
+    /* HEADER (Idéntico a admin.html) */
+    .header {
+        padding: 15px 20px;
+        border-bottom: 2px solid var(--accent);
+        background: var(--bg-panel);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+        transition: background-color 0.3s ease;
+    }
+
+    /* LAYOUT PRINCIPAL (Para el contenido de la página) */
+    .main-content {
+        flex: 1;
+        padding: 30px;
+        max-width: 900px; /* Un ancho máximo razonable para contenido general */
+        margin: 0 auto; /* Centrado horizontal */
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+        width: 100%; /* Asegurar que ocupe el ancho disponible hasta el max-width */
+        box-sizing: border-box; /* Incluir padding en el ancho */
+    }
+
+    /* PANELES (Estilo unificado como en admin.html) */
+    .panel {
+        background: var(--bg-panel);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+        [span_13](start_span)/*[span_13](end_span) */
+    }
+
+    /* TÍTULOS Y TEXTOS */
+    h2 {
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: var(--accent);
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    p {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: var(--text-main);
+    }
+    
+    /* BOTONES ESTÁNDAR (Basados en btn-primary de admin.html) */
+    .btn-standard {
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border-radius: 4px;
+        font-weight: 800;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        background: var(--accent);
+        color: var(--accent-text);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        text-decoration: none;
+        [span_14](start_span)/*[span_14](end_span) */
+    }
+    
+    .btn-standard:hover {
+        background: var(--accent-hover);
+        transform: translateY(-1px);
+        [span_15](start_span)/*[span_15](end_span) */
+    }
+
+    /* ICONOS */
+    .btn-standard i, h2 i {
+        font-size: 1.1rem;
+    }
+
+    /* MÓVIL */
+    @media (max-width: 640px) {
+        .main-content {
+            padding: 20px;
+        }
+        .panel {
+            padding: 20px;
+        }
+        h2 {
+            font-size: 1.3rem;
+        }
+        .language-bar {
+             justify-content: center; /* Centrar en móvil */
+             padding: 10px;
+        }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="language-bar">
+      <span style="color: var(--text-muted); margin-right: 5px;">Sprache:</span>
+      <button class="lang-btn" onclick="setLanguage('en', this)">EN</button>
+      <button class="lang-btn" onclick="setLanguage('es', this)">ES</button>
+      <button class="lang-btn active" onclick="setLanguage('de', this)">DE</button>
+  </div>
+
+  <header class="header">
+    <div class="flex items-center gap-3">
+        <span class="text-2xl" style="color: var(--accent);"><i class="fa-solid fa-layer-group"></i></span>
+        <div>
+            <h1 class="text-lg font-bold tracking-tight" style="color: var(--text-main);">TPASCAL <span style="color: var(--accent);">HUB</span></h1>
+            <p class="text-[10px] font-mono" style="color: var(--text-muted);">v4.0 // TEMPLATE PAGE</p>
+        </div>
+    </div>
+    <div class="hidden md:block">
+         <span class="text-xs font-mono font-bold px-2 py-1 rounded border" style="color: var(--bg-app); background-color: var(--accent); border-color: var(--accent); color: var(--accent-text);">SYSTEM ONLINE</span>
+    </div>
+  </header>
+
+  <div class="main-content">
+    
+    <div class="panel">
+        <h2 class="flex items-center gap-2">
+            <i class="fa-solid fa-info-circle"></i>
+            Willkommen auf der Vorlagenseite
+        </h2>
+        <p>
+            Dies ist eine Standardvorlage, die das Farbschema und das Layout von <code>admin.html</code> verwendet. Sie enthält jetzt eine Sprachauswahlleiste oben. Sie können diesen Aufbau für neue Seiten auf TPascal.com verwenden, um ein konsistentes Design zu gewährleisten.
+        </p>
+        <p>
+            Fügen Sie einfach weitere <code>.panel</code>-Divs hinzu, um Ihren Inhalt zu strukturieren.
+        </p>
+    </div>
+
+    <div class="panel">
+        <h2 class="flex items-center gap-2">
+            <i class="fa-solid fa-rocket"></i>
+            Beispielaktion
+        </h2>
+        <p>
+            Hier ist ein Beispiel für einen Standard-Aktionsbutton, der den Stil von <code>admin.html</code> verwendet.
+        </p>
+        
+        <div>
+            <a href="#" class="btn-standard">
+                <i class="fa-solid fa-play"></i>
+                Aktion starten
+            </a>
+        </div>
+    </div>
+    
+  </div>
+
+  <script>
+    // --- LÓGICA BÁSICA PARA LA BARRA DE IDIOMA ---
+    // (Aquí deberás implementar tu lógica real de traducción, similar a admin.html)
+    
+    function setLanguage(lang, el) {
+        // 1. Actualizar estado visual de los botones
+        // Quitar la clase 'active' de todos los botones de idioma
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        // Añadir la clase 'active' al botón clicado
+        if(el) el.classList.add('active');
+        
+        // 2. (PENDIENTE DE IMPLEMENTAR) Lógica de traducción
+        console.log("Sprache geändert auf:", lang);
+        // Aquí iría el código para cambiar los textos de la página según el idioma 'lang',
+        // similar a cómo se hace en admin.html usando un objeto 'translations'.
+        // Ejemplo:
+        // if (lang === 'en') { ... cambiar textos a inglés ... }
+        // else if (lang === 'es') { ... cambiar textos a español ... }
+        // ...
+        
+        // Opcional: Guardar preferencia en localStorage
+        // localStorage.setItem('preferredLang', lang);
+    }
+
+    // Opcional: Cargar idioma preferido al iniciar
+    // document.addEventListener('DOMContentLoaded', () => {
+    //    const savedLang = localStorage.getItem('preferredLang') || 'de';
+    //    const btnToActivate = document.querySelector(`.lang-btn[onclick*="'${savedLang}'"]`);
+    //    setLanguage(savedLang, btnToActivate);
+    // });
+  </script>
+
+</body>
+</html>

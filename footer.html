@@ -1,0 +1,46 @@
+<footer id="site-footer">
+  <div class="site-footer-inner" style="text-align:center;">
+    <p style="margin:0; color:var(--text-muted);">
+      <a href="https://www.youtube.com/@TranslatedPressDE/videos" style="color:var(--accent); text-decoration:none;">
+        <i class="fa-brands fa-youtube"></i> YouTube
+      </a>
+      &nbsp;|&nbsp;
+      <a href="https://github.com/maoumas" style="color:var(--accent); text-decoration:none;">
+        <i class="fa-brands fa-github"></i> GitHub
+      </a>
+    </p>
+
+    <p data-lang="de" style="display:none; color:var(--text-muted); margin-top:8px; font-size:0.9em;">&copy; <span class="footer-year">2025</span> Mauricio Umana. Alle Rechte vorbehalten.</p>
+    <p data-lang="en" style="display:none; color:var(--text-muted); margin-top:8px; font-size:0.9em;">&copy; <span class="footer-year">2025</span> Mauricio Umana. All rights reserved.</p>
+    <p data-lang="es" style="display:none; color:var(--text-muted); margin-top:8px; font-size:0.9em;">&copy; <span class="footer-year">2025</span> Mauricio Umana. Todos los derechos reservados.</p>
+
+  <style>
+    #site-footer { margin-top: 40px; padding-top: 20px; border-top: 1px dashed var(--border); font-family: 'Inter', sans-serif; }
+    #site-footer a { color: var(--accent); text-decoration:none; }
+    #site-footer a:hover { text-decoration:underline; }
+  </style>
+
+  <script>
+    (function(){
+      // Dynamic year
+      const year = new Date().getFullYear();
+      document.querySelectorAll('#site-footer .footer-year').forEach(el => el.textContent = year);
+
+      function updateFooterLang(){
+        const lang = (document.documentElement.lang || 'en').toLowerCase().substring(0,2);
+        document.querySelectorAll('#site-footer [data-lang]').forEach(n => {
+          n.style.display = (n.getAttribute('data-lang') === lang) ? 'block' : 'none';
+        });
+      }
+
+      // run once
+      updateFooterLang();
+
+      // observe changes in <html lang="...">
+      const obs = new MutationObserver(function(muts){
+        muts.forEach(m => { if(m.attributeName === 'lang') updateFooterLang(); });
+      });
+      obs.observe(document.documentElement, { attributes: true });
+    })();
+  <\/script>
+</footer>

@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pascaline Simulator — With Subtraction Mode</title>
+
+  <style>
+    :root {
+      --bg-page: #d9cfc0;
+      --panel-bg: #f4eee4;
+      --plate-bg: #c9b595;
+      --wheel-face: radial-gradient(circle at center, #dcc9a8 0%, #bfa883 70%, #a5916b 100%);
+      --border-dark: #7b664f;
+      --text-dark: #2e2415;
+      --acc-win-bg: #faf5ee;
+      --acc-border: #9f8e76;
+      --button-bg: #7b664f;
+      --button-hover: #8c7a62;
+      --button-active: #bfa883; /* New color for active state */
+      --overlay-comp: rgba(255,255,255,0.7); /* Made slightly clearer/lighter per request */
+      --lever-color: #7b664f;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 10px;
+      background: var(--bg-page);
+      font-family: Georgia, serif;
+      color: var(--text-dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #machine {
+      background: var(--panel-bg);
+      border: 3px solid var(--border-dark);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.2), 0 4px 12px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 480px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    #plate {
+      background: var(--plate-bg);
+      border: 2px solid var(--border-dark);
+      border-radius: 8px;
+      padding: 16px;
+      position: relative;
+      overflow: hidden;
+    }
+    .accumulator {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 14px;
+      position: relative;
+      height: 60px;
+    }
+    .acc-window {
+      width: 45px;
+      height: 60px;
+      margin: 0 3px;
+      background: var(--acc-win-bg);
+      border: 2px inset var(--acc-border);
+      border-radius: 4px;
+      text-align: center;
+      line-height: 60px;
+      font-size: 1.5em;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+      color: var(--text-dark);
+      font-family: "Courier New", monospace;
+    }
+    #compBar {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--overlay-comp);
+      display: none;
+      border-radius: 4px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    #compBar span {
+      position: absolute;
+      right: 6px;
+      bottom: 6px;
+      font-size: 0.85em;
+      color: #333;
+      font-weight: bold;
+      text-shadow: 0 1px 2px rgba(255,255,255,0.8);
+    }
+    .input-wheels {
+      display: flex;
+      justify-content: center;
+      flex-wrap: nowrap; 
+      overflow-x: auto; 
+      margin-bottom: 10px;
+      padding-bottom: 5px;
+    }
+    .wheel {
+      position: relative;
+      width: 50px;
+      height: 50px;
+      margin: 0 4px 10px;
+      background: var(--wheel-face);
+      border: 3px solid var(--border-dark);
+      border-radius: 50%;
+      box-shadow: inset 0 1px 4px rgba(0,0,0,0.3),
+                  0 2px 4px rgba(0,0,0,0.3);
+      cursor: pointer;
+      user-select: none;
+      overflow: hidden;
+      transition: transform 0.25s ease-out;
+      flex-shrink: 0;
+    }
+    .wheel .digits {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      transition: transform 0.2s ease-out;
+    }
+    .wheel .digits div {
+      height: 50px;
+      line-height: 50px;
+      text-align: center;
+      font-size: 1.6em;
+      color: var(--text-dark);
+      font-family: "Courier New", monospace;
+    }
+    .wheel::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at center, transparent 50%, rgba(0,0,0,0.2) 52%),
+        repeating-conic-gradient(
+          transparent 0deg 40deg,
+          rgba(0,0,0,0.15) 40deg 44deg
+        );
+      background-blend-mode: multiply;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 12px 0 18px;
+    }
+    .controls button {
+      background: var(--button-bg);
+      color: var(--acc-win-bg);
+      border: none;
+      padding: 10px 16px;
+      font-size: 1em;
+      border-radius: 5px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+      transition: background 0.2s;
+    }
+    .controls button:hover {
+      background: var(--button-hover);
+    }
+    /* Style for the active subtraction mode */
+    .controls button.active-mode {
+      background: var(--button-active);
+      color: var(--text-dark);
+      font-weight: bold;
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+    }
+
+    .education {
+      max-width: 480px;
+      background: #f7f2e8;
+      padding: 16px;
+      border: 2px solid var(--border-dark);
+      border-radius: 8px;
+      box-shadow: inset 0 0 5px rgba(0,0,0,0.2);
+      color: var(--text-dark);
+      line-height: 1.4;
+    }
+    .education h2 { margin-top: 0; font-family: serif; }
+    
+    #lever-container {
+      position: absolute;
+      top: 10px; left: 10px;
+      width: 60px; height: 60px;
+      pointer-events: none;
+      z-index: 5;
+    }
+    #lever {
+      transform-origin: 30px 30px;
+      transition: transform 0.15s ease-out;
+    }
+    .lever-activate { transform: rotate(-30deg); }
+  </style>
+</head>
+<body>
+
+  <div id="machine">
+    <div id="plate">
+      <div id="lever-container">
+        <svg id="lever" width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="30" cy="30" r="6" fill="var(--lever-color)" />
+          <rect x="28" y="10" width="4" height="30" fill="var(--lever-color)" />
+          <polygon points="28,40 32,40 30,48" fill="var(--lever-color)" />
+        </svg>
+      </div>
+
+      <div class="accumulator" id="accumulator">
+        <div id="compBar"><span>COMPLEMENT / SUBTRACT</span></div>
+      </div>
+      <div class="input-wheels" id="inputWheels"></div>
+      
+      <div class="controls">
+        <button id="btnAdd">Enter / Add</button>
+        <button id="btnComp">Subtraction Mode</button>
+        <button id="btnClear">Clear (Reset)</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="education">
+    <h2>How to Subtract (100 - 10)</h2>
+    <p>
+      1. Enter <b>100</b> using the wheels and press <b>"Enter / Add"</b>. <br>
+      2. Set the wheels to <b>10</b> (the number you want to subtract).<br>
+      3. Press <b>"Subtraction Mode"</b>. The screen will change to show the complement view.<br>
+      4. Press <b>"Enter / Add"</b>. The machine adds the complement of 10.<br>
+      5. Press <b>"Subtraction Mode"</b> again to turn it off. The correct result (90) will be revealed.
+    </p>
+  </div>
+
+<script>
+  const NUM = 6;
+  let accumulator = new Array(NUM).fill(0);
+  let input = new Array(NUM).fill(0);
+  
+  // State for Subtraction Mode
+  let isSubtractionMode = false;
+
+  const accContainer = document.getElementById("accumulator");
+  const inputWheelsContainer = document.getElementById("inputWheels");
+  const compBar = document.getElementById("compBar");
+  const lever = document.getElementById("lever");
+  
+  // Buttons
+  const btnAdd = document.getElementById("btnAdd");
+  const btnComp = document.getElementById("btnComp");
+  const btnClear = document.getElementById("btnClear");
+
+  // --- Build UI ---
+  function initAccumulator() {
+    for (let i = 0; i < NUM; i++) {
+      const w = document.createElement("div");
+      w.className = "acc-window";
+      w.textContent = "0";
+      accContainer.appendChild(w);
+    }
+  }
+  const wheelElems = [];
+  function initWheels() {
+    for (let i = 0; i < NUM; i++) {
+      const w = document.createElement("div");
+      w.className = "wheel";
+      const digits = document.createElement("div");
+      digits.className = "digits";
+      for (let d = 0; d < 10; d++) {
+        const dd = document.createElement("div");
+        dd.textContent = d;
+        digits.appendChild(dd);
+      }
+      w.appendChild(digits);
+      inputWheelsContainer.appendChild(w);
+      wheelElems.push({ wheel: w, digits: digits });
+      w.addEventListener("click", () => rotateInputWheel(i));
+    }
+  }
+
+  // --- Audio ---
+  let audioCtx;
+  function playClick(freq = 220, dur = 0.05) {
+    if (!window.AudioContext && !window.webkitAudioContext) return;
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = "square";
+    osc.frequency.value = freq;
+    gain.gain.value = 0.1;
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + dur);
+  }
+
+  function animateLever() {
+    lever.classList.add("lever-activate");
+    setTimeout(() => {
+      lever.classList.remove("lever-activate");
+    }, 200);
+  }
+
+  // --- Wheel rotation ---
+  function rotateInputWheel(idx) {
+    input[idx] = (input[idx] + 1) % 10;
+    const deg = input[idx] * (360 / 10);
+    wheelElems[idx].wheel.style.transform = `rotate(${deg}deg)`;
+    wheelElems[idx].digits.style.transform =
+      `translateY(-${input[idx] * wheelElems[idx].digits.children[0].offsetHeight}px)`;
+    playClick(240, 0.04);
+  }
+
+  // --- Display Logic ---
+  function refreshAccumulator() {
+    const wins = accContainer.querySelectorAll(".acc-window");
+
+    if (!isSubtractionMode) {
+      // Normal Mode: Show direct values
+      for (let i = 0; i < NUM; i++) {
+        wins[i].textContent = accumulator[i];
+      }
+    } else {
+      // Subtraction Mode: Show 10's Complement of the accumulator
+      let currentVal = 0;
+      for (let i = 0; i < NUM; i++) {
+        currentVal += accumulator[i] * Math.pow(10, (NUM - 1) - i);
+      }
+
+      // 10's complement calculation (10^N - val)
+      const maxPower = Math.pow(10, NUM);
+      let compVal = (maxPower - currentVal) % maxPower;
+
+      // Render digits
+      for (let i = 0; i < NUM; i++) {
+        const digit = Math.floor(compVal / Math.pow(10, (NUM - 1) - i)) % 10;
+        wins[i].textContent = digit;
+      }
+    }
+  }
+
+  // --- Logic Helpers ---
+  function getEffectiveInput() {
+    // If Normal mode, return input as is
+    if (!isSubtractionMode) {
+      return [...input];
+    }
+    
+    // If Subtraction Mode, we must Add the Complement of the input
+    // 1. Convert Input Array to Number
+    let val = 0;
+    for(let i=0; i<NUM; i++) {
+      val += input[i] * Math.pow(10, (NUM-1)-i);
+    }
+    
+    // 2. Calculate Complement of Input (10^N - Input)
+    let max = Math.pow(10, NUM);
+    let compVal = (max - val) % max;
+    
+    // 3. Convert back to array
+    let compInput = [];
+    for(let i=0; i<NUM; i++) {
+      let d = Math.floor(compVal / Math.pow(10, (NUM-1)-i)) % 10;
+      compInput.push(d);
+    }
+    return compInput;
+  }
+
+  // --- Core Operations ---
+  function addInput() {
+    // Determine what we are adding (Normal input or Complement input)
+    const valuesToAdd = getEffectiveInput();
+    
+    let carry = 0;
+    let anyCarry = false;
+    for (let i = NUM - 1; i >= 0; i--) {
+      const s = accumulator[i] + valuesToAdd[i] + carry;
+      const newDigit = s % 10;
+      carry = Math.floor(s / 10);
+      if (carry > 0) anyCarry = true; 
+      accumulator[i] = newDigit;
+    }
+
+    refreshAccumulator();
+    resetInputWheels();
+    
+    if (anyCarry) {
+      animateLever();
+      playClick(180, 0.08);
+    }
+  }
+
+  function resetInputWheels() {
+    input = new Array(NUM).fill(0);
+    wheelElems.forEach(w => {
+      w.wheel.style.transform = `rotate(0deg)`;
+      w.digits.style.transform = `translateY(0px)`;
+    });
+  }
+
+  function clearAll() {
+    accumulator = new Array(NUM).fill(9);
+    refreshAccumulator();
+    setTimeout(() => {
+      let carry = 1;
+      let anyCarry = true;
+      for (let i = NUM - 1; i >= 0; i--) {
+        const s = accumulator[i] + carry;
+        const newDigit = s % 10;
+        carry = Math.floor(s / 10);
+        accumulator[i] = newDigit;
+      }
+      refreshAccumulator();
+      if (anyCarry) {
+        animateLever();
+        playClick(180, 0.08);
+      }
+    }, 300);
+  }
+
+  // --- Toggle Mode ---
+  function toggleSubtractionMode() {
+    isSubtractionMode = !isSubtractionMode;
+    
+    // Visual Updates
+    if (isSubtractionMode) {
+      compBar.style.display = "block";
+      btnComp.classList.add("active-mode");
+    } else {
+      compBar.style.display = "none";
+      btnComp.classList.remove("active-mode");
+    }
+    
+    // Update the numbers in the windows immediately
+    refreshAccumulator();
+  }
+
+  // --- Event Listeners ---
+  btnAdd.addEventListener("click", addInput);
+  btnClear.addEventListener("click", clearAll);
+  btnComp.addEventListener("click", toggleSubtractionMode);
+
+  // --- Init ---
+  initAccumulator();
+  initWheels();
+  refreshAccumulator();
+</script>
+
+</body>
+</html>

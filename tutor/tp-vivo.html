@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>TP Markdown Teleprompter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* --- ESTILOS GENERALES (TP STYLE) --- */
+        :root {
+            --bg-color: #000000;
+            --panel-bg: #111111;
+            --accent: #E62117; /* Rojo TP */
+            --text-main: #ffffff;
+            --text-inst: #FCD34D; /* Amarillo Instrucciones */
+            --text-time: #60A5FA; /* Azul Títulos/Tiempos */
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            overflow: hidden; /* Se controla por JS */
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- VISTA DE ENTRADA (EDITOR) --- */
+        #input-view {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+            background: #0f172a;
+        }
+
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 10px;
+        }
+
+        textarea {
+            flex: 1;
+            background: #1e293b;
+            color: #e2e8f0;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: monospace;
+            font-size: 16px;
+            resize: none;
+            outline: none;
+            margin-bottom: 20px;
+        }
+        textarea:focus { border-color: var(--accent); }
+
+        .btn-start {
+            background: var(--accent);
+            color: white;
+            font-weight: 800;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.2s;
+            border: none;
+            font-size: 1.2rem;
+        }
+        .btn-start:hover { transform: scale(1.02); background: #cc1d14; }
+
+        /* --- VISTA DE TELEPROMPTER --- */
+        #prompter-view {
+            display: none; /* Oculto al inicio */
+            height: 100vh;
+            overflow-y: scroll; /* Scroll nativo oculto pero funcional */
+            scroll-behavior: auto;
+            padding-bottom: 50vh; /* Espacio final */
+        }
+        
+        /* Ocultar barra de scroll pero permitir scroll */
+        #prompter-view::-webkit-scrollbar { display: none; }
+        #prompter-view { -ms-overflow-style: none; scrollbar-width: none; }
+
+        #script-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 100px 20px 300px 20px; /* Padding superior e inferior */
+            transition: transform 0.3s; /* Para modo espejo */
+        }
+
+        /* Estilos de Markdown Parseado */
+        .tp-title {
+            color: var(--text-time);
+            font-size: 2.5rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            border-top: 1px solid #333;
+            margin-top: 60px;
+            padding-top: 20px;
+            margin-bottom: 30px;
+            line-height: 1.1;
+        }
+
+        .tp-text {
+            font-size: 3.5rem; /* Tamaño base gigante */
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 30px;
+        }
+
+        .tp-inst {
+            color: var(--text-inst);
+            font-size: 1.8rem;
+            font-style: italic;
+            background: #222;
+            padding: 15px;
+            border-left: 5px solid var(--text-inst);
+            margin: 30px 0;
+        }
+
+        .tp-bullet {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .tp-bullet i { color: var(--accent); margin-top: 15px; font-size: 1.5rem; }
+
+        /* --- CONTROLES FLOTANTES --- */
+        #controls {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.9);
+            border-top: 1px solid #333;
+            padding: 15px;
+            display: none; /* Se muestra al iniciar */
+            justify-content: center;
+            gap: 10px;
+            z-index: 100;
+        }
+
+        .ctrl-btn {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            width: 50px; height: 50px;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .ctrl-btn:active { background: var(--accent); border-color: var(--accent); }
+        
+        .btn-play { background: var(--accent); border-color: var(--accent); width: 80px; }
+        .btn-play.paused { background: #b91c1c; }
+
+        .val-display {
+            color: white; font-family: monospace; font-size: 0.9rem;
+            display: flex; align-items: center; justify-content: center;
+            width: 30px;
+        }
+
+        /* Utilidad de Espejo */
+        .mirror-mode { transform: scaleX(-1); }
+
+    </style>
+</head>
+<body>
+
+    <div id="input-view">
+        <div class="editor-header">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-file-pen text-2xl" style="color:var(--accent)"></i>
+                <h1 class="text-xl font-bold text-white">Markdown Teleprompter</h1>
+            </div>
+            <button onclick="loadSample()" class="text-sm text-gray-400 hover:text-white underline">Cargar Ejemplo</button>
+        </div>
+        
+        <textarea id="raw-input" placeholder="Pega aquí tu guion en Markdown...
+        
+Usa # para Títulos (Secciones nuevas)
+Usa > para Instrucciones (No leer en voz alta)
+Usa - para listas
+Escribe normal para el texto del prompter."></textarea>
+        
+        <button class="btn-start" onclick="startPrompter()">
+            <i class="fa-solid fa-play mr-2"></i> INICIAR TELEPROMPTER
+        </button>
+    </div>
+
+    <div id="prompter-view">
+        <div id="script-content">
+            </div>
+    </div>
+
+    <div id="controls">
+        <button class="ctrl-btn" onclick="exitPrompter()" title="Salir / Editar"><i class="fa-solid fa-pen"></i></button>
+        <button class="ctrl-btn" onclick="toggleMirror()" title="Modo Espejo"><i class="fa-solid fa-arrows-left-right"></i></button>
+        
+        <div style="width:20px;"></div> <button class="ctrl-btn" onclick="adjustSpeed(-1)"><i class="fa-solid fa-minus"></i></button>
+        <div class="val-display" id="speed-val">3</div>
+        <button class="ctrl-btn" onclick="adjustSpeed(1)"><i class="fa-solid fa-plus"></i></button>
+        
+        <button class="ctrl-btn btn-play" id="btn-play" onclick="togglePlay()">
+            <i class="fa-solid fa-play"></i>
+        </button>
+
+        <button class="ctrl-btn" onclick="adjustFont(-1)"><i class="fa-solid fa-text-height" style="font-size:0.8rem"></i></button>
+        <div class="val-display" id="font-val">5</div>
+        <button class="ctrl-btn" onclick="adjustFont(1)"><i class="fa-solid fa-text-height"></i></button>
+    </div>
+
+    <script>
+        // --- VARIABLES DE ESTADO ---
+        let isPlaying = false;
+        let speed = 3; // 1 a 10
+        let fontSizeLevel = 5; // Base rem level
+        let scrollInterval;
+        let isMirrored = false;
+
+        // --- ELEMENTOS DOM ---
+        const inputView = document.getElementById('input-view');
+        const prompterView = document.getElementById('prompter-view');
+        const controls = document.getElementById('controls');
+        const contentDiv = document.getElementById('script-content');
+        const inputArea = document.getElementById('raw-input');
+        const playBtn = document.getElementById('btn-play');
+
+        // --- LÓGICA DE PARSEO MARKDOWN BÁSICO ---
+        function parseAndRender() {
+            const raw = inputArea.value;
+            const lines = raw.split('\n');
+            let html = '';
+
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return; // Saltar vacías
+
+                if (trimmed.startsWith('#')) {
+                    // Títulos / Secciones (# Texto)
+                    const text = trimmed.replace(/^#+\s*/, '');
+                    html += `<div class="tp-title">${text}</div>`;
+                } 
+                else if (trimmed.startsWith('>')) {
+                    // Instrucciones (> Texto)
+                    const text = trimmed.replace(/^>\s*/, '');
+                    html += `<div class="tp-inst"><i class="fa-solid fa-circle-info mr-2"></i> ${text}</div>`;
+                }
+                else if (trimmed.startsWith('-') || trimmed.startsWith('* ')) {
+                    // Listas (- Texto)
+                    const text = trimmed.replace(/^[-*]\s*/, '');
+                    html += `<div class="tp-text tp-bullet"><i class="fa-solid fa-caret-right"></i> <span>${formatText(text)}</span></div>`;
+                }
+                else {
+                    // Texto normal
+                    html += `<div class="tp-text">${formatText(trimmed)}</div>`;
+                }
+            });
+
+            contentDiv.innerHTML = html;
+        }
+
+        // Formato simple de negrita **texto**
+        function formatText(text) {
+            return text.replace(/\*\*(.*?)\*\*/g, '<span style="color:var(--accent)">$1</span>');
+        }
+
+        // --- NAVEGACIÓN ---
+        function startPrompter() {
+            if(!inputArea.value.trim()) {
+                alert("Por favor escribe o pega un guion primero.");
+                return;
+            }
+            parseAndRender();
+            inputView.style.display = 'none';
+            prompterView.style.display = 'block';
+            controls.style.display = 'flex';
+            
+            // Aplicar tamaño de fuente inicial
+            applyFontSize();
+            
+            // Resetear scroll
+            prompterView.scrollTop = 0;
+        }
+
+        function exitPrompter() {
+            stopScroll();
+            isPlaying = false;
+            updatePlayButton();
+            prompterView.style.display = 'none';
+            controls.style.display = 'none';
+            inputView.style.display = 'flex';
+        }
+
+        // --- CONTROL DE REPRODUCCIÓN ---
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            updatePlayButton();
+            if (isPlaying) {
+                startScroll();
+            } else {
+                stopScroll();
+            }
+        }
+
+        function updatePlayButton() {
+            playBtn.innerHTML = isPlaying ? '<i class="fa-solid fa-pause"></i>' : '<i class="fa-solid fa-play"></i>';
+            if(isPlaying) playBtn.classList.add('paused');
+            else playBtn.classList.remove('paused');
+        }
+
+        function startScroll() {
+            if (scrollInterval) clearInterval(scrollInterval);
+            // Lógica de scroll fluido: se ejecuta frecuentemente pero mueve poco píxeles
+            scrollInterval = setInterval(() => {
+                // La velocidad determina cuántos píxeles bajamos
+                // Speed 1 = muy lento, Speed 10 = muy rápido
+                // Ajuste fino: speed * 0.5
+                prompterView.scrollBy(0, speed * 0.4);
+            }, 16); // ~60fps
+        }
+
+        function stopScroll() {
+            clearInterval(scrollInterval);
+        }
+
+        // --- AJUSTES ---
+        function adjustSpeed(delta) {
+            speed += delta;
+            if (speed < 1) speed = 1;
+            if (speed > 20) speed = 20;
+            document.getElementById('speed-val').innerText = speed;
+        }
+
+        function adjustFont(delta) {
+            fontSizeLevel += delta;
+            if (fontSizeLevel < 1) fontSizeLevel = 1;
+            if (fontSizeLevel > 10) fontSizeLevel = 10;
+            document.getElementById('font-val').innerText = fontSizeLevel;
+            applyFontSize();
+        }
+
+        function applyFontSize() {
+            // Base font calculation
+            // Nivel 5 es el estándar (aprox 3.5rem)
+            const baseSize = 2.5 + (fontSizeLevel * 0.2); // rem
+            
+            const texts = document.querySelectorAll('.tp-text');
+            texts.forEach(el => el.style.fontSize = `${baseSize}rem`);
+            
+            // Los títulos e instrucciones escalan proporcionalmente
+            const titles = document.querySelectorAll('.tp-title');
+            titles.forEach(el => el.style.fontSize = `${baseSize * 0.7}rem`);
+        }
+
+        function toggleMirror() {
+            isMirrored = !isMirrored;
+            if(isMirrored) contentDiv.classList.add('mirror-mode');
+            else contentDiv.classList.remove('mirror-mode');
+        }
+
+        // --- EJEMPLO ---
+        function loadSample() {
+            inputArea.value = `# Introducción al Canal
+
+Hola a todos, bienvenidos a un nuevo video de **TranslatedPress**.
+
+> (Pausa dramática de 2 segundos)
+
+Hoy vamos a hablar de cómo la inteligencia artificial está cambiando el mundo.
+
+# Punto 1: La Velocidad
+
+- La IA procesa datos más rápido que nunca.
+- Permite crear contenido en segundos.
+
+> (Señalar a la pantalla)
+
+No olviden suscribirse y darle like si les gusta este contenido.`;
+        }
+
+        // --- ATAJOS DE TECLADO ---
+        document.addEventListener('keydown', (e) => {
+            if(prompterView.style.display === 'block') {
+                if(e.code === 'Space') {
+                    e.preventDefault(); // Evitar salto de página
+                    togglePlay();
+                }
+                if(e.code === 'ArrowUp') adjustSpeed(1);
+                if(e.code === 'ArrowDown') adjustSpeed(-1);
+            }
+        });
+
+    </script>
+</body>
+</html>

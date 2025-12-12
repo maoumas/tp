@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Teleprompter Live</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { background-color: black; color: white; font-family: 'Inter', sans-serif; margin:0; overflow-x:hidden; cursor: pointer; }
+        #script-container { padding: 20px; padding-top: 20vh; padding-bottom: 60vh; max-width: 800px; margin: 0 auto; line-height: 1.5; opacity: 1; }
+        .speaker-text { font-size: 2.8rem; font-weight: 600; color: #ffffff; margin-bottom: 1.5rem; }
+        .instruction { font-size: 1.5rem; color: #FCD34D; font-style: italic; background: #333; padding: 10px; border-left: 4px solid #F59E0B; margin-bottom: 2rem; }
+        .timestamp { font-size: 2rem; font-weight: 800; color: #60A5FA; border-top: 1px solid #444; padding-top: 2rem; margin-top: 3rem; text-transform: uppercase; }
+        #controls { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111; border-top: 1px solid #333; padding: 10px; padding-bottom: env(safe-area-inset-bottom, 10px); display: flex; align-items: center; gap: 8px; z-index: 9999; justify-content: center; overflow-x: auto; cursor: default; }
+        @media (max-width: 600px) {
+            #controls { justify-content: flex-start; padding-left: 10px; padding-right: 10px; }
+            .btn-main, #save-btn, #reset-btn { height: 38px !important; min-width: 38px !important; padding: 0 10px !important; }
+            #play-pause-btn { min-width: auto !important; padding: 0 15px !important; font-size: 0.8rem; }
+            .stepper-btn { width: 34px !important; height: 34px !important; }
+            .value-display { font-size: 0.8rem; min-width: 20px; }
+            .speaker-text { font-size: 2rem; }
+        }
+        .btn-main { height: 48px; padding: 0 20px; border-radius: 8px; font-weight: 700; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition:0.2s; }
+        #play-pause-btn { background-color: #10B981; min-width: 100px; } 
+        #play-pause-btn.paused { background-color: #EF4444; } 
+        #reset-btn { background-color: #374151; }
+        #save-btn { background-color: #7C3AED; }
+        .control-group { display: flex; align-items: center; gap: 2px; background: #222; padding: 3px; border-radius: 8px; border: 1px solid #444; flex-shrink: 0; }
+        .stepper-btn { width: 44px; height: 44px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; color: white; background: transparent; }
+        .theme-speed .stepper-btn { background: #1E40AF; }
+        .theme-font .stepper-btn { background: #92400E; }
+        .value-display { font-family: monospace; font-weight: bold; min-width: 30px; text-align: center; }
+        .svg-icon { width: 20px; height: 20px; fill: currentColor; }
+    </style>
+</head>
+<body>
+  <div id="script-container"></div>
+  <div id="controls">
+    <button id="play-pause-btn" class="btn-main">START</button>
+    <button id="reset-btn" class="btn-main" title="Inicio"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+    <div class="control-group theme-speed"><button class="stepper-btn" id="s-">-</button><div class="value-display" id="s-val">3</div><button class="stepper-btn" id="s+">+</button></div>
+    <div class="control-group theme-font"><button class="stepper-btn" id="f-">-</button><div class="value-display" id="f-val">3</div><button class="stepper-btn" id="f+">+</button></div>
+    <button id="save-btn" class="btn-main" title="Guardar"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg></button>
+  </div>
+  <script>
+    const data = JSON.parse('[{"type":"title","content":"GUION DE VIDEO: CLONA EL ÉXITO DE CUALQUIER CANAL USANDO IA"},{"type":"instruction","content":"DURACIÓN ESTIMADA: 5 minutos*"},{"type":"title","content":"# # INTRODUCCIÓN (0:00 - 0:30)"},{"type":"instruction","content":"Música dramática y urgente de fondo.*"},{"type":"instruction","content":"*GANCHO URGENTE (Estilo y Tono del Gancho)**"},{"type":"text","content":"Alerta: ¿Quieres crear videos con una audiencia masiva, pero no sabes por dónde empezar? La gente exitosa no crea contenido a ciegas; copia lo que ya funciona. Te voy a mostrar cómo utilizar la inteligencia artificial de Google para clonar el estilo, el tono y las ideas de los canales más virales en YouTube. Esto no es plagio, es ingeniería inversa avanzada para que puedas aprender y replicar el éxito. Solo necesitamos dos herramientas. Comenzamos."},{"type":"title","content":"# # HERRAMIENTAS ESENCIALES"},{"type":"instruction","content":"NotebookLM de Google es el cerebro. Grabbit es la herramienta de recolección de enlaces.*"},{"type":"instruction","content":"*NotebookLM de Google** es la herramienta principal que realizará todo el trabajo de análisis."},{"type":"instruction","content":"*Grabbit - La Herramienta Definitiva de Selección de Enlaces**"},{"type":"text","content":"Necesitamos la extensión de Chrome llamada **Grabbit**, que es la herramienta definitiva de selección de enlaces. Grabbit permite seleccionar y gestionar múltiples enlaces en cualquier página web utilizando una interfaz intuitiva de arrastrar y seleccionar (*drag-select*). Es perfecta para la creación de contenido, ya que permite recopilar referencias rápidamente."},{"type":"title","content":"# # FASE 1: RECOLECCIÓN MASIVA DE ENLACES"},{"type":"instruction","content":"Esta fase se centra en la eficiencia y en encontrar los videos más virales.*"},{"type":"instruction","content":"*PASO 1: Encontrar el Contenido Viral**"},{"type":"text","content":"Ve al canal que quieres analizar y ordena sus videos por \\"populares\\" para enfocarte en el contenido más viral."},{"type":"instruction","content":"*PASO 2: Copia Masiva con Grabbit**"},{"type":"text","content":"1.  Mantén presionado el botón de ratón (configurado previamente, como *click izquierdo*) junto con la tecla de combinación (como *Alt*)."},{"type":"text","content":"2.  Arrastra el ratón sobre los videos que deseas analizar. Verás un recuadro de color amarillo indicando tu selección."},{"type":"text","content":"3.  Al soltar, los enlaces de todos los videos seleccionados (incluso más de 80 enlaces a la vez) se copian al portapapeles, lo que agiliza enormemente el proceso."},{"type":"instruction","content":"Grabbit está diseñado para que no tengas que hacer el tedioso proceso de Ctrl+clic repetidamente.*"},{"type":"title","content":"# # FASE 2: EL CEREBRO DE LA IA"},{"type":"instruction","content":"NotebookLM digiere la información y la convierte en conocimiento utilizable.*"},{"type":"text","content":"1.  Ve a **NotebookLM** y crea un nuevo proyecto."},{"type":"text","content":"2.  Selecciona la opción \\"sitio web\\" o \\"pegar texto\\"."},{"type":"text","content":"3.  Pega todos los enlaces copiados masivamente con Grabbit (la IA acepta enlaces de YouTube)."},{"type":"text","content":"4.  Una vez procesadas las fuentes, NotebookLM no solo lista los enlaces, sino que proporciona un resumen, el título, la miniatura y, crucialmente, la **transcripción** del video."},{"type":"instruction","content":"Este paso te da acceso directo al texto exacto utilizado en los videos de éxito, lo cual acelera el trabajo de análisis de meses a minutos.*"},{"type":"title","content":"# # FASE 3: PROMPTS PARA LA CLONACIÓN"},{"type":"instruction","content":"Ahora que tenemos el ADN del canal cargado, usamos prompts para extraer la estrategia.*"},{"type":"instruction","content":"*PROMPT 1: Análisis de Estilo y Tono (Cómo Retener a la Audiencia)**"},{"type":"text","content":"`analiza la forma de hablar y el estilo de los vídeos de este canal resúmelo en cinco puntos concretos y pon ejemplos de frases reales`"},{"type":"instruction","content":"Este prompt te revela exactamente cómo el creador habla para hacerse viral y retener a la audiencia.*"},{"type":"instruction","content":"*PROMPT 2: Replicar la Estructura (La Plantilla de Éxito)**"},{"type":"text","content":"`explícame cómo estructura este canal sus vídeos el gancho la introducción el desarrollo ejemplos el cierre y hazme un esquema que pueda usar como plantilla`"},{"type":"instruction","content":"La IA te dará un esquema que puedes usar como plantilla, detallando cómo se construye el gancho urgente, la introducción, el desarrollo y el cierre con llamadas a la acción (CTA).*"},{"type":"instruction","content":"*PROMPT 3: Generación de Ideas (Mismos Patrones, Nuevos Temas)**"},{"type":"text","content":"`dame 20 ideas de vídeos nuevos que encajen con este canal manteniendo el mismo estilo pero sin repetir exactamente los temas`"},{"type":"instruction","content":"NotebookLM propondrá nuevos títulos y enfoques que se ajustan al estilo que ya ha analizado, lo que es \\"oro puro\\" para la generación de contenido.*"},{"type":"instruction","content":"*PROMPT 4: Creación de Guiones Completos**"},{"type":"text","content":"`con toda la información de este canal que nos ayude a crear un guion para un vídeo sobre [aquí inserta tu tema] manteniendo el mismo estilo tono y estructura`"},{"type":"instruction","content":"Este prompt te permite aplicar el estilo y la estructura clonados a un tema completamente nuevo, lo que garantiza que tu guion esté optimizado para la audiencia.*"},{"type":"title","content":"# # EJEMPLO DE APLICACIÓN: ENERGÍA SOLAR"},{"type":"instruction","content":"Aplicaremos esta metodología a un canal hipotético y exitoso centrado en la **instalación y equipos eléctricos de energía solar**.* (Nota: Las fuentes proporcionadas no contienen un canal específico de energía solar, por lo que este es un ejemplo basado en la metodología de clonación de NotebookLM)."},{"type":"text","content":"1.  **Objetivo del Canal:** Clonar un canal que explica la energía solar desde el punto de vista técnico (instalación y equipos eléctricos)."},{"type":"text","content":"2.  **Recolección:** Usaríamos **Grabbit** para arrastrar y seleccionar los enlaces de los videos de mayor rendimiento, asegurándonos de incluir aquellos que cubren temas como \\"conexión de baterías\\", \\"inversores híbridos\\" o \\"errores comunes en la instalación de paneles\\"."},{"type":"text","content":"3.  **Análisis de Estilo (Prompt 1 aplicado):** Le pediríamos a NotebookLM que analice si el tono es **técnico y didáctico** (enfocado a profesionales/entusiastas) o **alarmante y urgente** (enfocado a ahorrar dinero)."},{"type":"instruction","content":"*Resultado esperado:* Si el canal es de alta audiencia, probablemente usa un estilo urgente, quizás advirtiendo sobre **\\"La verdad oculta de los paneles solares y por qué tu instalador no te la dice\\"** (similar al ejemplo de coches eléctricos)."},{"type":"text","content":"4.  **Análisis de Estructura (Prompt 2 aplicado):** Le pediríamos la plantilla:"},{"type":"instruction","content":"*El gancho:* Un riesgo de seguridad o de costo que el espectador debe conocer antes de instalar."},{"type":"instruction","content":"*El desarrollo:* Explicación técnica de un componente (ej. microinversores) con ejemplos visuales y comparaciones."},{"type":"instruction","content":"*El cierre:* Llamada a la acción para revisar productos específicos o un curso."},{"type":"text","content":"5.  **Generación de Ideas (Prompt 3 aplicado):** Le pediríamos 20 ideas en el estilo de ese canal, como:"},{"type":"instruction","content":"\\"El fallo eléctrico que funde tus baterías solares (y cómo evitarlo con este equipo)\\"."},{"type":"instruction","content":"\\"Comparativa 2024: ¿El inversor más barato realmente te sale más caro?\\""},{"type":"title","content":"# # CONCLUSIÓN (Cierre)"},{"type":"instruction","content":"NotebookLM te permite no solo resumir en audio estilo podcast sino también generar videos estilo presentación e infografías, basadas en el contenido analizado, lo que puedes descargar y subir a redes sociales.*"},{"type":"instruction","content":"Este método convierte meses de análisis en horas, dándote los patrones y el estilo exacto que ya han probado su eficacia para conseguir audiencia.*"}]');
+    const cont = document.getElementById('script-container');
+    data.forEach(i => {
+        let el = document.createElement(i.type==='title'?'h2':i.type==='instruction'?'p':'div');
+        el.className = i.type==='title'?'timestamp':i.type==='instruction'?'instruction':'speaker-text';
+        el.innerText = i.content; cont.appendChild(el);
+    });
+    let state = { speed:3, font:3, playing:false };
+    let anim;
+    function update() {
+        document.getElementById('s-val').innerText = state.speed;
+        document.getElementById('f-val').innerText = state.font;
+        const fs = 20 + (state.font * 4);
+        document.querySelectorAll('.speaker-text').forEach(e => e.style.fontSize = fs+'px');
+    }
+    function loop() {
+        if(!state.playing) return;
+        window.scrollBy(0, state.speed * 0.4);
+        anim = requestAnimationFrame(loop);
+    }
+    function togglePlay() {
+        state.playing = !state.playing;
+        const btn = document.getElementById('play-pause-btn');
+        btn.innerText = state.playing ? "PAUSE" : "START";
+        btn.classList.toggle('paused', state.playing);
+        if(state.playing) loop(); else cancelAnimationFrame(anim);
+    }
+    document.getElementById('play-pause-btn').onclick = (e) => { e.stopPropagation(); togglePlay(); };
+    document.getElementById('reset-btn').onclick = (e) => { e.stopPropagation(); window.scrollTo(0,0); state.playing=false; cancelAnimationFrame(anim); const btn = document.getElementById('play-pause-btn'); btn.innerText="START"; btn.classList.remove('paused'); };
+    document.body.onclick = (e) => { if (!e.target.closest('#controls')) togglePlay(); };
+    document.getElementById('controls').onclick = (e) => { e.stopPropagation(); };
+    document.getElementById('s-').onclick = () => { if(state.speed>0) state.speed--; update(); };
+    document.getElementById('s+').onclick = () => { if(state.speed<20) state.speed++; update(); };
+    document.getElementById('f-').onclick = () => { if(state.font>0) state.font--; update(); };
+    document.getElementById('f+').onclick = () => { if(state.font<15) state.font++; update(); };
+    document.getElementById('save-btn').onclick = () => {
+        const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'teleprompter-recording.html';
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+    setTimeout(() => { if(!state.playing) togglePlay(); }, 2000);
+    update();
+  </script>
+</body>
+</html>

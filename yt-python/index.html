@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Teleprompter Live - YouTube Upload Guide</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        
+        /* ESTILOS GENERALES */
+        body { background-color: black; color: white; font-family: 'Inter', sans-serif; margin:0; overflow-x:hidden; cursor: pointer; }
+        
+        /* BARRA DE IDIOMAS (NUEVO) */
+        #lang-bar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            background: rgba(17, 17, 17, 0.9);
+            padding: 10px 15px;
+            border-bottom-left-radius: 10px;
+            border-left: 1px solid #333;
+            border-bottom: 1px solid #333;
+            z-index: 10000;
+            display: flex;
+            gap: 5px;
+        }
+        .lang-btn {
+            background: #2d2d2d;
+            border: 1px solid #444;
+            color: #ccc;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+        .lang-btn:hover { background: #444; color: white; }
+        .lang-btn.active { background: #E62117; border-color: #E62117; color: white; } /* Rojo TP */
+
+        /* CONTENEDOR DEL GUIÓN */
+        #script-container { 
+            padding: 20px; 
+            padding-top: 20vh; 
+            padding-bottom: 60vh; 
+            max-width: 800px; 
+            margin: 0 auto; 
+            line-height: 1.5; 
+            opacity: 1; 
+        }
+        
+        /* ESTILOS DE TEXTO */
+        .speaker-text { font-size: 2.8rem; font-weight: 600; color: #ffffff; margin-bottom: 1.5rem; }
+        .instruction { font-size: 1.5rem; color: #FCD34D; font-style: italic; background: #333; padding: 10px; border-left: 4px solid #F59E0B; margin-bottom: 2rem; }
+        .timestamp { font-size: 2rem; font-weight: 800; color: #60A5FA; border-top: 1px solid #444; padding-top: 2rem; margin-top: 3rem; text-transform: uppercase; }
+        
+        /* CONTROLES INFERIORES */
+        #controls { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111; border-top: 1px solid #333; padding: 10px; padding-bottom: env(safe-area-inset-bottom, 10px); display: flex; align-items: center; gap: 8px; z-index: 9999; justify-content: center; overflow-x: auto; cursor: default; }
+        @media (max-width: 600px) {
+            #controls { justify-content: flex-start; padding-left: 10px; padding-right: 10px; }
+            .btn-main, #save-btn, #reset-btn { height: 38px !important; min-width: 38px !important; padding: 0 10px !important; }
+            #play-pause-btn { min-width: auto !important; padding: 0 15px !important; font-size: 0.8rem; }
+            .stepper-btn { width: 34px !important; height: 34px !important; }
+            .value-display { font-size: 0.8rem; min-width: 20px; }
+            .speaker-text { font-size: 2rem; }
+        }
+        .btn-main { height: 48px; padding: 0 20px; border-radius: 8px; font-weight: 700; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition:0.2s; }
+        #play-pause-btn { background-color: #10B981; min-width: 100px; } 
+        #play-pause-btn.paused { background-color: #EF4444; } 
+        #reset-btn { background-color: #374151; }
+        #save-btn { background-color: #7C3AED; }
+        .control-group { display: flex; align-items: center; gap: 2px; background: #222; padding: 3px; border-radius: 8px; border: 1px solid #444; flex-shrink: 0; }
+        .stepper-btn { width: 44px; height: 44px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; color: white; background: transparent; }
+        .theme-speed .stepper-btn { background: #1E40AF; }
+        .theme-font .stepper-btn { background: #92400E; }
+        .value-display { font-family: monospace; font-weight: bold; min-width: 30px; text-align: center; }
+        .svg-icon { width: 20px; height: 20px; fill: currentColor; }
+    </style>
+</head>
+<body>
+
+  <div id="lang-bar">
+      <button class="lang-btn" onclick="setLanguage('en')">EN</button>
+      <button class="lang-btn" onclick="setLanguage('es')">ES</button>
+      <button class="lang-btn active" onclick="setLanguage('de')">DE</button>
+  </div>
+
+  <div id="script-container"></div>
+  
+  <div id="controls">
+    <button id="play-pause-btn" class="btn-main">START</button>
+    <button id="reset-btn" class="btn-main" title="Inicio"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+    <div class="control-group theme-speed"><button class="stepper-btn" id="s-">-</button><div class="value-display" id="s-val">3</div><button class="stepper-btn" id="s+">+</button></div>
+    <div class="control-group theme-font"><button class="stepper-btn" id="f-">-</button><div class="value-display" id="f-val">3</div><button class="stepper-btn" id="f+">+</button></div>
+    <button id="save-btn" class="btn-main" title="Guardar"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg></button>
+  </div>
+
+  <script>
+    // DATOS DE TRADUCCIÓN
+    const contentData = {
+        es: [
+            {"type":"instruction","content":"Proyecto: Desarrollar un script para subir videos automáticamente a YouTube."},
+            {"type":"instruction","content":"Un proyecto excelente para tu canal @TranslatedPressDE. Te ahorrará mucho tiempo en tareas repetitivas."},
+            {"type":"title","content":"Introducción"},
+            {"type":"text","content":"Utilizaremos la YouTube Data API v3 oficial de Google y Python."},
+            {"type":"text","content":"Aquí tienes la guía paso a paso y el código completo."},
+            {"type":"text","content":"Paso 1: Configuración en Google Cloud (Indispensable)"},
+            {"type":"text","content":"Antes de tocar el código, necesitas \"permiso\" de YouTube para que tu script actúe en tu nombre."},
+            {"type":"instruction","content":"Ve a la Google Cloud Console."},
+            {"type":"instruction","content":"Crea un Nuevo Proyecto (llámalo YouTube-Uploader)."},
+            {"type":"instruction","content":"En el menú lateral, busca \"APIs y servicios\" > \"Biblioteca\"."},
+            {"type":"instruction","content":"Busca \"YouTube Data API v3\" y dale a Habilitar."},
+            {"type":"instruction","content":"Ve a \"APIs y servicios\" > \"Credenciales\"."},
+            {"type":"instruction","content":"Dale a \"Crear credenciales\" > \"ID de cliente de OAuth\"."},
+            {"type":"instruction","content":"Si te pide configurar la \"Pantalla de consentimiento\", elige Externo."},
+            {"type":"instruction","content":"IMPORTANTE: En la pantalla de consentimiento, agrega tu correo de Gmail (el del canal) como \"Usuario de prueba\" (Test User). Si no haces esto, el script no funcionará."},
+            {"type":"instruction","content":"En tipo de aplicación elige \"Aplicación de escritorio\"."},
+            {"type":"instruction","content":"Descarga el archivo JSON de las credenciales, renómbralo a client_secrets.json y guárdalo en la misma carpeta donde pondrás el script."},
+            {"type":"text","content":"Paso 2: Instalar librerías"},
+            {"type":"text","content":"Abre tu terminal y ejecuta: pip install --upgrade google-api-python-client google-auth-oauthlib google-auth-httplib2"},
+            {"type":"text","content":"Paso 3: El Script (youtube_uploader.py)"},
+            {"type":"text","content":"Crea un archivo llamado youtube_uploader.py y pega el código."},
+            {"type":"title","content":"Primer Uso"},
+            {"type":"instruction","content":"Asegúrate de tener en la carpeta: youtube_uploader.py, client_secrets.json y el video."},
+            {"type":"instruction","content":"Ejecuta el script: python youtube_uploader.py"},
+            {"type":"instruction","content":"Se abrirá tu navegador. Inicia sesión con la cuenta de Google de @TranslatedPressDE."},
+            {"type":"instruction","content":"Si hay advertencia de \"App no verificada\", ve a Configuración avanzada > Ir a YouTube-Uploader (no seguro)."},
+            {"type":"instruction","content":"Concede los permisos. El script guardará un archivo token.pickle."},
+            {"type":"title","content":"Advertencias"},
+            {"type":"instruction","content":"Cuota Diaria: Subir un video cuesta 1,600 unidades. Límite aprox. 6 videos al día."},
+            {"type":"instruction","content":"Validación: Los videos se subirán como Privados hasta que verifiques la app."},
+            {"type":"title","content":"Interfaz Gráfica"},
+            {"type":"text","content":"Haremos una interfaz gráfica (GUI) con Tkinter para que el proceso sea más profesional y oscuro."},
+            {"type":"instruction","content":"Campos: Archivo, Título, Descripción, Etiquetas, Privacidad."},
+            {"type":"text","content":"Crea un nuevo archivo llamado app_uploader.py y pega el código proporcionado."},
+            {"type":"text","content":"¡Espero que esto sea exactamente lo que necesitabas para automatizar tu canal!"}
+        ],
+        de: [
+            {"type":"instruction","content":"Projekt: Ein Skript entwickeln, um Videos automatisch auf YouTube hochzuladen."},
+            {"type":"instruction","content":"Ein ausgezeichnetes Projekt für Ihren Kanal @TranslatedPressDE. Es wird Ihnen viel Zeit bei wiederkehrenden Aufgaben sparen."},
+            {"type":"title","content":"Einführung"},
+            {"type":"text","content":"Wir verwenden die offizielle YouTube Data API v3 von Google und Python."},
+            {"type":"text","content":"Hier ist die Schritt-für-Schritt-Anleitung und der vollständige Code."},
+            {"type":"text","content":"Schritt 1: Konfiguration in der Google Cloud (Unerlässlich)"},
+            {"type":"text","content":"Bevor Sie den Code anfassen, benötigen Sie die \"Erlaubnis\" von YouTube, damit Ihr Skript in Ihrem Namen handeln kann."},
+            {"type":"instruction","content":"Gehen Sie zur Google Cloud Console."},
+            {"type":"instruction","content":"Erstellen Sie ein neues Projekt (nennen Sie es YouTube-Uploader)."},
+            {"type":"instruction","content":"Suchen Sie im Seitenmenü nach \"APIs & Dienste\" > \"Bibliothek\"."},
+            {"type":"instruction","content":"Suchen Sie nach \"YouTube Data API v3\" und klicken Sie auf Aktivieren."},
+            {"type":"instruction","content":"Gehen Sie zu \"APIs & Dienste\" > \"Anmeldedaten\"."},
+            {"type":"instruction","content":"Klicken Sie auf \"Anmeldedaten erstellen\" > \"OAuth-Client-ID\"."},
+            {"type":"instruction","content":"Wenn Sie nach dem \"Zustimmungsbildschirm\" gefragt werden, wählen Sie Extern."},
+            {"type":"instruction","content":"WICHTIG: Fügen Sie im Zustimmungsbildschirm Ihre Gmail-Adresse (die des Kanals) als \"Testnutzer\" hinzu. Ohne dies funktioniert das Skript nicht."},
+            {"type":"instruction","content":"Wählen Sie als Anwendungstyp \"Desktop-App\"."},
+            {"type":"instruction","content":"Laden Sie die JSON-Datei der Anmeldedaten herunter, benennen Sie sie in client_secrets.json um und speichern Sie sie im selben Ordner wie das Skript."},
+            {"type":"text","content":"Schritt 2: Bibliotheken installieren"},
+            {"type":"text","content":"Öffnen Sie Ihr Terminal und führen Sie aus: pip install --upgrade google-api-python-client google-auth-oauthlib google-auth-httplib2"},
+            {"type":"text","content":"Schritt 3: Das Skript (youtube_uploader.py)"},
+            {"type":"text","content":"Erstellen Sie eine Datei namens youtube_uploader.py und fügen Sie den Code ein."},
+            {"type":"title","content":"Erste Verwendung"},
+            {"type":"instruction","content":"Stellen Sie sicher, dass im Ordner vorhanden sind: youtube_uploader.py, client_secrets.json und das Video."},
+            {"type":"instruction","content":"Führen Sie das Skript aus: python youtube_uploader.py"},
+            {"type":"instruction","content":"Ihr Browser öffnet sich. Melden Sie sich mit dem Google-Konto von @TranslatedPressDE an."},
+            {"type":"instruction","content":"Bei Warnung \"App nicht überprüft\": Erweiterte Einstellungen > Gehe zu YouTube-Uploader (unsicher)."},
+            {"type":"instruction","content":"Erteilen Sie die Berechtigungen. Das Skript speichert eine token.pickle-Datei."},
+            {"type":"title","content":"Warnungen"},
+            {"type":"instruction","content":"Tägliches Kontingent: Ein Upload kostet 1.600 Einheiten. Limit ca. 6 Videos pro Tag."},
+            {"type":"instruction","content":"Validierung: Videos werden als Privat hochgeladen, bis Sie die App verifizieren."},
+            {"type":"title","content":"Grafische Oberfläche"},
+            {"type":"text","content":"Wir erstellen eine GUI mit Tkinter für einen professionellen Dark-Mode-Look."},
+            {"type":"instruction","content":"Felder: Datei, Titel, Beschreibung, Tags, Privatsphäre."},
+            {"type":"text","content":"Erstellen Sie eine neue Datei namens app_uploader.py und fügen Sie den Code ein."},
+            {"type":"text","content":"Ich hoffe, das ist genau das, was Sie für die Automatisierung Ihres Kanals brauchten!"}
+        ],
+        en: [
+            {"type":"instruction","content":"Project: Develop a script to automatically upload videos to YouTube."},
+            {"type":"instruction","content":"An excellent project for your channel @TranslatedPressDE. It will save you a lot of time on repetitive tasks."},
+            {"type":"title","content":"Introduction"},
+            {"type":"text","content":"We will use the official Google YouTube Data API v3 and Python."},
+            {"type":"text","content":"Here is the step-by-step guide and the complete code."},
+            {"type":"text","content":"Step 1: Google Cloud Configuration (Essential)"},
+            {"type":"text","content":"Before touching the code, you need YouTube's \"permission\" for your script to act on your behalf."},
+            {"type":"instruction","content":"Go to the Google Cloud Console."},
+            {"type":"instruction","content":"Create a New Project (name it YouTube-Uploader)."},
+            {"type":"instruction","content":"In the side menu, look for \"APIs & Services\" > \"Library\"."},
+            {"type":"instruction","content":"Search for \"YouTube Data API v3\" and click Enable."},
+            {"type":"instruction","content":"Go to \"APIs & Services\" > \"Credentials\"."},
+            {"type":"instruction","content":"Click on \"Create credentials\" > \"OAuth client ID\"."},
+            {"type":"instruction","content":"If asked to configure the \"Consent Screen\", choose External."},
+            {"type":"instruction","content":"IMPORTANT: On the consent screen, add your Gmail address (the channel's) as a \"Test User\". If you don't do this, the script won't work."},
+            {"type":"instruction","content":"Select \"Desktop App\" as the application type."},
+            {"type":"instruction","content":"Download the JSON credentials file, rename it to client_secrets.json, and save it in the same folder as the script."},
+            {"type":"text","content":"Step 2: Install Libraries"},
+            {"type":"text","content":"Open your terminal and run: pip install --upgrade google-api-python-client google-auth-oauthlib google-auth-httplib2"},
+            {"type":"text","content":"Step 3: The Script (youtube_uploader.py)"},
+            {"type":"text","content":"Create a file named youtube_uploader.py and paste the code."},
+            {"type":"title","content":"First Use"},
+            {"type":"instruction","content":"Ensure the folder contains: youtube_uploader.py, client_secrets.json, and the video."},
+            {"type":"instruction","content":"Run the script: python youtube_uploader.py"},
+            {"type":"instruction","content":"Your browser will open. Log in with the @TranslatedPressDE Google account."},
+            {"type":"instruction","content":"If you see an \"App not verified\" warning: Advanced Settings > Go to YouTube-Uploader (unsafe)."},
+            {"type":"instruction","content":"Grant permissions. The script will save a token.pickle file."},
+            {"type":"title","content":"Warnings"},
+            {"type":"instruction","content":"Daily Quota: Uploading costs 1,600 units. Limit approx. 6 videos per day."},
+            {"type":"instruction","content":"Validation: Videos upload as Private until you verify the app."},
+            {"type":"title","content":"Graphical Interface"},
+            {"type":"text","content":"We will create a GUI using Tkinter for a professional dark mode look."},
+            {"type":"instruction","content":"Fields: File, Title, Description, Tags, Privacy."},
+            {"type":"text","content":"Create a new file named app_uploader.py and paste the provided code."},
+            {"type":"text","content":"I hope this is exactly what you needed to automate your channel!"}
+        ]
+    };
+
+    const cont = document.getElementById('script-container');
+    let state = { speed: 3, font: 3, playing: false };
+    let anim;
+
+    // FUNCIÓN PARA RENDERIZAR CONTENIDO
+    function renderContent(lang) {
+        // Limpiar contenedor
+        cont.innerHTML = '';
+        
+        // Obtener datos del idioma
+        const data = contentData[lang] || contentData['de'];
+
+        // Crear elementos
+        data.forEach(i => {
+            let el = document.createElement(i.type === 'title' ? 'h2' : i.type === 'instruction' ? 'p' : 'div');
+            el.className = i.type === 'title' ? 'timestamp' : i.type === 'instruction' ? 'instruction' : 'speaker-text';
+            el.innerText = i.content;
+            cont.appendChild(el);
+        });
+
+        // Re-aplicar tamaño de fuente actual
+        updateDisplay();
+    }
+
+    // FUNCIÓN PARA CAMBIAR IDIOMA
+    function setLanguage(lang) {
+        // Actualizar botones UI
+        document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
+        // Buscar el botón clickeado (simple match por texto o evento)
+        Array.from(document.querySelectorAll('.lang-btn')).find(b => b.innerText.toLowerCase() === lang).classList.add('active');
+        
+        // Renderizar nuevo contenido
+        renderContent(lang);
+    }
+
+    // --- LÓGICA DEL TELEPROMPTER ---
+    function updateDisplay() {
+        document.getElementById('s-val').innerText = state.speed;
+        document.getElementById('f-val').innerText = state.font;
+        const fs = 20 + (state.font * 4);
+        document.querySelectorAll('.speaker-text').forEach(e => e.style.fontSize = fs + 'px');
+    }
+
+    function loop() {
+        if (!state.playing) return;
+        window.scrollBy(0, state.speed * 0.4);
+        anim = requestAnimationFrame(loop);
+    }
+
+    function togglePlay() {
+        state.playing = !state.playing;
+        const btn = document.getElementById('play-pause-btn');
+        btn.innerText = state.playing ? "PAUSE" : "START";
+        btn.classList.toggle('paused', state.playing);
+        if (state.playing) loop(); else cancelAnimationFrame(anim);
+    }
+
+    // EVENTOS
+    document.getElementById('play-pause-btn').onclick = (e) => { e.stopPropagation(); togglePlay(); };
+    document.getElementById('reset-btn').onclick = (e) => { 
+        e.stopPropagation(); 
+        window.scrollTo(0, 0); 
+        state.playing = false; 
+        cancelAnimationFrame(anim); 
+        const btn = document.getElementById('play-pause-btn'); 
+        btn.innerText = "START"; 
+        btn.classList.remove('paused'); 
+    };
+    
+    document.body.onclick = (e) => { 
+        // Evitar toggle si se hace clic en la barra de idioma
+        if (!e.target.closest('#controls') && !e.target.closest('#lang-bar')) togglePlay(); 
+    };
+    
+    document.getElementById('controls').onclick = (e) => { e.stopPropagation(); };
+    
+    document.getElementById('s-').onclick = () => { if (state.speed > 0) state.speed--; updateDisplay(); };
+    document.getElementById('s+').onclick = () => { if (state.speed < 20) state.speed++; updateDisplay(); };
+    document.getElementById('f-').onclick = () => { if (state.font > 0) state.font--; updateDisplay(); };
+    document.getElementById('f+').onclick = () => { if (state.font < 15) state.font++; updateDisplay(); };
+    
+    document.getElementById('save-btn').onclick = () => {
+        const blob = new Blob([document.documentElement.outerHTML], { type: 'text/html' });
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'teleprompter-recording.html';
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+
+    // INICIALIZACIÓN
+    // Cargar Alemán por defecto
+    setLanguage('de');
+    
+    setTimeout(() => { if (!state.playing) togglePlay(); }, 2000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>TP Markdown Teleprompter</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        /* --- THEME VARIABLES --- */
+        :root {
+            --bg-color: #000000;
+            --panel-bg: #111111;
+            --accent: #E62117; /* TranslatedPress Red */
+            --accent-save: #7c3aed; /* Purple */
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+            --text-inst: #FCD34D; /* Yellow */
+            --text-title: #60A5FA; /* Blue */
+            --input-bg: #1e293b;
+            --border-color: #334155;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            height: 100dvh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- EDITOR VIEW --- */
+        #input-view {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            padding: 15px;
+            box-sizing: border-box;
+            background: #0f172a;
+            position: relative;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent);
+            flex-shrink: 0;
+        }
+
+        .app-title {
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: white;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .top-actions { display: flex; gap: 10px; align-items: center; }
+        .lang-group { display: flex; gap: 5px; }
+        
+        .btn-top {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #94a3b8;
+            padding: 6px 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.75rem;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+        .btn-top:hover { background: #334155; color: white; }
+        .btn-top.active { background: var(--accent); border-color: var(--accent); color: white; }
+        
+        .btn-save-top {
+            background: var(--accent-save);
+            border-color: var(--accent-save);
+            color: white;
+            padding: 6px 12px;
+        }
+        .btn-save-top:hover { filter: brightness(1.1); }
+
+        /* Toolbar */
+        .toolbar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            flex-shrink: 0;
+        }
+        .tool-btn {
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1; 
+            justify-content: center;
+        }
+        .tool-btn:hover { background: #334155; color: white; }
+
+        /* Textarea */
+        textarea {
+            flex-grow: 1;
+            background: var(--input-bg);
+            color: #e2e8f0;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            margin-bottom: 15px;
+        }
+        textarea:focus { border-color: var(--accent); }
+
+        /* Start Button (Bottom) */
+        .btn-start {
+            background: var(--accent);
+            color: white;
+            font-weight: 800;
+            padding: 16px;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            text-transform: uppercase;
+            border: none;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(230, 33, 23, 0.4);
+        }
+        .btn-start:active { transform: scale(0.98); background: #cc1d14; }
+
+        /* --- PROMPTER VIEW --- */
+        #prompter-view {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: black;
+            overflow-y: scroll;
+            z-index: 50;
+            scrollbar-width: none; 
+            -ms-overflow-style: none;
+        }
+        #prompter-view::-webkit-scrollbar { display: none; }
+
+        #script-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40vh 20px 60vh 20px;
+            transition: transform 0.3s;
+        }
+
+        /* Typography */
+        .tp-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-title);
+            text-transform: uppercase;
+            border-top: 1px solid #333;
+            padding-top: 2rem;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        .tp-text {
+            font-size: 2.8rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            line-height: 1.4;
+        }
+        .tp-inst {
+            font-size: 1.5rem;
+            color: var(--text-inst);
+            font-style: italic;
+            background: #222;
+            padding: 10px;
+            border-left: 4px solid #F59E0B;
+            margin-bottom: 2rem;
+        }
+        .tp-bullet { display: flex; gap: 15px; }
+        .tp-bullet i { color: var(--accent); margin-top: 10px; font-size: 1.5rem; }
+
+        /* --- CONTROLS OVERLAY --- */
+        #controls {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(17, 17, 17, 0.95);
+            border-top: 1px solid #333;
+            padding: 15px 10px;
+            padding-bottom: env(safe-area-inset-bottom, 20px);
+            display: none;
+            justify-content: center;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .ctrl-btn {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            width: 44px; height: 44px;
+            border-radius: 6px;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .ctrl-btn:active { background: var(--accent); border-color: var(--accent); }
+        
+        .btn-play { background: #10B981; border-color: #10B981; width: 80px; font-weight: bold; }
+        .btn-play.paused { background: #EF4444; border-color: #EF4444; }
+
+        .group-container {
+            display: flex; align-items: center; gap: 2px; 
+            background: #222; padding: 3px; border-radius: 8px; border: 1px solid #444;
+        }
+        .theme-speed .ctrl-btn { background: #1E40AF; border:none; width:38px; height:38px; }
+        .theme-font .ctrl-btn { background: #92400E; border:none; width:38px; height:38px; }
+        
+        .val-display {
+            color: white; font-family: monospace; font-size: 0.9rem; font-weight: bold;
+            width: 25px; text-align: center;
+        }
+
+        .mirror-mode { transform: scaleX(-1); }
+
+    </style>
+</head>
+<body>
+
+    <div id="input-view">
+        
+        <div class="top-bar">
+            <div class="app-title">
+                <i class="fa-solid fa-scroll" style="color:var(--accent)"></i>
+                <span>TP Studio</span>
+            </div>
+            
+            <div class="top-actions">
+                <div class="lang-group">
+                    <button class="btn-top" onclick="setLanguage('en')">EN</button>
+                    <button class="btn-top" onclick="setLanguage('es')">ES</button>
+                    <button class="btn-top active" onclick="setLanguage('de')">DE</button>
+                </div>
+                <button class="btn-top btn-save-top" onclick="generateAndDownload()" title="HTML Generieren & Speichern">
+                    <i class="fa-solid fa-floppy-disk"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <input type="file" id="fileInput" accept=".txt,.md" style="display: none;" onchange="handleFileUpload(this)">
+            <button class="tool-btn" onclick="document.getElementById('fileInput').click()" id="btn-upload">
+                <i class="fa-solid fa-folder-open"></i> <span class="lbl-upload">Load File</span>
+            </button>
+            <button class="tool-btn" onclick="clearText()" id="btn-clear">
+                <i class="fa-solid fa-trash"></i> <span class="lbl-clear">Clear</span>
+            </button>
+        </div>
+        
+        <textarea id="raw-input"></textarea>
+        
+        <button class="btn-start" id="btn-start-prompter" onclick="startPrompter()">
+            <i class="fa-solid fa-play"></i> <span class="lbl-start">START</span>
+        </button>
+    </div>
+
+    <div id="prompter-view">
+        <div id="script-content"></div>
+    </div>
+
+    <div id="controls">
+        <button class="ctrl-btn" onclick="exitPrompter()" style="background:#374151"><i class="fa-solid fa-pen"></i></button>
+        <button class="ctrl-btn" onclick="toggleMirror()" style="background:#374151"><i class="fa-solid fa-arrows-left-right"></i></button>
+        
+        <button class="ctrl-btn btn-play" id="btn-play" onclick="togglePlay()">START</button>
+
+        <div class="group-container theme-speed">
+            <button class="ctrl-btn" onclick="adjustSpeed(-1)"><i class="fa-solid fa-minus"></i></button>
+            <div class="val-display" id="speed-val">3</div>
+            <button class="ctrl-btn" onclick="adjustSpeed(1)"><i class="fa-solid fa-plus"></i></button>
+        </div>
+
+        <div class="group-container theme-font">
+            <button class="ctrl-btn" onclick="adjustFont(-1)"><i class="fa-solid fa-text-height" style="font-size:0.7em"></i></button>
+            <div class="val-display" id="font-val">5</div>
+            <button class="ctrl-btn" onclick="adjustFont(1)"><i class="fa-solid fa-text-height"></i></button>
+        </div>
+    </div>
+
+    <script>
+        // --- TRANSLATIONS ---
+        const translations = {
+            en: {
+                upload: "Load File",
+                clear: "Clear Text",
+                start: "START",
+                placeholder: "Paste your text here...\n\n# Use Hashtag for Titles (Blue)\n> Use Greater Than for Instructions (Yellow)\n- Use Dash for Lists\nWrite normally for white text.",
+                play: "START",
+                pause: "PAUSE",
+                sample: `# Welcome to TranslatedPress
+
+> (Wait for intro music)
+
+Hello everyone. Today we are using the new Teleprompter Studio.
+
+# Features
+
+- Auto-scroll
+- Mirror mode for hardware
+- Markdown support
+
+> (Smile at camera)
+
+Don't forget to subscribe!`
+            },
+            es: {
+                upload: "Cargar Archivo",
+                clear: "Borrar Todo",
+                start: "INICIAR",
+                placeholder: "Pega tu texto aquí...\n\n# Usa Hashtag para Títulos (Azul)\n> Usa Mayor Que para Instrucciones (Amarillo)\n- Usa Guion para Listas\nEscribe normal para texto blanco.",
+                play: "INICIO",
+                pause: "PAUSA",
+                sample: `# Bienvenidos a TranslatedPress
+
+> (Esperar música de intro)
+
+Hola a todos. Hoy estamos usando el nuevo Teleprompter Studio.
+
+# Características
+
+- Auto-desplazamiento
+- Modo espejo para hardware
+- Soporte Markdown
+
+> (Sonreír a la cámara)
+
+¡No olviden suscribirse!`
+            },
+            de: {
+                upload: "Datei laden",
+                clear: "Löschen",
+                start: "STARTEN",
+                placeholder: "Fügen Sie hier Ihren Text ein...\n\n# Hashtag für Titel (Blau)\n> Größer-als für Anweisungen (Gelb)\n- Bindestrich für Listen\nNormal schreiben für weißen Text.",
+                play: "START",
+                pause: "PAUSE",
+                sample: `# Willkommen bei TranslatedPress
+
+> (Warte auf Intro-Musik)
+
+Hallo zusammen. Heute nutzen wir das neue Teleprompter Studio.
+
+# Funktionen
+
+- Automatischer Bildlauf
+- Spiegelmodus für Hardware
+- Markdown-Unterstützung
+
+> (In die Kamera lächeln)
+
+Vergessen Sie nicht zu abonnieren!`
+            }
+        };
+
+        // --- STATE ---
+        let currentLang = 'de';
+        let isPlaying = false;
+        let speed = 3;
+        let fontSizeLevel = 5;
+        let scrollInterval;
+        let isMirrored = false;
+        let scrollAccumulator = 0; // Precision scroll
+
+        // --- DOM ELEMENTS ---
+        const inputView = document.getElementById('input-view');
+        const prompterView = document.getElementById('prompter-view');
+        const controls = document.getElementById('controls');
+        const inputArea = document.getElementById('raw-input');
+        const playBtn = document.getElementById('btn-play');
+
+        // --- 1. LANGUAGE & INPUT LOGIC ---
+        function setLanguage(lang) {
+            currentLang = lang;
+            
+            document.querySelectorAll('.btn-top').forEach(btn => btn.classList.remove('active'));
+            // Filter only lang buttons
+            Array.from(document.querySelectorAll('.lang-group .btn-top')).find(b => b.innerText.toLowerCase() === lang).classList.add('active');
+
+            const t = translations[lang];
+            document.querySelector('.lbl-upload').innerText = t.upload;
+            document.querySelector('.lbl-clear').innerText = t.clear;
+            document.querySelector('.lbl-start').innerText = t.start;
+            inputArea.placeholder = t.placeholder;
+            
+            if(!inputArea.value.trim() || inputArea.value.includes("# Welcome") || inputArea.value.includes("# Willkommen") || inputArea.value.includes("# Bienvenidos")) {
+                inputArea.value = t.sample;
+            }
+        }
+
+        function clearText() {
+            if(confirm("Are you sure?")) { inputArea.value = ""; inputArea.focus(); }
+        }
+
+        function handleFileUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = (e) => { inputArea.value = e.target.result; };
+            reader.readAsText(file);
+            input.value = "";
+        }
+
+        // --- 2. MARKDOWN PARSER (HTML STRING GENERATOR) ---
+        function getParsedHTML(rawText) {
+            const lines = rawText.split('\n');
+            let html = '';
+
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return;
+
+                if (trimmed.startsWith('#')) {
+                    const text = trimmed.replace(/^#+\s*/, '');
+                    html += `<div class="tp-title">${text}</div>`;
+                } 
+                else if (trimmed.startsWith('>')) {
+                    const text = trimmed.replace(/^>\s*/, '');
+                    html += `<div class="tp-inst"><i class="fa-solid fa-circle-info mr-2"></i> ${text}</div>`;
+                }
+                else if (trimmed.startsWith('-') || trimmed.startsWith('* ')) {
+                    const text = trimmed.replace(/^[-*]\s*/, '');
+                    html += `<div class="tp-text tp-bullet"><i class="fa-solid fa-caret-right"></i> <span>${formatText(text)}</span></div>`;
+                }
+                else {
+                    html += `<div class="tp-text">${formatText(trimmed)}</div>`;
+                }
+            });
+            return html;
+        }
+
+        function formatText(text) {
+            return text.replace(/\*\*(.*?)\*\*/g, '<span style="color:var(--accent)">$1</span>');
+        }
+
+        // --- 3. PROMPTER NAVIGATION (LIVE PREVIEW) ---
+        function startPrompter() {
+            if(!inputArea.value.trim()) return;
+            document.getElementById('script-content').innerHTML = getParsedHTML(inputArea.value);
+            inputView.style.display = 'none';
+            prompterView.style.display = 'block';
+            controls.style.display = 'flex';
+            applyFontSize();
+            prompterView.scrollTop = 0;
+            isPlaying = false;
+            updatePlayButton();
+        }
+
+        function exitPrompter() {
+            stopScroll();
+            isPlaying = false;
+            prompterView.style.display = 'none';
+            controls.style.display = 'none';
+            inputView.style.display = 'flex';
+        }
+
+        // --- 4. PLAYBACK CONTROLS (WITH PRECISION SCROLL) ---
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            updatePlayButton();
+            if (isPlaying) startScroll(); else stopScroll();
+        }
+
+        function updatePlayButton() {
+            const t = translations[currentLang];
+            if(isPlaying) {
+                playBtn.classList.add('paused');
+                playBtn.innerHTML = t.pause;
+            } else {
+                playBtn.classList.remove('paused');
+                playBtn.innerHTML = t.play;
+            }
+        }
+
+        function startScroll() {
+            if (scrollInterval) clearInterval(scrollInterval);
+            scrollInterval = setInterval(() => {
+                // PRECISION SCROLL: Accumulate float values
+                const moveAmount = speed * 0.15; 
+                scrollAccumulator += moveAmount;
+                if (scrollAccumulator >= 1) {
+                    const pixelsToScroll = Math.floor(scrollAccumulator);
+                    prompterView.scrollTop += pixelsToScroll;
+                    scrollAccumulator -= pixelsToScroll;
+                }
+            }, 16); 
+        }
+
+        function stopScroll() { clearInterval(scrollInterval); }
+
+        function adjustSpeed(delta) {
+            speed += delta;
+            if (speed < 1) speed = 1; if (speed > 50) speed = 50;
+            document.getElementById('speed-val').innerText = speed;
+        }
+
+        function adjustFont(delta) {
+            fontSizeLevel += delta;
+            if (fontSizeLevel < 1) fontSizeLevel = 1; if (fontSizeLevel > 10) fontSizeLevel = 10;
+            document.getElementById('font-val').innerText = fontSizeLevel;
+            applyFontSize();
+        }
+
+        function applyFontSize() {
+            const baseSize = 2.8 + ((fontSizeLevel - 5) * 0.3);
+            const texts = document.querySelectorAll('.tp-text');
+            texts.forEach(el => el.style.fontSize = `${baseSize}rem`);
+            const titles = document.querySelectorAll('.tp-title');
+            titles.forEach(el => el.style.fontSize = `${baseSize * 0.7}rem`);
+        }
+
+        function toggleMirror() {
+            isMirrored = !isMirrored;
+            const content = document.getElementById('script-content');
+            if(isMirrored) content.classList.add('mirror-mode');
+            else content.classList.remove('mirror-mode');
+        }
+
+        // --- 5. GENERATE AND DOWNLOAD STANDALONE HTML ---
+        function generateAndDownload() {
+            const rawText = inputArea.value;
+            const parsedContent = getParsedHTML(rawText);
+
+            // Template for the standalone player
+            // Contains essential CSS and JS to run without external dependencies
+            const fileContent = `<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teleprompter Player</title>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root { --bg-color:#000; --accent:#E62117; --text-inst:#FCD34D; --text-title:#60A5FA; }
+        body { background:var(--bg-color); color:white; font-family:'Inter',sans-serif; margin:0; height:100vh; overflow:hidden; }
+        #prompter-view { height:100%; overflow-y:scroll; scrollbar-width:none; }
+        #prompter-view::-webkit-scrollbar { display:none; }
+        #script-content { max-width:800px; margin:0 auto; padding:40vh 20px 60vh 20px; transition:transform 0.3s; }
+        
+        .tp-title { font-size:2rem; font-weight:800; color:var(--text-title); text-transform:uppercase; border-top:1px solid #333; padding-top:2rem; margin-top:3rem; }
+        .tp-text { font-size:2.8rem; font-weight:600; margin-bottom:1.5rem; line-height:1.4; }
+        .tp-inst { font-size:1.5rem; color:var(--text-inst); font-style:italic; background:#222; padding:10px; border-left:4px solid #F59E0B; margin-bottom:2rem; }
+        .tp-bullet { display:flex; gap:15px; }
+        .mirror-mode { transform:scaleX(-1); }
+
+        #controls { position:fixed; bottom:0; left:0; right:0; background:rgba(17,17,17,0.95); border-top:1px solid #333; padding:15px; display:flex; justify-content:center; gap:8px; z-index:100; }
+        .ctrl-btn { background:#333; color:white; border:1px solid #555; width:44px; height:44px; border-radius:6px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .btn-play { background:#10B981; width:80px; font-weight:bold; border:none; }
+        .btn-play.paused { background:#EF4444; }
+        .val-display { color:white; font-family:monospace; font-weight:bold; width:25px; text-align:center; display:flex; align-items:center; justify-content:center; }
+    </style>
+</head>
+<body>
+    <div id="prompter-view">
+        <div id="script-content">${parsedContent}</div>
+    </div>
+    <div id="controls">
+        <button class="ctrl-btn" onclick="toggleMirror()"><i class="fa-solid fa-arrows-left-right"></i></button>
+        <button class="ctrl-btn btn-play" id="btn-play" onclick="togglePlay()">START</button>
+        <button class="ctrl-btn" onclick="adjustSpeed(-1)"><i class="fa-solid fa-minus"></i></button>
+        <div class="val-display" id="speed-val">3</div>
+        <button class="ctrl-btn" onclick="adjustSpeed(1)"><i class="fa-solid fa-plus"></i></button>
+        <button class="ctrl-btn" onclick="adjustFont(-1)"><i class="fa-solid fa-text-height"></i>-</button>
+        <button class="ctrl-btn" onclick="adjustFont(1)"><i class="fa-solid fa-text-height"></i>+</button>
+    </div>
+    <script>
+        let speed=3, playing=false, scrollInterval, accum=0, fontSize=5, mirrored=false;
+        const view=document.getElementById('prompter-view');
+        
+        function togglePlay() { playing=!playing; document.getElementById('btn-play').innerText=playing?'PAUSE':'START'; document.getElementById('btn-play').classList.toggle('paused',playing); if(playing)start(); else stop(); }
+        function start() { clearInterval(scrollInterval); scrollInterval=setInterval(()=>{ accum+=speed*0.15; if(accum>=1){ view.scrollTop+=Math.floor(accum); accum-=Math.floor(accum); } },16); }
+        function stop() { clearInterval(scrollInterval); }
+        function adjustSpeed(d) { speed+=d; if(speed<1)speed=1; if(speed>50)speed=50; document.getElementById('speed-val').innerText=speed; }
+        function toggleMirror() { mirrored=!mirrored; document.getElementById('script-content').classList.toggle('mirror-mode',mirrored); }
+        function adjustFont(d) { fontSize+=d; if(fontSize<1)fontSize=1; applyFont(); }
+        function applyFont() { 
+            const s = 2.8 + ((fontSize-5)*0.3);
+            document.querySelectorAll('.tp-text').forEach(e=>e.style.fontSize=s+'rem');
+            document.querySelectorAll('.tp-title').forEach(e=>e.style.fontSize=(s*0.7)+'rem');
+        }
+        document.body.onclick=(e)=>{ if(!e.target.closest('#controls')) togglePlay(); };
+        document.addEventListener('keydown', (e) => { if(e.code==='Space'){e.preventDefault(); togglePlay();} else if(e.code==='ArrowUp')adjustSpeed(1); else if(e.code==='ArrowDown')adjustSpeed(-1); });
+    <\/script>
+</body>
+</html>`;
+
+            const blob = new Blob([fileContent], { type: 'text/html' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'teleprompter-final.html';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Click outside controls triggers play
+        document.body.onclick = (e) => {
+            if(prompterView.style.display === 'block' && !e.target.closest('#controls')) {
+                togglePlay();
+            }
+        };
+
+        // Init
+        setLanguage('de');
+
+    </script>
+</body>
+</html>

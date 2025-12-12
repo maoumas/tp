@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graphic Resources - TranslatedPress</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Oswald:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root { --bg-color: #121212; --panel-bg: #1e1e1e; --accent-color: #E62117; --text-main: #e0e0e0; --border-color: #333; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; min-height: 100vh; display: flex; flex-direction: column; }
+        
+        header { background: var(--panel-bg); border-bottom: 2px solid var(--accent-color); padding: 20px; text-align: center; }
+        h1 { margin: 0; font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .gallery-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; width: 100%; box-sizing: border-box; flex: 1; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
+        
+        .gallery-item { background: var(--panel-bg); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; cursor: pointer; aspect-ratio: 1 / 1; position: relative; transition: transform 0.2s; }
+        .gallery-item:hover { transform: translateY(-5px); border-color: var(--accent-color); }
+        .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .item-name { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.8); color: white; font-size: 0.75rem; padding: 8px; text-align: center; opacity: 0; transition: opacity 0.2s; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .gallery-item:hover .item-name { opacity: 1; }
+
+        /* Lightbox */
+        .lightbox { display: none; position: fixed; z-index: 1000; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; flex-direction: column; }
+        .lightbox.active { display: flex; }
+        .lightbox img { max-width: 90%; max-height: 80vh; border: 2px solid var(--accent-color); box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .close-btn { position: absolute; top: 20px; right: 30px; color: white; font-size: 3rem; cursor: pointer; }
+
+        /* Footer */
+        #site-footer { margin-top: auto; padding: 30px 20px; border-top: 1px solid #333; background: var(--panel-bg); text-align: center; }
+        .footer-links a { color: var(--accent-color); text-decoration: none; font-weight: bold; margin: 0 10px; }
+        .footer-links a.gh { color: #FFD700; }
+        
+        /* Loading */
+        #loading { text-align: center; color: #666; font-style: italic; grid-column: 1 / -1; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Graphic Resources</h1>
+        <p style="color:#888; font-size:0.9rem;">Repositorio de Arte - TranslatedPress</p>
+    </header>
+
+    <div class="gallery-container">
+        <div class="gallery-grid" id="galleryGrid">
+            <div id="loading">Cargando recursos desde GitHub...</div>
+        </div>
+    </div>
+
+    <div id="lightbox" class="lightbox" onclick="this.classList.remove('active')">
+        <span class="close-btn">&times;</span>
+        <img id="lightbox-img" src="">
+        <div id="lightbox-caption" style="margin-top:15px; font-family:'Oswald';"></div>
+    </div>
+
+    <footer id="site-footer">
+        <div style="color: #888; margin-bottom: 10px;">
+            Entwickelt mit <i class="fa-solid fa-heart" style="color:#E62117;"></i> für die Gemeinschaft von <strong>TranslatedPress</strong>.
+        </div>
+        <div class="footer-links">
+            <a href="https://youtube.com/@translatedpressde" target="_blank"><i class="fa-brands fa-youtube"></i> YouTube</a>
+            |
+            <a href="https://github.com/maoumas" target="_blank" class="gh"><i class="fa-brands fa-github"></i> GitHub</a>
+        </div>
+        <div style="font-size: 0.7rem; color: #555; margin-top: 10px;">
+            &copy; <span id="year">2025</span> Mauricio Umana. Alle Rechte vorbehalten.
+        </div>
+    </footer>
+
+    <script>
+        // --- CONFIGURACIÓN: CAMBIA ESTO ---
+        const REPO_OWNER = 'maoumas';     // Tu usuario de GitHub
+        const REPO_NAME = 'tp';         // El nombre de tu repositorio
+        const PATH = 'graphic-resources'; // La carpeta donde están las imágenes
+        // ----------------------------------
+
+        const galleryGrid = document.getElementById('galleryGrid');
+        const loading = document.getElementById('loading');
+
+        // Función para cargar imágenes usando la API de GitHub
+        async function loadImages() {
+            const apiUrl = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${PATH}`;
+            
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) throw new Error('No se pudo conectar a GitHub');
+                
+                const data = await response.json();
+                
+                // Limpiar loader
+                loading.style.display = 'none';
+
+                // Filtrar solo imágenes (png, jpg, jpeg, gif, webp, svg)
+                const images = data.filter(file => 
+                    file.type === 'file' && 
+                    /\.(png|jpe?g|gif|webp|svg)$/i.test(file.name)
+                );
+
+                if(images.length === 0) {
+                    galleryGrid.innerHTML = '<div style="text-align:center; grid-column:1/-1">No se encontraron imágenes en esta carpeta.</div>';
+                    return;
+                }
+
+                // Generar HTML
+                images.forEach(img => {
+                    // Usamos download_url para obtener la imagen cruda
+                    const el = document.createElement('div');
+                    el.className = 'gallery-item';
+                    el.onclick = () => openLightbox(img.download_url, img.name);
+                    
+                    el.innerHTML = `
+                        <img src="${img.download_url}" alt="${img.name}" loading="lazy">
+                        <div class="item-name">${img.name}</div>
+                    `;
+                    galleryGrid.appendChild(el);
+                });
+
+            } catch (error) {
+                console.error(error);
+                loading.innerText = 'Error: No se pudo cargar el contenido. Verifica la configuración del script.';
+            }
+        }
+
+        // Lightbox Logic
+        function openLightbox(src, caption) {
+            document.getElementById('lightbox-img').src = src;
+            document.getElementById('lightbox-caption').textContent = caption;
+            document.getElementById('lightbox').classList.add('active');
+        }
+
+        // Iniciar
+        document.getElementById('year').textContent = new Date().getFullYear();
+        loadImages();
+    </script>
+</body>
+</html>

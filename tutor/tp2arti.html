@@ -1,0 +1,411 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Teleprompter Player</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { background-color: #000; color: #f0f0f0; font-family: 'Inter', sans-serif; margin:0; overflow-x: hidden; }
+        
+        /* SMART COVER (Purple Screen) */
+        #cover-screen {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, #4C1D95 0%, #2E1065 100%);
+            color: white; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            text-align: center; padding: 30px;
+        }
+        .cover-icon { font-size: 5rem; margin-bottom: 20px; filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3)); }
+        .cover-title { font-size: 2rem; font-weight: 800; margin-bottom: 10px; }
+        .cover-text { font-size: 1.1rem; opacity: 0.9; }
+        .cover-warning { 
+            margin-top: 30px; background: rgba(255,255,255,0.15); 
+            padding: 15px 25px; border-radius: 12px; font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* CONTROLS */
+        #controls { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background-color: #111; border-top: 1px solid #333; 
+            padding: 10px; padding-bottom: env(safe-area-inset-bottom, 10px);
+            display: flex; flex-wrap: nowrap; align-items: center; gap: 8px; 
+            z-index: 1000; overflow-x: auto; justify-content: center;
+            -webkit-overflow-scrolling: touch;
+            opacity: 0; transition: opacity 0.5s;
+        }
+        #controls::-webkit-scrollbar { display: none; }
+
+        .btn-main {
+            height: 40px; padding: 0 16px; border-radius: 8px;
+            font-weight: 700; text-transform: uppercase; cursor: pointer;
+            border: none; color: white; font-size: 0.85rem; 
+            display: flex; align-items: center; justify-content: center; 
+            flex-shrink: 0; transition: 0.2s;
+        }
+        .btn-main:active { transform: scale(0.95); }
+        #play-pause-btn { background-color: #10B981; min-width: 90px; } 
+        #play-pause-btn.paused { background-color: #EF4444; } 
+        #reset-btn { background-color: #374151; width: 40px; padding: 0; }
+        #save-btn { background-color: #7C3AED; margin-left: 10px; width: 40px; padding:0; border: 1px solid #8B5CF6; }
+
+        .control-group {
+            display: flex; align-items: center; gap: 2px;
+            background-color: #222; padding: 3px; border-radius: 8px; border: 1px solid #444; flex-shrink: 0;
+        }
+        .stepper-btn {
+            width: 36px; height: 36px; border-radius: 6px; border: none;
+            font-size: 1.2rem; font-weight: bold; cursor: pointer; color: white;
+            background: transparent; display:flex; justify-content:center; align-items:center; padding-bottom:4px;
+        }
+        .value-display { font-family: monospace; font-size: 0.95rem; font-weight: bold; min-width: 28px; text-align: center; }
+        .theme-speed .stepper-btn { background-color: #1E40AF; }
+        .theme-font .stepper-btn { background-color: #92400E; }
+        .icon-svg { width: 20px; height: 20px; fill: currentColor; } 
+
+        #script-container { padding: 2rem 1.5rem; padding-bottom: 50vh; max-width: 900px; margin: 0 auto; line-height: 1.5; opacity: 0; transition: opacity 0.5s; }
+        .speaker-text { font-size: 2.5rem; font-weight: 600; color: #fff; margin-bottom: 1.5rem; }
+        .instruction { font-size: 1.3rem; color: #FCD34D; font-style: italic; background-color: #282518; border-left: 4px solid #F59E0B; padding: 1rem; margin-bottom: 1.5rem; border-radius: 0 8px 8px 0; }
+        .timestamp { font-size: 1.8rem; font-weight: 700; color: #60A5FA; border-top: 1px solid #333; padding-top: 2rem; margin-top: 3rem; margin-bottom: 1rem; text-transform: uppercase; }
+        
+        @media (min-width: 768px) {
+            #controls { gap: 16px; padding: 16px; }
+            .btn-main, #save-btn { height: 48px; width:48px; }
+            #play-pause-btn { min-width: 120px; }
+            .stepper-btn { width: 44px; height: 44px; }
+            .icon-svg { width: 24px; height: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+  
+
+  <div id="script-container" style="opacity: 1;"><h2 class="timestamp" style="font-size: 35px;">🎬 The Anti-Engineer’s Guide to the Teleprompter Studio</h2><p class="instruction">(Or: How to conquer the machine without getting your hands dirty with grease)*</p><p class="instruction">*Dear Arti,**</p><p class="speaker-text" style="font-size: 35px;">We know the story. The universe—and your father—really wanted you to be an engineer.</p><p class="speaker-text" style="font-size: 35px;">Your father, a man who survived the hatch of an exploding Panzer in WWII and lived to tell the tale (mostly because the enemy thought no one could survive that blast), spent his life surrounded by gears, pistons, and the smell of oil. He rebuilt his life and a motorcycle factory from a wheelchair, dreaming that his son would carry on the legacy of German precision mechanics.</p><p class="speaker-text" style="font-size: 35px;">But you? You had the spirit of your grandfather—the journalist—running through your veins. You didn't want to build engines; you wanted to build *stories*. You swapped the wrench for the pen. And despite the universe trying to steer you toward mechanics, you became a writer.</p><p class="speaker-text" style="font-size: 35px;">Now, at 78, you are a YouTube sensation with 70,000 subscribers hanging on your every word. But let’s be honest: **you still hate machines.** Your subconscious rejects anything more complex than a toaster. Every software update feels like a personal attack, and every complicated button reminds you of the engineering degree you happily avoided.</p><p class="speaker-text" style="font-size: 35px;">That is why I built **Teleprompter Studio PRO** for you.</p><p class="speaker-text" style="font-size: 35px;">This is not "tech." This is not a motorcycle engine that needs tuning. This is a digital typewriter that listens to you. It is designed for the writer, not the mechanic.</p><p class="speaker-text" style="font-size: 35px;">Here is how to use your new tool to keep telling your stories, without the headache.</p><p class="speaker-text" style="font-size: 35px;">---</p><h2 class="timestamp" style="font-size: 35px;"># Step 1: The Writer’s Room (The Input) ✍️</h2><p class="speaker-text" style="font-size: 35px;">Open the **Teleprompter Studio** file I sent you. You will see a simple white box.</p><p class="speaker-text" style="font-size: 35px;">Think of this box as a blank sheet of paper. You can type directly into it, or paste the script you wrote earlier.</p><p class="speaker-text" style="font-size: 35px;">However, we need to give the machine a few tiny hints so it knows how to act (don't worry, it’s easier than changing a spark plug):</p><h2 class="timestamp" style="font-size: 35px;">## 1. The Big Headlines (#)</h2><p class="speaker-text" style="font-size: 35px;">When you are changing topics and need a visual cue, put a **Hashtag** (`#`) before the line.</p><p class="speaker-text" style="font-size: 35px;">&gt; Example: `# The Truth About History`</p><p class="speaker-text" style="font-size: 35px;">&gt;</p><p class="speaker-text" style="font-size: 35px;">&gt; *Result:* The screen will turn that text **BLUE** and make it huge. It’s your signpost.</p><h2 class="timestamp" style="font-size: 35px;">## 2. The Director’s Whispers (*)</h2><p class="speaker-text" style="font-size: 35px;">Do you need to remind yourself to take a breath, sip your coffee, or look at Camera 2? Put an **Asterisk** (`*`) before the line.</p><p class="speaker-text" style="font-size: 35px;">&gt; Example: `* Pause for dramatic effect and raise an eyebrow`</p><p class="speaker-text" style="font-size: 35px;">&gt;</p><p class="speaker-text" style="font-size: 35px;">&gt; *Result:* The text will appear in a **YELLOW** box. It’s a silent note just for you; the audience won't hear you say it, but you'll know what to do.</p><h2 class="timestamp" style="font-size: 35px;">## 3. The Story</h2><p class="speaker-text" style="font-size: 35px;">Everything else—text without symbols—is what you read to your 70,000 fans.</p><p class="speaker-text" style="font-size: 35px;">&gt; *Result:* Crisp **WHITE** text on a deep black background. Easy on the eyes.</p><p class="speaker-text" style="font-size: 35px;">---</p><h2 class="timestamp" style="font-size: 35px;"># Step 2: The Launch (Projecting Live) 🚀</h2><p class="speaker-text" style="font-size: 35px;">Once your text is in the box, you have two choices. You don't need to install anything. You don't need to configure a server.</p><h2 class="timestamp" style="font-size: 35px;">## Option A: "Project Live Now" (The Magic Button)</h2><p class="speaker-text" style="font-size: 35px;">If you are ready to record *right now*:</p><p class="speaker-text" style="font-size: 35px;">1.  Click the big purple button that says **PROJECT LIVE NOW 📺**.</p><p class="speaker-text" style="font-size: 35px;">2.  *Bam!* A new window opens instantly with your script ready to roll. No saving, no downloading, just action.</p><p class="instruction">*Note:* If your browser blocks it, just tell it to "Allow Pop-ups." It’s just the browser trying to protect you, like a guard dog barking at the mailman.</p><h2 class="timestamp" style="font-size: 35px;">## Option B: "Open Text File" (The Old School Way)</h2><p class="speaker-text" style="font-size: 35px;">If you have your script saved as a `.txt` file on your computer (because you prefer writing in peace), click the **Open Text File 📂** button, pick your file, and watch the text appear in the box automatically.</p><p class="speaker-text" style="font-size: 35px;">---</p><h2 class="timestamp" style="font-size: 35px;"># Step 3: The Performance (Controls for the Non-Techie) 🎥</h2><p class="speaker-text" style="font-size: 35px;">Whether you open the live window or download the file to share on WhatsApp, the player is designed to be crash-proof (unlike that tank).</p><p class="speaker-text" style="font-size: 35px;">Here is your dashboard. It’s simpler than a motorcycle handlebar:</p><p class="instruction">🟢 **START / STOP (The Big Button):** Click it to start scrolling. Click it again to pause.</p><p class="instruction">*Pro Tip for Writers:* You can just tap the **Spacebar** on your keyboard to start and stop. It feels just like typing!</p><p class="instruction">⚡ **The Lightning Bolt (Speed):**</p><p class="instruction">Is the text running away from you like a scared cat? Click **Minus (-)**.</p><p class="instruction">Is it crawling like a turtle? Click **Plus (+)**.</p><p class="instruction">🅰️ **The Letters (Size):**</p><p class="instruction">Forgot your reading glasses? No problem. Click the **Plus (+)** next to the letter icon, and the words will grow until they are visible from the moon.</p><p class="instruction">🔄 **The Circular Arrow (Reset):**</p><p class="instruction">Did you fluff the intro? Click this, and the script instantly jumps back to the top.</p><p class="instruction">💾 **The Floppy Disk (Save):**</p><p class="instruction">If you projected the script live and decided, "Hey, this is good, I want to keep this or send it to my editor," click the purple **Save** button. It downloads the file for you.</p><h2 class="timestamp" style="font-size: 35px;">## One Final Secret... 🤫</h2><p class="speaker-text" style="font-size: 35px;">When you press "Start," the machine **counts to 2** before it moves. It waits for you. It gives you two seconds to compose yourself, fix your collar, and get into character. It respects the artist.</p><p class="speaker-text" style="font-size: 35px;">---</p><p class="instruction">*So, my friend,**</p><p class="speaker-text" style="font-size: 35px;">Your father wanted you to engineer machines that move people physically. You chose to write stories that move people emotionally.</p><p class="speaker-text" style="font-size: 35px;">This tool is the bridge. It’s a machine built by an engineer, but designed entirely for a writer. It has no grease, no gears, and no risk of explosion.</p><p class="speaker-text" style="font-size: 35px;">Go tell your stories, Arti.</p><p class="instruction">(And to anyone else reading this: If Arti can use this to run a channel with 70k subscribers, you have absolutely no excuse!)*</p></div>
+  
+  <div id="controls" style="opacity: 1;">
+    <button id="play-pause-btn" class="btn-main paused">PAUSA</button>
+    <button id="reset-btn" class="btn-main" title="Reset"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"></path></svg></button>
+    <div class="control-group theme-speed"><button class="stepper-btn" id="speed-minus">−</button><div class="value-display" id="speed-display">3</div><button class="stepper-btn" id="speed-plus">+</button></div>
+    <div class="control-group theme-font"><button class="stepper-btn" id="font-minus">−</button><div class="value-display" id="font-display">3</div><button class="stepper-btn" id="font-plus">+</button></div>
+    <button id="save-btn" class="btn-main" title="Save File"><svg class="icon-svg" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"></path></svg></button>
+  </div>
+
+  <script>
+    const scriptData = [
+  {
+    "type": "title",
+    "content": "🎬 The Anti-Engineer’s Guide to the Teleprompter Studio"
+  },
+  {
+    "type": "instruction",
+    "content": "(Or: How to conquer the machine without getting your hands dirty with grease)*"
+  },
+  {
+    "type": "instruction",
+    "content": "*Dear Arti,**"
+  },
+  {
+    "type": "text",
+    "content": "We know the story. The universe—and your father—really wanted you to be an engineer."
+  },
+  {
+    "type": "text",
+    "content": "Your father, a man who survived the hatch of an exploding Panzer in WWII and lived to tell the tale (mostly because the enemy thought no one could survive that blast), spent his life surrounded by gears, pistons, and the smell of oil. He rebuilt his life and a motorcycle factory from a wheelchair, dreaming that his son would carry on the legacy of German precision mechanics."
+  },
+  {
+    "type": "text",
+    "content": "But you? You had the spirit of your grandfather—the journalist—running through your veins. You didn't want to build engines; you wanted to build *stories*. You swapped the wrench for the pen. And despite the universe trying to steer you toward mechanics, you became a writer."
+  },
+  {
+    "type": "text",
+    "content": "Now, at 78, you are a YouTube sensation with 70,000 subscribers hanging on your every word. But let’s be honest: **you still hate machines.** Your subconscious rejects anything more complex than a toaster. Every software update feels like a personal attack, and every complicated button reminds you of the engineering degree you happily avoided."
+  },
+  {
+    "type": "text",
+    "content": "That is why I built **Teleprompter Studio PRO** for you."
+  },
+  {
+    "type": "text",
+    "content": "This is not \"tech.\" This is not a motorcycle engine that needs tuning. This is a digital typewriter that listens to you. It is designed for the writer, not the mechanic."
+  },
+  {
+    "type": "text",
+    "content": "Here is how to use your new tool to keep telling your stories, without the headache."
+  },
+  {
+    "type": "text",
+    "content": "---"
+  },
+  {
+    "type": "title",
+    "content": "# Step 1: The Writer’s Room (The Input) ✍️"
+  },
+  {
+    "type": "text",
+    "content": "Open the **Teleprompter Studio** file I sent you. You will see a simple white box."
+  },
+  {
+    "type": "text",
+    "content": "Think of this box as a blank sheet of paper. You can type directly into it, or paste the script you wrote earlier."
+  },
+  {
+    "type": "text",
+    "content": "However, we need to give the machine a few tiny hints so it knows how to act (don't worry, it’s easier than changing a spark plug):"
+  },
+  {
+    "type": "title",
+    "content": "## 1. The Big Headlines (#)"
+  },
+  {
+    "type": "text",
+    "content": "When you are changing topics and need a visual cue, put a **Hashtag** (`#`) before the line."
+  },
+  {
+    "type": "text",
+    "content": "> Example: `# The Truth About History`"
+  },
+  {
+    "type": "text",
+    "content": ">"
+  },
+  {
+    "type": "text",
+    "content": "> *Result:* The screen will turn that text **BLUE** and make it huge. It’s your signpost."
+  },
+  {
+    "type": "title",
+    "content": "## 2. The Director’s Whispers (*)"
+  },
+  {
+    "type": "text",
+    "content": "Do you need to remind yourself to take a breath, sip your coffee, or look at Camera 2? Put an **Asterisk** (`*`) before the line."
+  },
+  {
+    "type": "text",
+    "content": "> Example: `* Pause for dramatic effect and raise an eyebrow`"
+  },
+  {
+    "type": "text",
+    "content": ">"
+  },
+  {
+    "type": "text",
+    "content": "> *Result:* The text will appear in a **YELLOW** box. It’s a silent note just for you; the audience won't hear you say it, but you'll know what to do."
+  },
+  {
+    "type": "title",
+    "content": "## 3. The Story"
+  },
+  {
+    "type": "text",
+    "content": "Everything else—text without symbols—is what you read to your 70,000 fans."
+  },
+  {
+    "type": "text",
+    "content": "> *Result:* Crisp **WHITE** text on a deep black background. Easy on the eyes."
+  },
+  {
+    "type": "text",
+    "content": "---"
+  },
+  {
+    "type": "title",
+    "content": "# Step 2: The Launch (Projecting Live) 🚀"
+  },
+  {
+    "type": "text",
+    "content": "Once your text is in the box, you have two choices. You don't need to install anything. You don't need to configure a server."
+  },
+  {
+    "type": "title",
+    "content": "## Option A: \"Project Live Now\" (The Magic Button)"
+  },
+  {
+    "type": "text",
+    "content": "If you are ready to record *right now*:"
+  },
+  {
+    "type": "text",
+    "content": "1.  Click the big purple button that says **PROJECT LIVE NOW 📺**."
+  },
+  {
+    "type": "text",
+    "content": "2.  *Bam!* A new window opens instantly with your script ready to roll. No saving, no downloading, just action."
+  },
+  {
+    "type": "instruction",
+    "content": "*Note:* If your browser blocks it, just tell it to \"Allow Pop-ups.\" It’s just the browser trying to protect you, like a guard dog barking at the mailman."
+  },
+  {
+    "type": "title",
+    "content": "## Option B: \"Open Text File\" (The Old School Way)"
+  },
+  {
+    "type": "text",
+    "content": "If you have your script saved as a `.txt` file on your computer (because you prefer writing in peace), click the **Open Text File 📂** button, pick your file, and watch the text appear in the box automatically."
+  },
+  {
+    "type": "text",
+    "content": "---"
+  },
+  {
+    "type": "title",
+    "content": "# Step 3: The Performance (Controls for the Non-Techie) 🎥"
+  },
+  {
+    "type": "text",
+    "content": "Whether you open the live window or download the file to share on WhatsApp, the player is designed to be crash-proof (unlike that tank)."
+  },
+  {
+    "type": "text",
+    "content": "Here is your dashboard. It’s simpler than a motorcycle handlebar:"
+  },
+  {
+    "type": "instruction",
+    "content": "🟢 **START / STOP (The Big Button):** Click it to start scrolling. Click it again to pause."
+  },
+  {
+    "type": "instruction",
+    "content": "*Pro Tip for Writers:* You can just tap the **Spacebar** on your keyboard to start and stop. It feels just like typing!"
+  },
+  {
+    "type": "instruction",
+    "content": "⚡ **The Lightning Bolt (Speed):**"
+  },
+  {
+    "type": "instruction",
+    "content": "Is the text running away from you like a scared cat? Click **Minus (-)**."
+  },
+  {
+    "type": "instruction",
+    "content": "Is it crawling like a turtle? Click **Plus (+)**."
+  },
+  {
+    "type": "instruction",
+    "content": "🅰️ **The Letters (Size):**"
+  },
+  {
+    "type": "instruction",
+    "content": "Forgot your reading glasses? No problem. Click the **Plus (+)** next to the letter icon, and the words will grow until they are visible from the moon."
+  },
+  {
+    "type": "instruction",
+    "content": "🔄 **The Circular Arrow (Reset):**"
+  },
+  {
+    "type": "instruction",
+    "content": "Did you fluff the intro? Click this, and the script instantly jumps back to the top."
+  },
+  {
+    "type": "instruction",
+    "content": "💾 **The Floppy Disk (Save):**"
+  },
+  {
+    "type": "instruction",
+    "content": "If you projected the script live and decided, \"Hey, this is good, I want to keep this or send it to my editor,\" click the purple **Save** button. It downloads the file for you."
+  },
+  {
+    "type": "title",
+    "content": "## One Final Secret... 🤫"
+  },
+  {
+    "type": "text",
+    "content": "When you press \"Start,\" the machine **counts to 2** before it moves. It waits for you. It gives you two seconds to compose yourself, fix your collar, and get into character. It respects the artist."
+  },
+  {
+    "type": "text",
+    "content": "---"
+  },
+  {
+    "type": "instruction",
+    "content": "*So, my friend,**"
+  },
+  {
+    "type": "text",
+    "content": "Your father wanted you to engineer machines that move people physically. You chose to write stories that move people emotionally."
+  },
+  {
+    "type": "text",
+    "content": "This tool is the bridge. It’s a machine built by an engineer, but designed entirely for a writer. It has no grease, no gears, and no risk of explosion."
+  },
+  {
+    "type": "text",
+    "content": "Go tell your stories, Arti."
+  },
+  {
+    "type": "instruction",
+    "content": "(And to anyone else reading this: If Arti can use this to run a channel with 70k subscribers, you have absolutely no excuse!)*"
+  }
+];
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      const cover = document.getElementById('cover-screen');
+      const scriptCont = document.getElementById('script-container');
+      const controls = document.getElementById('controls');
+
+      if(cover) {
+         // Fade out cover if JS runs
+         setTimeout(() => {
+             cover.style.opacity = '0';
+             cover.style.pointerEvents = 'none'; 
+             scriptCont.style.opacity = '1';
+             controls.style.opacity = '1';
+             setTimeout(() => cover.remove(), 500); 
+         }, 800);
+      }
+
+      scriptData.forEach(item => {
+          let el;
+          if (item.type === 'title') { el = document.createElement('h2'); el.className = 'timestamp'; }
+          else if (item.type === 'instruction') { el = document.createElement('p'); el.className = 'instruction'; }
+          else { el = document.createElement('p'); el.className = 'speaker-text'; }
+          el.textContent = item.content;
+          scriptCont.appendChild(el);
+      });
+
+      let state = { speedLevel: 3, fontLevel: 3, isScrolling: false };
+      let animationFrameId = null;
+      const btnPlay = document.getElementById('play-pause-btn');
+      const dispSpeed = document.getElementById('speed-display');
+      const dispFont = document.getElementById('font-display');
+
+      function updateFont() { const size = 20 + (state.fontLevel * 5); document.querySelectorAll('.speaker-text, .timestamp').forEach(el => el.style.fontSize = size + 'px'); dispFont.textContent = state.fontLevel; }
+      function loop() { if (!state.isScrolling) return; const pixels = state.speedLevel === 0 ? 0 : (state.speedLevel * 4 + Math.pow(state.speedLevel, 1.8)) / 60; if (pixels > 0) window.scrollBy(0, pixels); animationFrameId = requestAnimationFrame(loop); }
+      function togglePlay() { state.isScrolling = !state.isScrolling; if (state.isScrolling) { btnPlay.textContent = "PAUSA"; btnPlay.classList.add('paused'); loop(); } else { btnPlay.textContent = "INICIAR"; btnPlay.classList.remove('paused'); cancelAnimationFrame(animationFrameId); } }
+
+      document.getElementById('speed-minus').onclick = () => { if (state.speedLevel > 0) state.speedLevel--; dispSpeed.textContent = state.speedLevel; };
+      document.getElementById('speed-plus').onclick = () => { if (state.speedLevel < 20) state.speedLevel++; dispSpeed.textContent = state.speedLevel; };
+      document.getElementById('font-minus').onclick = () => { if (state.fontLevel > 0) state.fontLevel--; updateFont(); };
+      document.getElementById('font-plus').onclick = () => { if (state.fontLevel < 15) state.fontLevel++; updateFont(); };
+      btnPlay.onclick = togglePlay;
+      document.getElementById('reset-btn').onclick = () => { window.scrollTo(0,0); state.isScrolling = false; btnPlay.textContent = "INICIAR"; btnPlay.classList.remove('paused'); cancelAnimationFrame(animationFrameId); };
+      
+      // --- NAMING MAGIC: Use Title from Script ---
+      document.getElementById('save-btn').onclick = () => {
+          const htmlContent = document.documentElement.outerHTML;
+          const blob = new Blob([htmlContent], { type: 'text/html' });
+          
+          // FIND TITLE
+          const titleItem = scriptData.find(i => i.type === 'title');
+          let titleSlug = 'Script';
+          if (titleItem) {
+              // Remove weird chars
+              titleSlug = titleItem.content.replace(/[^a-zA-Z0-9 ]/g, '').trim();
+          }
+          if(!titleSlug) titleSlug = 'Teleprompter';
+
+          const fileName = 'Teleprompter - ' + titleSlug + '.html';
+          
+          const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = fileName;
+          document.body.appendChild(link); link.click(); document.body.removeChild(link);
+      };
+      
+      document.addEventListener('keydown', (e) => { if (e.key === ' ') { e.preventDefault(); togglePlay(); } });
+      scriptCont.addEventListener('click', (e) => { togglePlay(); });
+      updateFont(); dispSpeed.textContent = state.speedLevel;
+      setTimeout(() => { if(!state.isScrolling) togglePlay(); }, 2500);
+    });
+  </script>
+
+</body></html>

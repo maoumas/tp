@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graphic Resources - TranslatedPress</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Oswald:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-color: #121212;
+            --panel-bg: #1e1e1e;
+            --accent-color: #E62117; /* YouTube Red */
+            --text-main: #e0e0e0;
+            --text-muted: #94a3b8;
+            --border-color: #333;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* HEADER */
+        header {
+            background: var(--panel-bg);
+            border-bottom: 2px solid var(--accent-color);
+            padding: 20px;
+            text-align: center;
+        }
+        h1 { margin: 0; font-family: 'Oswald', sans-serif; text-transform: uppercase; letter-spacing: 1px; }
+        p.subtitle { color: var(--text-muted); font-size: 0.9rem; margin-top: 5px; }
+
+        /* MOSAIC GRID */
+        .gallery-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .gallery-item {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            transition: transform 0.2s, border-color 0.2s;
+            cursor: pointer;
+            position: relative;
+            aspect-ratio: 1 / 1; /* Hace que todas sean cuadradas */
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-color);
+            box-shadow: 0 5px 15px rgba(230, 33, 23, 0.2);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Recorta la imagen para llenar el cuadrado sin deformar */
+            transition: transform 0.3s;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.1);
+        }
+
+        .item-name {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            font-size: 0.75rem;
+            padding: 8px;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.2s;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .gallery-item:hover .item-name {
+            opacity: 1;
+        }
+
+        /* LIGHTBOX (Modal) */
+        .lightbox {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .lightbox.active { display: flex; }
+        
+        .lightbox img {
+            max-width: 90%;
+            max-height: 80vh;
+            border: 2px solid var(--accent-color);
+            border-radius: 4px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        
+        .lightbox-caption {
+            margin-top: 15px;
+            color: white;
+            font-family: 'Oswald', sans-serif;
+            font-size: 1.2rem;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 3rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .close-btn:hover { color: var(--accent-color); }
+
+        /* FOOTER */
+        #site-footer {
+            margin-top: auto;
+            padding: 30px 20px;
+            border-top: 1px solid #333;
+            background: var(--panel-bg);
+            text-align: center;
+        }
+        .footer-links a { color: var(--accent-color); text-decoration: none; font-weight: bold; }
+        .footer-links a.gh { color: #FFD700; }
+        .legal { font-size: 0.7rem; color: #555; margin-top: 10px; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Graphic Resources</h1>
+        <p class="subtitle">Repositorio de Arte y Recursos - TranslatedPress</p>
+    </header>
+
+    <div class="gallery-container">
+        <div class="gallery-grid">
+            
+            <div class="gallery-item" onclick="openLightbox('logo-tp.png', 'Logo TranslatedPress')">
+                <img src="logo-tp.png" alt="Logo TP">
+                <div class="item-name">logo-tp.png</div>
+            </div>
+
+            <div class="gallery-item" onclick="openLightbox('maoumas-art.jpg', 'Arte Maoumas')">
+                <img src="maoumas-art.jpg" alt="Arte Maoumas">
+                <div class="item-name">maoumas-art.jpg</div>
+            </div>
+
+            </div>
+    </div>
+
+    <div id="lightbox" class="lightbox" onclick="closeLightbox()">
+        <span class="close-btn">&times;</span>
+        <img id="lightbox-img" src="" alt="">
+        <div id="lightbox-caption" class="lightbox-caption"></div>
+    </div>
+
+    <footer id="site-footer">
+        <div style="color: #888; margin-bottom: 10px;">
+            Entwickelt mit <i class="fa-solid fa-heart" style="color:#E62117;"></i> für die Gemeinschaft von <strong>TranslatedPress</strong>.
+        </div>
+        <div class="footer-links">
+            <a href="https://youtube.com/@translatedpressde" target="_blank"><i class="fa-brands fa-youtube"></i> YouTube</a>
+            <span style="color:#444; margin:0 10px;">|</span>
+            <a href="https://github.com/maoumas" target="_blank" class="gh"><i class="fa-brands fa-github"></i> GitHub</a>
+        </div>
+        <div class="legal">
+            &copy; <span id="year">2025</span> Mauricio Umana. Alle Rechte vorbehalten.
+        </div>
+    </footer>
+
+    <script>
+        // Actualizar año
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Funciones Lightbox
+        const lightbox = document.getElementById('lightbox');
+        const lbImg = document.getElementById('lightbox-img');
+        const lbCap = document.getElementById('lightbox-caption');
+
+        function openLightbox(src, caption) {
+            lbImg.src = src;
+            lbCap.textContent = caption || src;
+            lightbox.classList.add('active');
+        }
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            lbImg.src = '';
+        }
+
+        // Cerrar con tecla ESC
+        document.addEventListener('keydown', function(e) {
+            if(e.key === "Escape") closeLightbox();
+        });
+    </script>
+</body>
+</html>

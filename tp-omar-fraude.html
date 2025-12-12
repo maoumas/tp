@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Teleprompter Live</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { background-color: black; color: white; font-family: 'Inter', sans-serif; margin:0; overflow-x:hidden; cursor: pointer; }
+        
+        /* SCROLL AREA */
+        #script-container { 
+            padding: 20px; 
+            padding-top: 20vh;
+            padding-bottom: 60vh; 
+            max-width: 800px; margin: 0 auto; 
+            line-height: 1.5; 
+            opacity: 1;
+        }
+
+        .speaker-text { font-size: 2.8rem; font-weight: 600; color: #ffffff; margin-bottom: 1.5rem; }
+        .instruction { font-size: 1.5rem; color: #FCD34D; font-style: italic; background: #333; padding: 10px; border-left: 4px solid #F59E0B; margin-bottom: 2rem; }
+        .timestamp { font-size: 2rem; font-weight: 800; color: #60A5FA; border-top: 1px solid #444; padding-top: 2rem; margin-top: 3rem; text-transform: uppercase; }
+
+        /* CONTROL BAR */
+        #controls { 
+            position: fixed; bottom: 0; left: 0; right: 0; 
+            background-color: #111; border-top: 1px solid #333; 
+            padding: 10px; 
+            padding-bottom: env(safe-area-inset-bottom, 10px); 
+            display: flex; align-items: center; gap: 8px; 
+            z-index: 9999;
+            justify-content: center;
+            overflow-x: auto;
+            cursor: default; 
+        }
+
+        @media (max-width: 600px) {
+            #controls { justify-content: flex-start; padding-left: 10px; padding-right: 10px; }
+            .btn-main, #save-btn, #reset-btn { height: 38px !important; min-width: 38px !important; padding: 0 10px !important; }
+            #play-pause-btn { min-width: auto !important; padding: 0 15px !important; font-size: 0.8rem; }
+            .stepper-btn { width: 34px !important; height: 34px !important; }
+            .value-display { font-size: 0.8rem; min-width: 20px; }
+            .speaker-text { font-size: 2rem; }
+        }
+
+        .btn-main { height: 48px; padding: 0 20px; border-radius: 8px; font-weight: 700; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition:0.2s; }
+        #play-pause-btn { background-color: #10B981; min-width: 100px; } 
+        #play-pause-btn.paused { background-color: #EF4444; } 
+        #reset-btn { background-color: #374151; }
+        #save-btn { background-color: #7C3AED; }
+        
+        .control-group { display: flex; align-items: center; gap: 2px; background: #222; padding: 3px; border-radius: 8px; border: 1px solid #444; flex-shrink: 0; }
+        .stepper-btn { width: 44px; height: 44px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; color: white; background: transparent; }
+        .theme-speed .stepper-btn { background: #1E40AF; }
+        .theme-font .stepper-btn { background: #92400E; }
+        .value-display { font-family: monospace; font-weight: bold; min-width: 30px; text-align: center; }
+        .svg-icon { width: 20px; height: 20px; fill: currentColor; }
+    </style>
+</head>
+<body>
+  <div id="script-container"></div>
+  <div id="controls">
+    <button id="play-pause-btn" class="btn-main">START</button>
+    
+    <button id="reset-btn" class="btn-main" title="Inicio"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+
+    <div class="control-group theme-speed"><button class="stepper-btn" id="s-">-</button><div class="value-display" id="s-val">3</div><button class="stepper-btn" id="s+">+</button></div>
+    <div class="control-group theme-font"><button class="stepper-btn" id="f-">-</button><div class="value-display" id="f-val">3</div><button class="stepper-btn" id="f+">+</button></div>
+    
+    <button id="save-btn" class="btn-main" title="Guardar"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg></button>
+  </div>
+  <script>
+    const data = JSON.parse('[{"type":"title","content":"TEIL 1: EINLEITUNG – DER SCHÖNE SCHEIN ZERBRICHT"},{"type":"instruction","content":"Kamerafahrt auf den Moderator. Er sitzt entspannt, ein leichtes, wissendes Lächeln auf den Lippen. Er blättert kurz in Papieren, legt sie ab und schaut direkt in die Linse.*"},{"type":"text","content":"Guten Abend, meine Damen und Herren. Willkommen zurück bei TranslatedPressDE."},{"type":"text","content":"Wissen Sie, es gibt Momente in der Geschichte, in denen man förmlich hören kann, wie eine Illusion zerbricht. Wie Glas, das auf Beton trifft. Jahrelang wurde uns erzählt, Minnesota sei das Vorbild der amerikanischen Freundlichkeit, ein Leuchtturm der Toleranz, regiert von den wohlwollendsten Demokraten, die man sich vorstellen kann. Ein Ort, an dem Milch und Honig fließen – oder besser gesagt: Steuergelder."},{"type":"instruction","content":"Moderator lehnt sich vor, Gesichtsausdruck wird ernster.*"},{"type":"text","content":"Aber heute Abend müssen wir über die Realität sprechen. Und die Realität ist, dass Donald Trump – ja, der Mann, den die Medien so gerne als den Bösewicht darstellen – gerade dabei ist, einen Sumpf trockenzulegen, der so tief und morastig ist, dass man ihn bis nach Berlin riechen kann."},{"type":"text","content":"Wir sprechen über den Zusammenbruch des linken Narrativs. Wir sprechen über Ilhan Omar. Wir sprechen über Tim Walz. Und wir sprechen über den vielleicht größten Betrug am Steuerzahler in der Geschichte der Vereinigten Staaten, finanziert von Ihrer Naivität und orchestriert unter dem Deckmantel der „Wohltätigkeit“."},{"type":"title","content":"TEIL 2: DIE MASKE DER LINKE FÄLLT"},{"type":"instruction","content":"Moderator hebt eine Augenbraue, sarkastischer Unterton.*"},{"type":"text","content":"Haben Sie die Panik bemerkt? Es ist herrlich, nicht wahr? Seit Donald Trump und seine ICE-Beamten – die Einwanderungsbehörde – in Minnesota aufgeräumt haben, herrscht pure Hysterie. Die Linke schreit „Rassismus“. Sie schreien „Fremdenfeindlichkeit“."},{"type":"text","content":"Aber lassen Sie uns kurz innehalten. Wenn Sie nichts Falsches getan haben, warum haben Sie dann Angst?"},{"type":"text","content":"Die Berichte aus Minneapolis sind eindeutig. Die Geschäfte im sogenannten „Little Mogadishu“ sind geschlossen. Die Straßen sind leer. Warum? Weil die Ehrlichen Angst haben? Oder weil das Geschäftsmodell vieler dieser Läden vielleicht nicht auf dem Verkauf von Waren basierte, sondern auf dem Waschen von Geld, das eigentlich für hungernde Kinder gedacht war?"},{"type":"text","content":"Die Linke hat uns jahrelang erzählt, dass Vielfalt unsere Stärke sei. In Minnesota scheint „Vielfalt“ jedoch ein Codewort für organisierte Kriminalität und systematischen Betrug zu sein. Und jetzt, wo eine Administration an der Macht ist, die Gesetze tatsächlich durchsetzt, fällt ihnen die Maske vom Gesicht. Sie nennen es „Grausamkeit“. Ich nenne es: Konsequenzen."},{"type":"title","content":"TEIL 3: TIM WALZ – DER GOUVERNEUR DER AHNUNGSLOSIGKEIT"},{"type":"instruction","content":"Moderator schüttelt den Kopf, als ob er es nicht fassen kann.*"},{"type":"text","content":"Kommen wir zu Tim Walz. Der Gouverneur von Minnesota. Der Mann, der Vizepräsident werden wollte. Der Mann, der sich gerne als der nette Onkel von nebenan gibt."},{"type":"text","content":"Unter seiner Aufsicht – und ich benutze das Wort „Aufsicht“ hier sehr großzügig, denn offensichtlich hat er weggeschaut – geschah der massive Betrug von „Feeding Our Future“. Wir sprechen hier nicht von ein paar Dollar aus der Kaffeekasse. Wir sprechen von Hunderten von Millionen, vielleicht sogar Milliarden von Dollar. Geld, das während der Pandemie dafür gedacht war, Kinder zu ernähren."},{"type":"instruction","content":"Handbewegung, die Geldzählen imitiert.*"},{"type":"text","content":"Aber wurden Kinder ernährt? Nein. Stattdessen sahen wir neue Lamborghinis. Wir sahen Immobilienkäufe in Kenia und der Türkei. Wir sahen Luxusreisen. Und was tat Tim Walz?"},{"type":"text","content":"Hören Sie gut zu: Als Mitarbeiter in seiner Verwaltung Alarm schlugen, als sie sagten „Hier stimmt etwas nicht, diese Zahlen sind unmöglich“, was passierte da? Wurden sie befördert? Nein. Sie wurden zurechtgewiesen. Ihnen wurde gesagt, sie sollen den Prozess nicht aufhalten."},{"type":"text","content":"Tim Walz wusste es. Oder er ist so inkompetent, dass er nicht qualifiziert wäre, einen Limonadenstand zu leiten, geschweige denn einen Bundesstaat. Er hat zugelassen, dass Milliarden gestohlen wurden, weil er Angst hatte, politisch inkorrekt zu wirken. Er hatte Angst, die „sensible“ somalische Gemeinschaft zu verärgern. Und das ist das wahre Gesicht der Demokraten: Sie opfern den Wohlstand ihrer eigenen Bürger auf dem Altar der politischen Korrektheit."},{"type":"title","content":"TEIL 4: ILHAN OMAR – DIE UNANTASTBARE?"},{"type":"instruction","content":"Moderator macht eine kurze Pause, Blick wird scharf und kritisch.*"},{"type":"text","content":"Und nun zum Elefanten im Raum. Ilhan Omar. Die Kongressabgeordnete, die Amerika so sehr zu verachten scheint, obwohl dieses Land sie aus einem Flüchtlingslager gerettet und in den Kongress gehoben hat."},{"type":"text","content":"Es ist faszinierend. Obwohl noch keine formellen Anklagen gegen sie erhoben wurden, führen alle Wege immer wieder zu ihr. Schauen wir uns die Fakten an, ganz nüchtern."},{"type":"text","content":"Dutzende von Personen, die in diesen massiven Betrugsskandal verwickelt sind, stammen aus ihrem Wahlkreis. Mehr noch: Viele von ihnen waren Spender ihrer Kampagne. Tausende von Dollar flossen von diesen Betrügern in ihre Kassen. Ein Zufall? Glauben Sie an Zufälle in der Politik? Ich nicht."},{"type":"text","content":"Wir haben Fotos von ihr, wie sie mit Leuten posiert, die jetzt hinter Gittern sitzen oder zur Fahndung ausgeschrieben sind. Einer ihrer eigenen Mitarbeiter war in den Betrug verwickelt. Und was sagt sie dazu? Sie sagt, sie wusste von nichts. Natürlich. Genau wie Schultz bei „Ein Käfig voller Helden“: „Ich sehe nichts, ich höre nichts, ich weiß nichts.“"},{"type":"instruction","content":"Moderator lacht kurz trocken auf.*"},{"type":"text","content":"Aber es wird noch besser. Erinnern wir uns an die Geschichte, die die Medien so gerne unter den Teppich kehren wollen. Die Geschichte ihres Bruders. Oder sollten wir sagen: Ihres Ehemanns? Es gibt hartnäckige Indizien, dass sie ihren eigenen Bruder geheiratet hat, um ihm den Aufenthalt in den USA zu ermöglichen. Einwanderungsbetrug auf höchster Ebene."},{"type":"text","content":"Trump hat das Thema wieder auf den Tisch gebracht, und sie gerät in Panik. Sie sehen es in ihren Interviews. Die Arroganz bröckelt. Wenn sich herausstellt, dass sie ihre Staatsbürgerschaft durch Betrug erlangt hat, dann, meine Damen und Herren, ist sie nicht nur ihren Sitz im Kongress los. Dann heißt es: Koffer packen."},{"type":"text","content":"Und seien wir ehrlich: Ihre Loyalität scheint ohnehin nicht den Vereinigten Staaten zu gehören. Wir haben Videos gesehen, in denen sie davon spricht, die Interessen Somalias zu vertreten. In denen sie sich verhält, als wäre sie eine Botschafterin Mogadischus und nicht eine Vertreterin Minnesotas. Sie nennt Trump einen Diktator, während sie selbst Teil eines Clansystems ist, das amerikanische Gesetze als bloße Empfehlungen betrachtet."},{"type":"title","content":"TEIL 5: DAS GESCHÄFTSMODELL DER LINKEN – ARMUT UND STIMMEN"},{"type":"instruction","content":"Moderator lehnt sich zurück, gestikuliert erklärend.*"},{"type":"text","content":"Aber warum? Warum lassen Leute wie Walz und Omar das zu? Warum wird dieser Betrug nicht nur toleriert, sondern fast schon gefördert?"},{"type":"text","content":"Es ist einfach. Es geht um Macht. Die Linke hat erkannt, dass ihre Politik der offenen Grenzen und der massiven Sozialhilfe einen wunderbaren Nebeneffekt hat: Sie importieren sich ihre Wähler."},{"type":"text","content":"Sie holen Menschen ins Land, machen sie abhängig vom Staat – also von IHREM Steuergeld – und im Gegenzug erhalten sie bedingungslose Loyalität an der Wahlurne. Es ist ein moderner Feudalismus. Die Demokraten sind die Lehnsherren, die Einwanderer die abhängigen Bauern, und Sie, der Steuerzahler, Sie sind derjenige, der das ganze Theater finanziert."},{"type":"text","content":"In Minneapolis haben wir gesehen, wie das funktioniert. Man nutzt illegale Einwanderung, um Wahlbezirke zu verändern. Man nutzt Gelder, die für Schulen und Essen gedacht waren, um politische Kampagnen zu finanzieren. Es ist ein perfekter Kreislauf der Korruption."},{"type":"text","content":"Und wenn dann jemand wie Trump kommt und sagt: „Moment mal, das ist illegal“, dann schreien sie „Rassismus“. Weil sie keine Argumente haben. Weil sie wissen, dass ihr Geschäftsmodell zusammenbricht, sobald das Gesetz wieder gilt."},{"type":"title","content":"TEIL 6: ICE RÄUMT AUF – ENDLICH GERECHTIGKEIT"},{"type":"instruction","content":"Moderator wirkt zufrieden, fast triumphierend.*"},{"type":"text","content":"Aber zum Glück haben sich die Zeiten geändert. ICE ist zurück. Und sie machen keine Gefangenen – beziehungsweise, sie machen genau das, im wörtlichen Sinne."},{"type":"text","content":"Wir sehen jetzt, wie diese Netzwerke ausgehoben werden. Wir sehen Verhaftungen von Leuten wie Abdul Dahir Ibrahim. Ein Mann, der seit 2004 – seit über zwanzig Jahren! – einen Ausweisungsbefehl hatte. Und trotzdem durfte er bleiben. Er durfte Betrug begehen. Er durfte mit Gouverneur Walz und Ilhan Omar für Fotos posieren."},{"type":"text","content":"Wie ist das möglich? Wie kann jemand, der laut Gerichtsbeschluss das Land verlassen muss, zwei Jahrzehnte lang geschützt werden und Steuergelder abgreifen? Weil die Demokraten es so wollten. Weil sie Gesetze ignorieren, wenn es ihnen nützt."},{"type":"text","content":"Aber jetzt greift Trump durch. Die Razzien laufen. Die Betrüger werden aus ihren Häusern geholt. Und ja, es herrscht Angst. Aber es ist die Angst des Kriminellen vor der Polizei. Und das ist eine gesunde Angst. Das ist die Wiederherstellung von Recht und Ordnung."},{"type":"title","content":"TEIL 7: SCHLUSSWORT – KEIN MITLEID MIT DEN KORRUPTEN"},{"type":"instruction","content":"Moderator sammelt seine Papiere, blickt ernst und eindringlich in die Kamera.*"},{"type":"text","content":"Meine Damen und Herren, lassen Sie sich nicht von den Tränen der Linken täuschen. Was wir in Minnesota sehen, ist keine Tragödie für unschuldige Einwanderer. Es ist das Ende einer Ära der Gesetzlosigkeit."},{"type":"text","content":"Diese Leute haben Milliarden gestohlen. Sie haben das Vertrauen missbraucht, das ihnen entgegengebracht wurde. Sie haben die Gastfreundschaft eines Landes bespuckt, das ihnen alles gegeben hat."},{"type":"text","content":"Ilhan Omar mag noch im Kongress sitzen, aber die Schlinge zieht sich zu. Die Beweise häufen sich. Ihre Verbindungen zu diesem kriminellen Netzwerk sind zu offensichtlich, um sie zu ignorieren. Und Tim Walz? Er wird als der Gouverneur in die Geschichte eingehen, der wegschaute, während sein Staat geplündert wurde."},{"type":"text","content":"Die Party ist vorbei. Die Kreditkarte ist gesperrt. Und der Sheriff ist zurück in der Stadt."},{"type":"text","content":"Bleiben Sie kritisch. Hinterfragen Sie alles, was die Mainstream-Medien Ihnen erzählen. Die Wahrheit ist oft hässlich, aber sie ist notwendig."},{"type":"text","content":"Gute Nacht und bis zum nächsten Mal."},{"type":"instruction","content":"Kamera zoomt langsam raus, Moderator nickt kurz zum Abschied, Licht wird gedimmt.*"}]');
+    const cont = document.getElementById('script-container');
+    data.forEach(i => {
+        let el = document.createElement(i.type==='title'?'h2':i.type==='instruction'?'p':'div');
+        el.className = i.type==='title'?'timestamp':i.type==='instruction'?'instruction':'speaker-text';
+        el.innerText = i.content; cont.appendChild(el);
+    });
+
+    let state = { speed:3, font:3, playing:false };
+    let anim;
+    
+    function update() {
+        document.getElementById('s-val').innerText = state.speed;
+        document.getElementById('f-val').innerText = state.font;
+        const fs = 20 + (state.font * 4);
+        document.querySelectorAll('.speaker-text').forEach(e => e.style.fontSize = fs+'px');
+    }
+    
+    function loop() {
+        if(!state.playing) return;
+        window.scrollBy(0, state.speed * 0.4);
+        anim = requestAnimationFrame(loop);
+    }
+
+    function togglePlay() {
+        state.playing = !state.playing;
+        const btn = document.getElementById('play-pause-btn');
+        btn.innerText = state.playing ? "PAUSE" : "START";
+        btn.classList.toggle('paused', state.playing);
+        if(state.playing) loop(); else cancelAnimationFrame(anim);
+    }
+    
+    // --- EVENTS ---
+    
+    // Play/Pause button
+    document.getElementById('play-pause-btn').onclick = (e) => { e.stopPropagation(); togglePlay(); };
+    
+    // Reset Button Logic
+    document.getElementById('reset-btn').onclick = (e) => { 
+        e.stopPropagation(); 
+        window.scrollTo(0,0); 
+        state.playing=false; 
+        cancelAnimationFrame(anim); 
+        const btn = document.getElementById('play-pause-btn');
+        btn.innerText="START"; 
+        btn.classList.remove('paused'); 
+    };
+
+    // Body click for touch control
+    document.body.onclick = (e) => {
+        if (!e.target.closest('#controls')) togglePlay();
+    };
+
+    // Prevent propagation
+    document.getElementById('controls').onclick = (e) => { e.stopPropagation(); };
+
+    document.getElementById('s-').onclick = () => { if(state.speed>0) state.speed--; update(); };
+    document.getElementById('s+').onclick = () => { if(state.speed<20) state.speed++; update(); };
+    document.getElementById('f-').onclick = () => { if(state.font>0) state.font--; update(); };
+    document.getElementById('f+').onclick = () => { if(state.font<15) state.font++; update(); };
+
+    // Save
+    document.getElementById('save-btn').onclick = () => {
+        const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'teleprompter-recording.html';
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+
+    // Auto-Start
+    setTimeout(() => { if(!state.playing) togglePlay(); }, 2000);
+
+    update();
+  </script>
+</body>
+</html>

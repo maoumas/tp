@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teleprompter Studio - Ultimate</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <style>
+    /* --- VARIABLES --- */
+    :root {
+        --bg-app: #020617; --bg-panel: #172554; --accent: #facc15; 
+        --accent-hover: #eab308; --accent-text: #000000; --text-main: #f8fafc;
+        --text-muted: #94a3b8; --border: #1e3a8a; --input-bg: #0f172a;
+    }
+    body { background-color: var(--bg-app); color: var(--text-main); font-family: 'Inter', sans-serif; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-app); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    
+    /* LAYOUT */
+    .header { padding: 15px 20px; border-bottom: 2px solid var(--accent); background: var(--bg-panel); display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .main-layout { flex: 1; display: flex; padding: 20px; gap: 20px; overflow-y: hidden; min-height: 0; /* Fix for flex child overflow */ }
+    .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 4px; display: flex; flex-direction: column; overflow: hidden; }
+    
+    .editor-section { flex: 2; }
+    .editor-header { background: rgba(0,0,0,0.2); padding: 10px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    textarea { flex: 1; background: var(--input-bg); color: var(--text-main); border: none; padding: 25px; font-family: 'JetBrains Mono', monospace; font-size: 16px; resize: none; outline: none; }
+    
+    .sidebar-section { flex: 1; display: flex; flex-direction: column; gap: 20px; min-width: 300px; max-width: 380px; }
+    .actions-panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 4px; padding: 20px; }
+    
+    .btn { display: inline-flex; justify-content: center; align-items: center; gap: 8px; padding: 12px; border-radius: 4px; font-weight: 800; cursor: pointer; width: 100%; text-transform: uppercase; margin-bottom: 10px; font-size: 0.9rem; }
+    .btn-primary { background: var(--accent); color: var(--accent-text); }
+    .btn-secondary { background: transparent; border: 1px solid var(--text-main); color: var(--text-main); }
+    
+    .status-panel { padding: 20px; background: rgba(0,0,0,0.2); border: 1px dashed var(--accent); border-radius: 4px; margin-top: auto; }
+
+    /* DROPDOWNS */
+    .options-grid { display: flex; gap: 10px; padding: 15px 20px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.1); }
+    .dropdown-wrapper { position: relative; flex: 1; }
+    .dropdown-btn { width: 100%; padding: 10px; background: rgba(0,0,0,0.2); border: 1px solid var(--border); color: var(--text-main); cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; font-weight: 600; border-radius: 4px; }
+    .dropdown-menu { position: absolute; top: 100%; left: 0; width: 100%; background: var(--bg-panel); border: 1px solid var(--border); max-height: 0; overflow: hidden; transition: all 0.2s; z-index: 50; }
+    .dropdown-menu.open { max-height: 200px; margin-top: 2px; }
+    .dropdown-item { padding: 10px; font-size: 0.75rem; color: var(--text-muted); cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .dropdown-item:hover { background: rgba(255,255,255,0.05); color: var(--text-main); }
+    .dropdown-item.selected { color: var(--accent); font-weight: bold; }
+
+    /* FOOTER STYLES */
+    #site-footer { 
+        padding: 15px; 
+        border-top: 1px dashed var(--border); 
+        font-family: 'Inter', sans-serif; 
+        background: var(--bg-panel);
+        flex-shrink: 0;
+        z-index: 10;
+    }
+    #site-footer a { color: var(--accent); text-decoration:none; font-weight: bold; }
+    #site-footer a:hover { text-decoration:underline; }
+
+    @media (max-width: 900px) {
+        body { height: auto; overflow-y: auto; }
+        .main-layout { flex-direction: column; padding: 10px; }
+        .sidebar-section { min-width: 100%; order: 2; }
+        .editor-section { order: 1; min-height: 400px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="flex items-center gap-3">
+        <span class="text-2xl" style="color: var(--accent);"><i class="fa-solid fa-microphone-lines"></i></span>
+        <div>
+            <h1 class="text-lg font-bold tracking-tight" style="color: var(--text-main);">TELEPROMPTER <span style="color: var(--accent);">STUDIO</span></h1>
+            <p class="text-[10px] font-mono" style="color: var(--text-muted);" id="lbl_version">v4.0 // PRO EDITOR</p>
+        </div>
+    </div>
+  </header>
+
+  <div class="main-layout">
+    <div class="panel editor-section">
+        <div class="options-grid">
+            <div class="dropdown-wrapper">
+                <div class="dropdown-btn" onclick="toggleMenu('langMenu')">
+                    <span id="currentLangDisplay"><i class="fa-solid fa-language mr-1"></i> DE</span>
+                    <i class="fa-solid fa-caret-down text-[10px]"></i>
+                </div>
+                <div id="langMenu" class="dropdown-menu">
+                    <div class="dropdown-item selected" onclick="setLang('de', this)">Deutsch</div>
+                    <div class="dropdown-item" onclick="setLang('es', this)">Español</div>
+                    <div class="dropdown-item" onclick="setLang('en', this)">English</div>
+                </div>
+            </div>
+            <div class="dropdown-wrapper">
+                <div class="dropdown-btn" onclick="toggleMenu('themeMenu')">
+                    <span id="currentThemeDisplay">Original</span>
+                    <i class="fa-solid fa-caret-down text-[10px]"></i>
+                </div>
+                <div id="themeMenu" class="dropdown-menu">
+                    <div class="dropdown-item selected" onclick="setTheme('original', this)">Original</div>
+                    <div class="dropdown-item" onclick="setTheme('purple', this)">Nebula</div>
+                    <div class="dropdown-item" onclick="setTheme('light', this)">Daylight</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="editor-header">
+            <h2 class="text-sm font-bold uppercase tracking-widest flex items-center gap-2" style="color: var(--text-main);">
+                <i class="fa-solid fa-file-pen"></i> <span id="lbl_editor">Skript-Editor</span>
+            </h2>
+            <button id="btn_load_example" type="button" class="text-xs underline hover:opacity-80" style="color: var(--text-muted);" onclick="loadExample()">Beispiel laden</button>
+        </div>
+        <textarea id="input" placeholder="# ..."></textarea>
+    </div>
+
+    <div class="sidebar-section">
+        <div class="actions-panel">
+            <h3 id="lbl_actions" class="text-xs font-bold uppercase tracking-wider mb-4" style="color: var(--text-muted);">Aktionen</h3>
+            <input type="file" id="fileImport" accept=".txt,.md,.json" style="display: none;" onchange="importFile(this)">
+            <button id="btn_import" class="btn btn-secondary" onclick="document.getElementById('fileImport').click()"><span>📂</span> Import</button>
+            <div class="my-2 border-t border-b py-2" style="border-color: var(--border);">
+                <button id="btn_live" class="btn btn-primary" onclick="testLive()"><span>▶</span> <span id="lbl_live">LIVE PROJEKTION</span></button>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button class="btn btn-secondary" onclick="generatePDF()"><span>📄</span> PDF</button>
+                <button class="btn btn-secondary" onclick="exportPlayer()"><span>💾</span> HTML</button>
+            </div>
+        </div>
+        <div class="status-panel">
+            <h4 class="text-xs font-bold mb-2 font-mono" style="color: var(--accent);">ENGINE V4.1</h4>
+            <p class="text-[10px] text-gray-400">Added: Reset Button & Mobile Touch.</p>
+        </div>
+    </div>
+  </div>
+
+  <footer id="site-footer">
+    <div class="site-footer-inner" style="text-align:center;">
+      <p style="margin:0; color:var(--text-muted); font-size: 0.9em;">
+        <a href="https://www.youtube.com/@TranslatedPressDE/videos" target="_blank">
+          <i class="fa-brands fa-youtube"></i> YouTube
+        </a>
+        &nbsp;|&nbsp;
+        <a href="https://github.com/maoumas" target="_blank">
+          <i class="fa-brands fa-github"></i> GitHub
+        </a>
+      </p>
+
+      <p data-lang="de" style="display:none; color:var(--text-muted); margin-top:8px; font-size:0.8em;">&copy; <span class="footer-year">2025</span> Mauricio Umana. Alle Rechte vorbehalten.</p>
+      <p data-lang="en" style="display:none; color:var(--text-muted); margin-top:8px; font-size:0.8em;">&copy; <span class="footer-year">2025</span> Mauricio Umana. All rights reserved.</p>
+      <p data-lang="es" style="display:none; color:var(--text-muted); margin-top:8px; font-size:0.8em;">&copy; <span class="footer-year">2025</span> Mauricio Umana. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+
+  <script>
+    (function(){
+      // Dynamic year for Footer
+      const year = new Date().getFullYear();
+      document.querySelectorAll('#site-footer .footer-year').forEach(el => el.textContent = year);
+
+      function updateFooterLang(){
+        const lang = (document.documentElement.lang || 'en').toLowerCase().substring(0,2);
+        document.querySelectorAll('#site-footer [data-lang]').forEach(n => {
+          n.style.display = (n.getAttribute('data-lang') === lang) ? 'block' : 'none';
+        });
+      }
+
+      // run once
+      updateFooterLang();
+
+      // observe changes in <html lang="...">
+      const obs = new MutationObserver(function(muts){
+        muts.forEach(m => { if(m.attributeName === 'lang') updateFooterLang(); });
+      });
+      obs.observe(document.documentElement, { attributes: true });
+    })();
+  </script>
+
+  <div id="print-area" style="display:none;"></div>
+  <script>
+    // --- 1. CONFIGURATION ---
+    const themes = {
+        original: { vars: { '--bg-app':'#020617', '--bg-panel':'#172554', '--accent':'#facc15', '--text-main':'#f8fafc', '--text-muted':'#94a3b8', '--border':'#1e3a8a', '--input-bg':'#0f172a' } },
+        purple: { vars: { '--bg-app':'#1e293b', '--bg-panel':'#334155', '--accent':'#a855f7', '--text-main':'#f1f5f9', '--text-muted':'#cbd5e1', '--border':'#64748b', '--input-bg':'#0f172a' } },
+        light: { vars: { '--bg-app':'#f8fafc', '--bg-panel':'#ffffff', '--accent':'#7c3aed', '--text-main':'#1e293b', '--text-muted':'#64748b', '--border':'#e2e8f0', '--input-bg':'#ffffff' } }
+    };
+
+    const translations = {
+        es: { lbl_editor:"Editor", btn_load_example:"Cargar Ejemplo", lbl_actions:"Acciones", btn_import:"Importar", lbl_live:"PROYECTAR EN VIVO", example_text:"# Título del Programa\n\n* [AUTO-START ACTIVADO]\n\nEl texto comenzará a moverse en 2 segundos.\n\nControles:\n1. Toca la pantalla para PAUSAR/SEGUIR.\n2. Usa el botón RESET para volver al inicio.\n3. Usa GRABAR para guardar el HTML.\n\n* [FIN]" },
+        en: { lbl_editor:"Editor", btn_load_example:"Load Example", lbl_actions:"Actions", btn_import:"Import", lbl_live:"PROJECT LIVE", example_text:"# Show Title\n\n* [AUTO-START ON]\n\nText will scroll automatically in 2 seconds.\n\nControls:\n1. Tap screen to PAUSE/RESUME.\n2. Use RESET button to restart.\n3. Use SAVE to download HTML.\n\n* [END]" },
+        de: { lbl_editor:"Editor", btn_load_example:"Beispiel laden", lbl_actions:"Aktionen", btn_import:"Import", lbl_live:"LIVE PROJIZIEREN", example_text:"# Sendungstitel\n\n* [AUTO-START EIN]\n\nText scrollt automatisch in 2 Sekunden.\n\nSteuerung:\n1. Tippen für PAUSE/WEITER.\n2. RESET-Taste für Neustart.\n3. SPEICHERN für HTML-Download.\n\n* [ENDE]" }
+    };
+    
+    let currentLang = 'de';
+
+    // --- 2. EDITOR LOGIC ---
+    function toggleMenu(id) { document.querySelectorAll('.dropdown-menu').forEach(m => { if(m.id!==id)m.classList.remove('open') }); document.getElementById(id).classList.toggle('open'); }
+    
+    function setLang(lang) { 
+        currentLang = lang;
+        // IMPORTANT: Update HTML tag so footer updates too
+        document.documentElement.lang = lang; 
+        
+        document.getElementById('currentLangDisplay').innerHTML = lang.toUpperCase(); 
+        document.getElementById('langMenu').classList.remove('open');
+        
+        // Update Labels
+        const t = translations[lang];
+        document.getElementById('lbl_editor').innerText = t.lbl_editor;
+        document.getElementById('btn_load_example').innerText = t.btn_load_example;
+        document.getElementById('lbl_actions').innerText = t.lbl_actions;
+        document.getElementById('btn_import').innerHTML = `<span>📂</span> ${t.btn_import}`;
+        document.getElementById('lbl_live').innerText = t.lbl_live;
+        
+        if(document.getElementById('input').value === '') loadExample();
+    }
+
+    function setTheme(key) { const v = themes[key].vars; for(let k in v) document.documentElement.style.setProperty(k, v[k]); document.getElementById('themeMenu').classList.remove('open'); }
+    
+    function loadExample() { 
+        if(translations[currentLang]) {
+            document.getElementById('input').value = translations[currentLang].example_text; 
+        }
+    }
+    
+    function importFile(input) { const f=input.files[0]; if(!f)return; const r=new FileReader(); r.onload=e=>{document.getElementById('input').value=e.target.result}; r.readAsText(f); }
+    
+    // --- 3. PLAYER GENERATOR (Final Version) ---
+    function parseScript() {
+        const raw = document.getElementById('input').value;
+        const lines = raw.split('\n');
+        let data = [];
+        lines.forEach(l => {
+            l=l.trim(); if(!l)return;
+            if(l.startsWith('#')) data.push({type:'title', content:l.substring(1).trim()});
+            else if(l.startsWith('*')) data.push({type:'instruction', content:l.substring(1).trim()});
+            else data.push({type:'text', content:l});
+        });
+        if(data.length===0) data=[{type:'title', content:'READY'},{type:'text', content:'Waiting for text...'}];
+        return JSON.stringify(data).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    }
+
+    function getPlayerHTML(jsonString) {
+        return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Teleprompter Live</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { background-color: black; color: white; font-family: 'Inter', sans-serif; margin:0; overflow-x:hidden; cursor: pointer; }
+        #script-container { padding: 20px; padding-top: 20vh; padding-bottom: 60vh; max-width: 800px; margin: 0 auto; line-height: 1.5; opacity: 1; }
+        .speaker-text { font-size: 2.8rem; font-weight: 600; color: #ffffff; margin-bottom: 1.5rem; }
+        .instruction { font-size: 1.5rem; color: #FCD34D; font-style: italic; background: #333; padding: 10px; border-left: 4px solid #F59E0B; margin-bottom: 2rem; }
+        .timestamp { font-size: 2rem; font-weight: 800; color: #60A5FA; border-top: 1px solid #444; padding-top: 2rem; margin-top: 3rem; text-transform: uppercase; }
+        #controls { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111; border-top: 1px solid #333; padding: 10px; padding-bottom: env(safe-area-inset-bottom, 10px); display: flex; align-items: center; gap: 8px; z-index: 9999; justify-content: center; overflow-x: auto; cursor: default; }
+        @media (max-width: 600px) {
+            #controls { justify-content: flex-start; padding-left: 10px; padding-right: 10px; }
+            .btn-main, #save-btn, #reset-btn { height: 38px !important; min-width: 38px !important; padding: 0 10px !important; }
+            #play-pause-btn { min-width: auto !important; padding: 0 15px !important; font-size: 0.8rem; }
+            .stepper-btn { width: 34px !important; height: 34px !important; }
+            .value-display { font-size: 0.8rem; min-width: 20px; }
+            .speaker-text { font-size: 2rem; }
+        }
+        .btn-main { height: 48px; padding: 0 20px; border-radius: 8px; font-weight: 700; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition:0.2s; }
+        #play-pause-btn { background-color: #10B981; min-width: 100px; } 
+        #play-pause-btn.paused { background-color: #EF4444; } 
+        #reset-btn { background-color: #374151; }
+        #save-btn { background-color: #7C3AED; }
+        .control-group { display: flex; align-items: center; gap: 2px; background: #222; padding: 3px; border-radius: 8px; border: 1px solid #444; flex-shrink: 0; }
+        .stepper-btn { width: 44px; height: 44px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; color: white; background: transparent; }
+        .theme-speed .stepper-btn { background: #1E40AF; }
+        .theme-font .stepper-btn { background: #92400E; }
+        .value-display { font-family: monospace; font-weight: bold; min-width: 30px; text-align: center; }
+        .svg-icon { width: 20px; height: 20px; fill: currentColor; }
+    </style>
+</head>
+<body>
+  <div id="script-container"></div>
+  <div id="controls">
+    <button id="play-pause-btn" class="btn-main">START</button>
+    <button id="reset-btn" class="btn-main" title="Inicio"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+    <div class="control-group theme-speed"><button class="stepper-btn" id="s-">-</button><div class="value-display" id="s-val">3</div><button class="stepper-btn" id="s+">+</button></div>
+    <div class="control-group theme-font"><button class="stepper-btn" id="f-">-</button><div class="value-display" id="f-val">3</div><button class="stepper-btn" id="f+">+</button></div>
+    <button id="save-btn" class="btn-main" title="Guardar"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg></button>
+  </div>
+  <script>
+    const data = JSON.parse('${jsonString}');
+    const cont = document.getElementById('script-container');
+    data.forEach(i => {
+        let el = document.createElement(i.type==='title'?'h2':i.type==='instruction'?'p':'div');
+        el.className = i.type==='title'?'timestamp':i.type==='instruction'?'instruction':'speaker-text';
+        el.innerText = i.content; cont.appendChild(el);
+    });
+    let state = { speed:3, font:3, playing:false };
+    let anim;
+    function update() {
+        document.getElementById('s-val').innerText = state.speed;
+        document.getElementById('f-val').innerText = state.font;
+        const fs = 20 + (state.font * 4);
+        document.querySelectorAll('.speaker-text').forEach(e => e.style.fontSize = fs+'px');
+    }
+    function loop() {
+        if(!state.playing) return;
+        window.scrollBy(0, state.speed * 0.4);
+        anim = requestAnimationFrame(loop);
+    }
+    function togglePlay() {
+        state.playing = !state.playing;
+        const btn = document.getElementById('play-pause-btn');
+        btn.innerText = state.playing ? "PAUSE" : "START";
+        btn.classList.toggle('paused', state.playing);
+        if(state.playing) loop(); else cancelAnimationFrame(anim);
+    }
+    document.getElementById('play-pause-btn').onclick = (e) => { e.stopPropagation(); togglePlay(); };
+    document.getElementById('reset-btn').onclick = (e) => { e.stopPropagation(); window.scrollTo(0,0); state.playing=false; cancelAnimationFrame(anim); const btn = document.getElementById('play-pause-btn'); btn.innerText="START"; btn.classList.remove('paused'); };
+    document.body.onclick = (e) => { if (!e.target.closest('#controls')) togglePlay(); };
+    document.getElementById('controls').onclick = (e) => { e.stopPropagation(); };
+    document.getElementById('s-').onclick = () => { if(state.speed>0) state.speed--; update(); };
+    document.getElementById('s+').onclick = () => { if(state.speed<20) state.speed++; update(); };
+    document.getElementById('f-').onclick = () => { if(state.font>0) state.font--; update(); };
+    document.getElementById('f+').onclick = () => { if(state.font<15) state.font++; update(); };
+    document.getElementById('save-btn').onclick = () => {
+        const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'teleprompter-recording.html';
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+    setTimeout(() => { if(!state.playing) togglePlay(); }, 2000);
+    update();
+  <\/script>
+</body>
+</html>`;
+    }
+
+    function testLive() {
+        const win = window.open('','_blank');
+        if(win) win.document.write(getPlayerHTML(parseScript()));
+    }
+    
+    function exportPlayer() {
+        const blob = new Blob([getPlayerHTML(parseScript())], {type:'text/html'});
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'teleprompter.html';
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    }
+    
+    function generatePDF() { window.print(); }
+
+    // Init with Deutsch
+    document.addEventListener('DOMContentLoaded', () => setLang('de'));
+  </script>
+</body>
+</html>

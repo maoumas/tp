@@ -1,0 +1,8 @@
+# Variables para GitHub OAuth
+GITHUB_CLIENT_ID=tu_client_id
+GITHUB_CLIENT_SECRET=tu_client_secret
+GITHUB_CALLBACK_URL=
+
+# Variables para Azure Speech
+AZURE_KEY=tu_azure_key
+AZURE_REGION=tu_region

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pascaline Manual - Documentación Histórica</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  
+  <style>
+    /* --- VARIABLES DE TEMA (Claro por defecto) --- */
+    :root {
+      --bg: #f5f2ec;          /* Fondo papel antiguo */
+      --text: #222;           /* Texto oscuro */
+      --accent: #c65f2f;      /* Naranja óxido / Histórico */
+      --text-muted: #666;
+      --border: #aaa;
+      --header-bg: #e8e4da;
+    }
+
+    /* --- MODO OSCURO (Dan Mode) --- */
+    body.dark-mode {
+      --bg: #1c1b18;
+      --text: #e7e3d7;
+      --accent: #ffb347;      /* Naranja brillante */
+      --text-muted: #888;
+      --border: #444;
+      --header-bg: #2a2926;
+    }
+
+    /* --- ESTILOS GENERALES --- */
+    body {
+      font-family: 'Georgia', serif; /* Fuente con serifa para toque histórico */
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s, color 0.3s;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* --- HEADER --- */
+    header {
+      background: var(--header-bg);
+      padding: 15px 20px;
+      border-bottom: 2px solid var(--accent);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-title {
+        font-weight: bold;
+        font-size: 1.1em;
+        color: var(--accent);
+    }
+
+    .controls {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+    }
+
+    /* Botones de Idioma */
+    .lang-switch button {
+      border: 1px solid var(--border);
+      background: var(--bg);
+      cursor: pointer;
+      padding: 5px 10px;
+      font-size: 0.9em;
+      color: var(--text);
+      border-radius: 4px;
+      transition: 0.2s;
+    }
+
+    .lang-switch button:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+    }
+
+    .lang-switch button.active {
+      background: var(--accent);
+      color: var(--bg); /* Texto claro sobre fondo acento */
+      border-color: var(--accent);
+      font-weight: bold;
+    }
+
+    /* Botón Modo Oscuro */
+    .mode-toggle {
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 1.2em;
+      color: var(--text);
+    }
+
+    /* --- CONTENIDO PRINCIPAL --- */
+    main {
+        padding: 40px 20px;
+        max-width: 800px;
+        margin: 0 auto;
+        flex: 1; /* Empuja el footer hacia abajo */
+    }
+
+    /* Lógica de visualización por idioma */
+    article[data-lang] { display: none; animation: fadeIn 0.5s; }
+    article[data-lang].active { display: block; }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 { color: var(--accent); font-size: 2em; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    h2 { margin-top: 30px; font-size: 1.4em; color: var(--text); }
+    p { margin-bottom: 15px; text-align: justify; }
+    
+    .highlight-box {
+        background: rgba(0,0,0,0.05);
+        border-left: 4px solid var(--accent);
+        padding: 15px;
+        margin: 20px 0;
+        font-style: italic;
+    }
+
+    /* --- FOOTER --- */
+    #site-footer {
+      margin-top: auto;
+      padding: 30px 20px;
+      border-top: 1px dashed var(--border);
+      text-align: center;
+      background: var(--bg);
+      font-family: sans-serif; /* Footer más moderno */
+    }
+
+    #site-footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: bold;
+    }
+    #site-footer a:hover { text-decoration: underline; }
+    
+    .footer-copy {
+        margin-top: 10px;
+        font-size: 0.85em;
+        color: var(--text-muted);
+    }
+
+    /* Ocultar textos del footer que no son del idioma actual */
+    .footer-lang-text { display: none; }
+    .footer-lang-text.active { display: block; }
+
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-title"><i class="fa-solid fa-calculator"></i> Pascaline Project</div>
+  <div class="controls">
+      <div class="lang-switch">
+        <button data-lang="de" class="active">DE</button>
+        <button data-lang="en">EN</button>
+        <button data-lang="es">ES</button>
+      </div>
+      <button class="mode-toggle" id="toggleMode" title="Toggle Dark Mode">🌙</button>
+  </div>
+</header>
+
+<main>
+
+  <article data-lang="de" class="active">
+    <h1>🇩🇪 Die Pascaline (1642)</h1>
+    
+    <div class="highlight-box">
+        "Die Maschine erledigt die Arbeit, für die der menschliche Geist sonst Stunden bräuchte."
+    </div>
+
+    <h2>1. Historischer Hintergrund</h2>
+    <p>
+      Im Jahr 1642 erfand der damals erst 19-jährige französische Mathematiker und Philosoph <strong>Blaise Pascal</strong> die Pascaline. 
+      Sein Ziel war es, seinem Vater, einem Steuerbeamten in Rouen, die mühsamen und endlosen arithmetischen Berechnungen zu erleichtern.
+      Sie gilt als die erste mechanische Rechenmaschine, die in der Lage war, Überträge (Zehnerübergänge) automatisch durchzuführen.
+    </p>
+
+    <h2>2. Funktionsweise</h2>
+    <p>
+      Die Pascaline funktionierte mit einer Reihe von verknüpften Wählscheiben (ähnlich wie bei alten Telefonen). 
+      Jedes Rad hatte 10 Zähne, die die Ziffern 0 bis 9 repräsentierten. Wenn ein Rad von 9 auf 0 wechselte, 
+      griff ein ausgeklügelter Mechanismus namens "Sautoir" ein, um das benachbarte Rad um eine Position weiterzudrehen.
+    </p>
+
+    <h2>3. Bedeutung</h2>
+    <p>
+      Obwohl sie kommerziell kein großer Erfolg war (sie war zu teuer und empfindlich), legte die Pascaline den Grundstein für die moderne Computertechnik. 
+      Sie bewies, dass Maschinen intellektuelle Aufgaben übernehmen können.
+    </p>
+  </article>
+
+
+  <article data-lang="en">
+    <h1>🇬🇧 The Pascaline (1642)</h1>
+
+    <div class="highlight-box">
+        "The machine does the work that would otherwise take the human mind hours to complete."
+    </div>
+
+    <h2>1. Historical Background</h2>
+    <p>
+      In 1642, the 19-year-old French mathematician and philosopher <strong>Blaise Pascal</strong> invented the Pascaline. 
+      His goal was to help his father, a tax commissioner in Rouen, with tedious and endless arithmetic calculations.
+      It is considered the first mechanical calculator capable of performing carries automatically.
+    </p>
+
+    <h2>2. How it Works</h2>
+    <p>
+      The Pascaline operated using a series of linked dials (similar to old rotary phones). 
+      Each wheel had 10 teeth representing digits 0 through 9. When a wheel moved from 9 to 0, 
+      a clever mechanism called the "sautoir" engaged to advance the adjacent wheel by one position.
+    </p>
+
+    <h2>3. Significance</h2>
+    <p>
+      Although not a huge commercial success (it was too expensive and delicate), the Pascaline laid the foundation for modern computing. 
+      It proved that machines could perform intellectual tasks.
+    </p>
+  </article>
+
+
+  <article data-lang="es">
+    <h1>🇪🇸 La Pascalina (1642)</h1>
+
+    <div class="highlight-box">
+        "La máquina hace el trabajo que a la mente humana le tomaría horas completar."
+    </div>
+
+    <h2>1. Contexto Histórico</h2>
+    <p>
+      En 1642, el matemático y filósofo francés de 19 años, <strong>Blaise Pascal</strong>, inventó la Pascalina. 
+      Su objetivo era ayudar a su padre, un recaudador de impuestos en Ruan, con los tediosos e interminables cálculos aritméticos.
+      Se considera la primera calculadora mecánica capaz de realizar acarreos (llevadas) de forma automática.
+    </p>
+
+    <h2>2. Funcionamiento</h2>
+    <p>
+      La Pascalina funcionaba mediante una serie de ruedas dentadas conectadas (similares a los teléfonos antiguos de disco). 
+      Cada rueda tenía 10 dientes que representaban los dígitos del 0 al 9. Cuando una rueda pasaba del 9 al 0, 
+      un ingenioso mecanismo llamado "sautoir" se activaba para hacer avanzar la rueda adyacente una posición.
+    </p>
+
+    <h2>3. Importancia</h2>
+    <p>
+      Aunque no fue un gran éxito comercial (era demasiado cara y delicada), la Pascalina sentó las bases de la computación moderna. 
+      Demostró que las máquinas podían realizar tareas intelectuales.
+    </p>
+  </article>
+
+</main>
+
+<footer id="site-footer">
+  <div>
+    <a href="https://www.youtube.com/@TranslatedPressDE/videos" target="_blank">
+      <i class="fa-brands fa-youtube"></i> YouTube
+    </a>
+    &nbsp;<span style="color:var(--border)">|</span>&nbsp;
+    <a href="https://github.com/maoumas" target="_blank">
+      <i class="fa-brands fa-github"></i> GitHub
+    </a>
+  </div>
+  
+  <div class="footer-copy">
+      <span class="footer-lang-text active" data-footer-lang="de">&copy; <span class="year"></span> Mauricio Umana. Alle Rechte vorbehalten.</span>
+      <span class="footer-lang-text" data-footer-lang="en">&copy; <span class="year"></span> Mauricio Umana. All rights reserved.</span>
+      <span class="footer-lang-text" data-footer-lang="es">&copy; <span class="year"></span> Mauricio Umana. Todos los derechos reservados.</span>
+  </div>
+</footer>
+
+<script>
+  // 1. Inicialización de Año Dinámico
+  document.querySelectorAll('.year').forEach(el => el.textContent = new Date().getFullYear());
+
+  // 2. Lógica de Cambio de Idioma
+  const langButtons = document.querySelectorAll('.lang-switch button');
+  const articles = document.querySelectorAll('article[data-lang]');
+  const footerTexts = document.querySelectorAll('.footer-lang-text');
+
+  langButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const selectedLang = btn.dataset.lang;
+
+      // A. Cambiar atributo lang del HTML (Importante para accesibilidad y scripts externos)
+      document.documentElement.lang = selectedLang;
+
+      // B. Actualizar botones activos
+      langButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      // C. Mostrar el artículo correspondiente
+      articles.forEach(art => {
+        art.classList.toggle('active', art.dataset.lang === selectedLang);
+      });
+
+      // D. Actualizar el texto del Footer
+      footerTexts.forEach(ft => {
+        ft.classList.toggle('active', ft.dataset.footerLang === selectedLang);
+      });
+    });
+  });
+
+  // 3. Lógica de Modo Oscuro (Dan Mode)
+  const toggleBtn = document.getElementById('toggleMode');
+  
+  // Revisar preferencia guardada
+  if (localStorage.getItem('danMode') === 'on') {
+    document.body.classList.add('dark-mode');
+    toggleBtn.textContent = '☀️';
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    toggleBtn.textContent = isDark ? '☀️' : '🌙';
+    localStorage.setItem('danMode', isDark ? 'on' : 'off');
+  });
+
+</script>
+
+</body>
+</html>

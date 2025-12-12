@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pascaline Manual</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    :root {
+      --bg: #f5f2ec;
+      --text: #222;
+      --accent: #c65f2f;
+      --border: #aaa;
+    }
+
+    body.dark-mode {
+      --bg: #1c1b18;
+      --text: #e7e3d7;
+      --accent: #ffb347;
+      --border: #666;
+    }
+
+    body {
+      font-family: Georgia, serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0 20px;
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      align-items: center;
+    }
+
+    .lang-switch button,
+    .mode-toggle {
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1em;
+      color: var(--accent);
+      margin-left: 10px;
+    }
+
+    .lang-switch button.active {
+      text-decoration: underline;
+    }
+
+    section[data-lang] { display: none; }
+    section[data-lang].active { display: block; }
+
+    h1, h2 {
+      color: var(--accent);
+    }
+
+    footer {
+      margin-top: 40px;
+      padding: 20px 0;
+      border-top: 1px dashed var(--border);
+      text-align: center;
+      font-size: 0.9em;
+      color: var(--text);
+    }
+
+    footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="lang-switch">
+    <button data-lang="de" class="active">🇩🇪 DE</button>
+    <button data-lang="en">🇬🇧 EN</button>
+    <button data-lang="es">🇪🇸 ES</button>
+  </div>
+  <button class="mode-toggle" id="toggleMode">🌙 Dan Mode</button>
+</header>
+
+<!-- GERMAN -->
+<section data-lang="de" class="active">
+  <h1>🇩🇪 Pascaline – Der mechanische Taschenrechner von 1642</h1>
+  <h2>🧠 1. Historischer Hintergrund</h2>
+  <p>Im Jahr 1642 entwickelte der 19-jährige französische Mathematiker <strong>Blaise Pascal</strong> die <strong>Pascaline</strong>...</p>
+</section>
+
+<!-- ENGLISH -->
+<section data-lang="en">
+  <h1>🇬🇧 Pascaline – The Mechanical Calculator from 1642</h1>
+  <h2>🧠 1. Historical Background</h2>
+  <p>In 1642, 19-year-old French mathematician <strong>Blaise Pascal</strong> invented the <strong>Pascaline</strong>...</p>
+</section>
+
+<!-- SPANISH -->
+<section data-lang="es">
+  <h1>🇪🇸 La Pascalina – La calculadora mecánica de 1642</h1>
+  <h2>🧠 1. Antecedentes históricos</h2>
+  <p>En 1642, <strong>Blaise Pascal</strong>, un joven matemático francés de 19 años, inventó la <strong>Pascalina</strong>...</p>
+</section>
+
+<footer id="site-footer">
+  <p>
+    <a href="https://www.youtube.com/@TranslatedPressDE/videos" target="_blank">
+      <i class="fab fa-youtube"></i> YouTube
+    </a>
+    &nbsp;|&nbsp;
+    <a href="https://github.com/maoumas" target="_blank">
+      <i class="fab fa-github"></i> GitHub
+    </a>
+  </p>
+  <p data-lang="de">&copy; <span class="footer-year">2025</span> Mauricio Umana. Alle Rechte vorbehalten.</p>
+  <p data-lang="en" style="display:none;">&copy; <span class="footer-year">2025</span> Mauricio Umana. All rights reserved.</p>
+  <p data-lang="es" style="display:none;">&copy; <span class="footer-year">2025</span> Mauricio Umana. Todos los derechos reservados.</p>
+</footer>
+
+<script>
+  // Language Switcher
+  const langButtons = document.querySelectorAll('.lang-switch button');
+  const sections = document.querySelectorAll('section[data-lang]');
+  const footerLangs = document.querySelectorAll('footer [data-lang]');
+
+  langButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const lang = btn.dataset.lang;
+      document.documentElement.lang = lang;
+
+      langButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      sections.forEach(sec => {
+        sec.classList.toggle('active', sec.dataset.lang === lang);
+      });
+
+      footerLangs.forEach(f => {
+        f.style.display = (f.dataset.lang === lang) ? 'block' : 'none';
+      });
+    });
+  });
+
+  document.querySelectorAll('.footer-year').forEach(el => {
+    el.textContent = new Date().getFullYear();
+  });
+
+  // Dan Mode (Dark Mode) Toggle
+  const toggle = document.getElementById('toggleMode');
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  if (localStorage.getItem('danMode') === 'on' || (prefersDark && !localStorage.getItem('danMode'))) {
+    document.body.classList.add('dark-mode');
+    toggle.textContent = '☀️ Dan Mode';
+  }
+
+  toggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    const isDark = document.body.classList.contains('dark-mode');
+    toggle.textContent = isDark ? '☀️ Dan Mode' : '🌙 Dan Mode';
+    localStorage.setItem('danMode', isDark ? 'on' : 'off');
+  });
+</script>
+
+</body>
+</html>

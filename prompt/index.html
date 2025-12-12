@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grok Video Generator - Professional Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        /* --- THEME VARIABLES (From admin-temp.html) --- */
+        :root {
+            --bg-app: #020617;       
+            --bg-panel: #172554;     
+            --accent: #facc15;       
+            --accent-hover: #eab308; 
+            --accent-text: #000000;  
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;    
+            --border: #1e3a8a;       
+            --input-bg: #0f172a;     
+            --alert: #ef4444;        
+        }
+
+        body {
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* SCROLLBARS */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-app); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* HEADER */
+        .header {
+            padding: 15px 20px;
+            border-bottom: 2px solid var(--accent);
+            background: var(--bg-panel);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            flex-shrink: 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+        
+        @media (min-width: 768px) {
+            .header {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                gap: 0;
+            }
+        }
+
+        /* PANELS */
+        .panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: border-color 0.3s ease;
+        }
+        
+        .panel:hover {
+            border-color: var(--accent);
+        }
+
+        .module-header {
+            background: rgba(0,0,0,0.2);
+            padding: 10px 15px;
+            border-bottom: 1px solid var(--border);
+            color: var(--accent);
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* FORM ELEMENTS */
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-input, select.form-input {
+            width: 100%;
+            background: var(--input-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            padding: 10px 12px;
+            border-radius: 4px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 1px var(--accent);
+        }
+        
+        /* --- FIX: INCREASED OPACITY FOR PLACEHOLDERS --- */
+        .form-input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.8; /* Increased from 0.4 for better visibility */
+        }
+
+        textarea.form-input {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* BUTTONS */
+        .btn {
+            display: inline-flex; justify-content: center; items-center; gap: 8px;
+            padding: 10px 16px;
+            border-radius: 4px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .btn-primary { 
+            background: var(--accent); 
+            color: var(--accent-text); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .btn-primary:hover { background: var(--accent-hover); transform: translateY(-1px); }
+
+        .btn-secondary { 
+            background: transparent; 
+            border: 1px solid var(--border); 
+            color: var(--text-muted); 
+        }
+        .btn-secondary:hover { 
+            background: rgba(255,255,255,0.05); 
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* LANGUAGE TOGGLE */
+        .lang-group {
+            display: flex;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 2px;
+        }
+
+        .lang-btn {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-radius: 2px;
+            transition: all 0.2s;
+        }
+
+        .lang-btn.active {
+            background: var(--accent);
+            color: var(--accent-text);
+        }
+
+        .lang-btn:hover:not(.active) {
+            color: var(--text-main);
+        }
+
+        /* SLIDERS */
+        .range-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: var(--input-bg);
+            border: 1px solid var(--border);
+            outline: none;
+        }
+
+        .range-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: 2px solid var(--bg-panel);
+            transition: transform 0.1s;
+        }
+        
+        .range-slider::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        
+        /* CUSTOM TOGGLE FOR MODULE VI */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--input-bg);
+            border: 1px solid var(--border);
+            transition: .4s;
+            border-radius: 24px;
+        }
+        .slider:before {
+            position: absolute; content: "";
+            height: 16px; width: 16px;
+            left: 3px; bottom: 3px;
+            background-color: var(--text-muted);
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: rgba(250, 204, 21, 0.2); border-color: var(--accent); }
+        input:checked + .slider:before { transform: translateX(20px); background-color: var(--accent); }
+
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="flex items-center gap-4">
+            <span class="text-3xl" style="color: var(--accent);"><i class="fa-solid fa-video"></i></span>
+            <div>
+                <h1 class="text-xl font-bold tracking-tight" style="color: var(--text-main);">GROK <span style="color: var(--accent);">VIDEO GEN</span></h1>
+                <p class="text-[11px] font-mono uppercase tracking-wider" style="color: var(--text-muted);">Channel Translated Press DE</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-bold uppercase tracking-wider" style="color: var(--text-muted);" data-lang-en="Input Lang:" data-lang-es="Idioma:" data-lang-de="Sprache:">Input Lang:</span>
+                <div class="lang-group">
+                    <button class="lang-btn active" data-lang="en">EN</button>
+                    <button class="lang-btn" data-lang="es">ES</button>
+                    <button class="lang-btn" data-lang="de">DE</button>
+                </div>
+            </div>
+            <a href="#" class="hidden md:inline-flex btn btn-secondary text-xs py-1 px-3">
+                <i class="fa-solid fa-users mr-2"></i> Community
+            </a>
+        </div>
+    </header>
+
+    <main class="flex-1 p-4 md:p-8 grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-[1600px] mx-auto w-full">
+
+        <div class="lg:col-span-2 space-y-6">
+
+            <section class="panel">
+                <div class="module-header">
+                    <span data-lang-en="Module I: The Scene" data-lang-es="Módulo I: La Escena" data-lang-de="Modul I: Die Szene">Module I: The Scene</span>
+                    <i class="fa-solid fa-clapperboard opacity-50"></i>
+                </div>
+                <div class="p-5 space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="form-label" data-lang-en="Subject & Action" data-lang-es="Sujeto y Acción" data-lang-de="Subjekt & Aktion">Subject & Action</label>
+                            <input type="text" id="subjectAction" class="form-input" data-ph-en="e.g., A futuristic cyborg woman running..." data-ph-es="ej., Una mujer cíborg futurista corriendo..." data-ph-de="z.B. Eine futuristische Cyborg-Frau rennt...">
+                        </div>
+                        <div>
+                            <label class="form-label" data-lang-en="Context & Location" data-lang-es="Contexto y Ubicación" data-lang-de="Kontext & Ort">Context & Location</label>
+                            <input type="text" id="contextLocation" class="form-input" data-ph-en="e.g., on a rain-slicked neon street in Neo-Tokyo." data-ph-es="ej., en una calle de neón mojada por la lluvia en Neo-Tokyo." data-ph-de="z.B. auf einer regennassen Neonstraße in Neo-Tokio.">
+                        </div>
+                    </div>
+                    <div class="pt-2 border-t border-[var(--border)]">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="form-label mb-0" style="color: var(--accent);" data-lang-en="Token Priority" data-lang-es="Prioridad de Tokens" data-lang-de="Token-Priorität">Token Priority</label>
+                            <span class="text-xs font-mono font-bold" style="color: var(--text-main);" id="tokenValue">100%</span>
+                        </div>
+                        <input type="range" id="tokenPriority" min="100" max="140" value="100" class="range-slider">
+                        <p class="text-[10px] mt-2 italic opacity-60" style="color: var(--text-muted);" data-lang-en="Adjusts core prompt weight to manage audio token allowance." data-lang-es="Ajusta el peso del prompt principal para gestionar la asignación de tokens de audio." data-lang-de="Passt die Gewichtung des Haupt-Prompts an, um die Audio-Token-Zuteilung zu verwalten.">Adjusts core prompt weight to manage audio token allowance.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel">
+                <div class="module-header">
+                    <span data-lang-en="Module II: Visual Style" data-lang-es="Módulo II: Estilo Visual" data-lang-de="Modul II: Visueller Stil">Module II: Visual Style</span>
+                    <i class="fa-solid fa-paintbrush opacity-50"></i>
+                </div>
+                <div class="p-5 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="form-label" data-lang-en="Select Style" data-lang-es="Seleccionar Estilo" data-lang-de="Stil Auswählen">Select Style</label>
+                        <div class="relative">
+                            <select id="visualStyle" class="form-input cursor-pointer">
+                                <option value="" data-lang-en="-- Select Style --" data-lang-es="-- Seleccionar Estilo --" data-lang-de="-- Stil Auswählen --">-- Select Style --</option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-[var(--accent)]">
+                                <i class="fa-solid fa-chevron-down text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="form-label mb-0" data-lang-en="Artistic Weight" data-lang-es="Peso Artístico" data-lang-de="Künstlerische Gewichtung">Artistic Weight</label>
+                            <span class="text-xs font-mono font-bold" style="color: var(--text-main);" id="styleWeightValue">100%</span>
+                        </div>
+                        <input type="range" id="styleWeight" min="0" max="140" value="100" class="range-slider">
+                    </div>
+                </div>
+            </section>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <section class="panel">
+                    <div class="module-header">
+                        <span data-lang-en="Module III: Cinematography" data-lang-es="Módulo III: Cinematografía" data-lang-de="Modul III: Kinematographie">Module III: Cinematography</span>
+                    </div>
+                    <div class="p-5 space-y-4">
+                        <div>
+                            <label class="form-label" data-lang-en="Shot Type" data-lang-es="Tipo de Plano" data-lang-de="Aufnahmetyp">Shot Type</label>
+                            <select id="shotType" class="form-input">
+                                <option value="" data-lang-en="-- Select Shot Type --" data-lang-es="-- Seleccionar Tipo de Plano --" data-lang-de="-- Aufnahmetyp Auswählen --">-- Select Shot Type --</option>
+                                <option value="Extreme Wide Shot" data-lang-en="Extreme Wide Shot" data-lang-es="Plano General Extremo" data-lang-de="Extreme Totale">Extreme Wide Shot</option>
+                                <option value="Wide Shot" data-lang-en="Wide Shot" data-lang-es="Plano General" data-lang-de="Totale">Wide Shot</option>
+                                <option value="Medium Shot" data-lang-en="Medium Shot" data-lang-es="Plano Medio" data-lang-de="Halbtotale">Medium Shot</option>
+                                <option value="Close-up" data-lang-en="Close-up" data-lang-es="Primer Plano" data-lang-de="Nahaufnahme">Close-up</option>
+                                <option value="Extreme Close-up" data-lang-en="Extreme Close-up" data-lang-es="Primerísimo Primer Plano" data-lang-de="Extreme Nahaufnahme">Extreme Close-up</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label" data-lang-en="Lens" data-lang-es="Lente" data-lang-de="Objektiv">Lens</label>
+                            <select id="lens" class="form-input">
+                                <option value="" data-lang-en="-- Select Lens --" data-lang-es="-- Seleccionar Lente --" data-lang-de="-- Objektiv Auswählen --">-- Select Lens --</option>
+                                <option value="16mm Lens">16mm Lens</option>
+                                <option value="35mm Lens">35mm Lens</option>
+                                <option value="50mm Lens">50mm Lens</option>
+                                <option value="85mm Lens">85mm Lens</option>
+                                <option value="Macro Lens">Macro Lens</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <div class="module-header">
+                        <span data-lang-en="Module IV: Light & Atmosphere" data-lang-es="Módulo IV: Luz y Atmósfera" data-lang-de="Modul IV: Licht & Atmosphäre">Module IV: Light & Atmosphere</span>
+                    </div>
+                    <div class="p-5 space-y-4">
+                        <div>
+                            <label class="form-label" data-lang-en="Lighting" data-lang-es="Iluminación" data-lang-de="Beleuchtung">Lighting</label>
+                            <select id="lighting" class="form-input">
+                                <option value="" data-lang-en="-- Select Lighting --" data-lang-es="-- Seleccionar Iluminación --" data-lang-de="-- Beleuchtung Auswählen --">-- Select Lighting --</option>
+                                <option value="Rembrandt Lighting" data-lang-en="Rembrandt Lighting" data-lang-es="Iluminación Rembrandt" data-lang-de="Rembrandt-Beleuchtung">Rembrandt Lighting</option>
+                                <option value="Dramatic Lighting" data-lang-en="Dramatic Lighting" data-lang-es="Iluminación Dramática" data-lang-de="Dramatische Beleuchtung">Dramatic Lighting</option>
+                                <option value="Soft Lighting" data-lang-en="Soft Lighting" data-lang-es="Iluminación Suave" data-lang-de="Weiche Beleuchtung">Soft Lighting</option>
+                                <option value="Neon Lighting" data-lang-en="Neon Lighting" data-lang-es="Iluminación Neón" data-lang-de="Neonbeleuchtung">Neon Lighting</option>
+                                <option value="Natural Light" data-lang-en="Natural Light" data-lang-es="Luz Natural" data-lang-de="Natürliches Licht">Natural Light</option>
+                                <option value="Studio Lighting" data-lang-en="Studio Lighting" data-lang-es="Iluminación de Estudio" data-lang-de="Studiobeleuchtung">Studio Lighting</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label" data-lang-en="Atmosphere/Weather" data-lang-es="Atmósfera/Clima" data-lang-de="Atmosphäre/Wetter">Atmosphere/Weather</label>
+                            <input type="text" id="atmosphere" class="form-input" data-ph-en="e.g., Fog, Rain, Dust..." data-ph-es="ej., Niebla, Lluvia, Polvo..." data-ph-de="z.B. Nebel, Regen, Staub...">
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <section class="panel">
+                <div class="module-header">
+                    <span data-lang-en="Module V: Camera Movement" data-lang-es="Módulo V: Movimiento de Cámara" data-lang-de="Modul V: Kamerabewegung">Module V: Camera Movement</span>
+                    <i class="fa-solid fa-arrows-up-down-left-right opacity-50"></i>
+                </div>
+                <div class="p-5">
+                    <label class="form-label" data-lang-en="Movement" data-lang-es="Movimiento" data-lang-de="Bewegung">Movement</label>
+                    <select id="cameraMovement" class="form-input">
+                        <option value="" data-lang-en="-- Select Movement --" data-lang-es="-- Seleccionar Movimiento --" data-lang-de="-- Bewegung Auswählen --">-- Select Movement --</option>
+                        <option value="Static Shot" data-lang-en="Static Shot" data-lang-es="Plano Estático" data-lang-de="Statische Aufnahme">Static Shot</option>
+                        <option value="Pan Left" data-lang-en="Pan Left" data-lang-es="Panorámica Izquierda" data-lang-de="Schwenk nach Links">Pan Left</option>
+                        <option value="Pan Right" data-lang-en="Pan Right" data-lang-es="Panorámica Derecha" data-lang-de="Schwenk nach Rechts">Pan Right</option>
+                        <option value="Tilt Up" data-lang-en="Tilt Up" data-lang-es="Inclinación Arriba" data-lang-de="Neigen nach Oben">Tilt Up</option>
+                        <option value="Tilt Down" data-lang-en="Tilt Down" data-lang-es="Inclinación Abajo" data-lang-de="Neigen nach Unten">Tilt Down</option>
+                        <option value="Handheld Camera" data-lang-en="Handheld Camera" data-lang-es="Cámara en Mano" data-lang-de="Handkamera">Handheld Camera</option>
+                        <option value="Fast Action Swipe" data-lang-en="Fast Action Swipe" data-lang-es="Barrido de Acción Rápida" data-lang-de="Schneller Aktions-Wisch">Fast Action Swipe</option>
+                        <option value="Drone Shot" data-lang-en="Drone Shot" data-lang-es="Plano de Dron" data-lang-de="Drohnenaufnahme">Drone Shot</option>
+                    </select>
+                </div>
+            </section>
+
+        </div>
+
+        <div class="space-y-6">
+
+            <section class="panel relative">
+                <div class="module-header" style="border-bottom-color: var(--accent);">
+                    <span class="text-[var(--accent)]" data-lang-en="Module VI: Audio System" data-lang-es="Módulo VI: Sistema de Audio" data-lang-de="Modul VI: Audiosystem">Module VI: Audio System</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="audioToggle">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div id="audioControls" class="p-5 space-y-6 opacity-50 pointer-events-none transition-all duration-300">
+                    <div>
+                        <h3 class="text-sm font-bold mb-3 uppercase tracking-wider text-[var(--text-main)]" style="border-bottom: 1px dashed var(--border); padding-bottom: 5px;" data-lang-en="Section A: Environment" data-lang-es="Sección A: Entorno" data-lang-de="Abschnitt A: Umgebung">Section A: Environment</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="form-label" data-lang-en="SFX/Ambience" data-lang-es="Efectos/Ambiente" data-lang-de="SFX/Ambiente">SFX/Ambience</label>
+                                <input type="text" id="sfxAmbience" class="form-input" data-ph-en="e.g., distant sirens, rain on pavement..." data-ph-es="ej., sirenas lejanas, lluvia en el pavimento..." data-ph-de="z.B. ferne Sirenen, Regen auf Asphalt...">
+                            </div>
+                            <div>
+                                <label class="form-label" data-lang-en="Music" data-lang-es="Música" data-lang-de="Musik">Music</label>
+                                <input type="text" id="music" class="form-input" data-ph-en="e.g., dark synthwave, tense underscore..." data-ph-es="ej., synthwave oscuro, música de fondo tensa..." data-ph-de="z.B. dunkler Synthwave, spannende Untermalung...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-[var(--border)]">
+                        <div class="flex items-center mb-3">
+                            <input type="checkbox" id="voiceToggle" class="mr-2 h-4 w-4 rounded border-gray-300 accent-[var(--accent)]">
+                            <label for="voiceToggle" class="text-sm font-bold uppercase tracking-wider cursor-pointer hover:text-[var(--accent)]" data-lang-en="Section B: Voice & Dialogue" data-lang-es="Sección B: Voz y Diálogo" data-lang-de="Abschnitt B: Stimme & Dialog">Section B: Voice & Dialogue</label>
+                        </div>
+                        
+                        <div id="voiceControls" class="space-y-4 opacity-50 pointer-events-none transition-all duration-300 pl-4 border-l-2 border-[var(--border)]">
+                            <div>
+                                <label class="form-label" data-lang-en="Character Name" data-lang-es="Nombre del Personaje" data-lang-de="Charaktername">Character Name</label>
+                                <input type="text" id="characterName" class="form-input" data-ph-en="Must match Subject in Module I" data-ph-es="Debe coincidir con el Sujeto en el Módulo I" data-ph-de="Muss mit dem Subjekt in Modul I übereinstimmen">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="form-label" data-lang-en="Voice Type" data-lang-es="Tipo de Voz" data-lang-de="Stimmtyp">Voice Type</label>
+                                    <select id="voiceType" class="form-input">
+                                        <option value="Male" data-lang-en="Male" data-lang-es="Masculina" data-lang-de="Männlich">Male</option>
+                                        <option value="Female" data-lang-en="Female" data-lang-es="Femenina" data-lang-de="Weiblich">Female</option>
+                                        <option value="Robot" data-lang-en="Robot" data-lang-es="Robot" data-lang-de="Roboter">Robot</option>
+                                        <option value="Child" data-lang-en="Child" data-lang-es="Niño/a" data-lang-de="Kind">Child</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label" data-lang-en="Accent" data-lang-es="Acento" data-lang-de="Akzent">Accent</label>
+                                    <select id="accent" class="form-input">
+                                        <option value="USA" data-lang-en="USA" data-lang-es="EE. UU." data-lang-de="USA">USA</option>
+                                        <option value="UK" data-lang-en="UK" data-lang-es="Reino Unido" data-lang-de="Großbritannien">UK</option>
+                                        <option value="Mexico" data-lang-en="Mexico" data-lang-es="México" data-lang-de="Mexiko">Mexico</option>
+                                        <option value="Spain" data-lang-en="Spain" data-lang-es="España" data-lang-de="Spanien">Spain</option>
+                                        <option value="Argentina" data-lang-en="Argentina" data-lang-es="Argentina" data-lang-de="Argentinien">Argentina</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="form-label" data-lang-en="Emotion" data-lang-es="Emoción" data-lang-de="Emotion">Emotion</label>
+                                <select id="emotion" class="form-input">
+                                    <option value="Neutral" data-lang-en="Neutral" data-lang-es="Neutral" data-lang-de="Neutral">Neutral</option>
+                                    <option value="Angry" data-lang-en="Angry" data-lang-es="Enojado" data-lang-de="Wütend">Angry</option>
+                                    <option value="Happy" data-lang-en="Happy" data-lang-es="Feliz" data-lang-de="Glücklich">Happy</option>
+                                    <option value="Whispering" data-lang-en="Whispering" data-lang-es="Susurrando" data-lang-de="Flüsternd">Whispering</option>
+                                    <option value="Urgent" data-lang-en="Urgent" data-lang-es="Urgente" data-lang-de="Dringend">Urgent</option>
+                                    <option value="Sarcastic" data-lang-en="Sarcastic" data-lang-es="Sarcástico" data-lang-de="Sarkastisch">Sarcastic</option>
+                                </select>
+                            </div>
+                            <div>
+                                <div class="flex justify-between">
+                                    <label class="form-label" data-lang-en="Script (Max 10 words)" data-lang-es="Guion (Máx 10 palabras)" data-lang-de="Skript (Max. 10 Wörter)">Script (Max 10 words)</label>
+                                    <span id="wordCount" class="text-xs font-bold text-[var(--accent)]">0/10</span>
+                                </div>
+                                <textarea id="script" class="form-input h-24 resize-none" data-ph-en="e.g., We have to go now!" data-ph-es="ej., ¡Tenemos que irnos ahora!" data-ph-de="z.B., Wir müssen jetzt gehen!"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="panel sticky top-4 w-full border-[var(--accent)]">
+                <div class="module-header bg-[var(--accent)] text-[var(--accent-text)]">
+                    <span data-lang-en="Module VII: Output" data-lang-es="Módulo VII: Salida" data-lang-de="Modul VII: Ausgabe">Module VII: Output</span>
+                    <i class="fa-solid fa-code"></i>
+                </div>
+                
+                <div class="p-5">
+                    <div class="mb-4 p-3 bg-[var(--input-bg)] border border-[var(--border)] rounded-md">
+                        <h3 class="text-[var(--accent)] text-xs font-bold mb-1 flex items-center uppercase tracking-wider">
+                            <i class="fa-solid fa-robot mr-2"></i> <span data-lang-en="Assistant" data-lang-es="Asistente" data-lang-de="Assistent">Assistant</span>
+                        </h3>
+                        <p id="virtualProfessor" class="text-xs text-[var(--text-muted)] italic" data-lang-en="I'm ready! Fill in the modules to see what we're building..." data-lang-es="¡Estoy listo! Completa los módulos para ver qué estamos construyendo..." data-lang-de="Ich bin bereit! Füllen Sie die Module aus, um zu sehen, was wir bauen...">I'm ready! Fill in the modules to see what we're building...</p>
+                    </div>
+
+                    <textarea id="finalPrompt" class="form-input h-64 resize-none mb-4 font-mono text-sm w-full" readonly style="color: var(--accent);"></textarea>
+                    
+                    <div class="flex flex-col space-y-3">
+                        <button id="generateBtn" class="btn btn-primary w-full py-3" data-lang-en="GENERATE & OPEN" data-lang-es="GENERAR Y ABRIR" data-lang-de="GENERIEREN & ÖFFNEN">GENERATE & OPEN</button>
+                        <div class="grid grid-cols-2 gap-3">
+                            <button id="copyBtn" class="btn btn-secondary" data-lang-en="Copy" data-lang-es="Copiar" data-lang-de="Kopieren">
+                                <i class="fa-regular fa-copy"></i>
+                                <span class="hidden sm:inline" data-lang-en="Copy" data-lang-es="Copiar" data-lang-de="Kopieren">Copy</span>
+                            </button>
+                            <button id="downloadBtn" class="btn btn-secondary" data-lang-en="Download" data-lang-es="Descargar" data-lang-de="Herunterladen">
+                                 <i class="fa-solid fa-download"></i>
+                                <span class="hidden sm:inline">.txt</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+
+    </main>
+
+    <footer id="site-footer">
+      <div class="site-footer-inner" style="text-align:center;">
+        <p style="margin:0; color:var(--text-muted);">
+          <a href="https://www.youtube.com/@TranslatedPressDE/videos" target="_blank" style="color:var(--accent); text-decoration:none;">
+            <i class="fa-brands fa-youtube"></i> YouTube
+          </a>
+          &nbsp;|&nbsp;
+          <a href="https://github.com/maoumas" target="_blank" style="color:var(--accent); text-decoration:none;">
+            <i class="fa-brands fa-github"></i> GitHub
+          </a>
+        </p>
+
+        <p data-lang="de" style="display:none; color:var(--text-muted); margin-top:8px; font-size:0.9em;">&copy; <span class="footer-year">2025</span> Mauricio Umana. Alle Rechte vorbehalten.</p>
+        <p data-lang="en" style="display:none; color:var(--text-muted); margin-top:8px; font-size:0.9em;">&copy; <span class="footer-year">2025</span> Mauricio Umana. All rights reserved.</p>
+        <p data-lang="es" style="display:none; color:var(--text-muted); margin-top:8px; font-size:0.9em;">&copy; <span class="footer-year">2025</span> Mauricio Umana. Todos los derechos reservados.</p>
+      </div>
+
+      <style>
+        #site-footer { margin-top: 40px; padding: 20px 0; border-top: 1px dashed var(--border); font-family: 'Inter', sans-serif; background: var(--bg-panel); }
+        #site-footer a { color: var(--accent); text-decoration:none; font-weight: bold; }
+        #site-footer a:hover { text-decoration:underline; }
+      </style>
+
+      <script>
+        (function(){
+          // Dynamic year
+          const year = new Date().getFullYear();
+          document.querySelectorAll('#site-footer .footer-year').forEach(el => el.textContent = year);
+
+          function updateFooterLang(){
+            const lang = (document.documentElement.lang || 'en').toLowerCase().substring(0,2);
+            document.querySelectorAll('#site-footer [data-lang]').forEach(n => {
+              n.style.display = (n.getAttribute('data-lang') === lang) ? 'block' : 'none';
+            });
+          }
+
+          // run once
+          updateFooterLang();
+
+          // observe changes in <html lang="...">
+          const obs = new MutationObserver(function(muts){
+            muts.forEach(m => { if(m.attributeName === 'lang') updateFooterLang(); });
+          });
+          obs.observe(document.documentElement, { attributes: true });
+        })();
+      </script>
+    </footer>
+
+    <script>
+        // --- Data & Configuration ---
+        const visualStyles = [
+            { value: "Cyberpunk", en: "Cyberpunk", es: "Cyberpunk", de: "Cyberpunk" },
+            { value: "Cinematic", en: "Cinematic", es: "Cinematográfico", de: "Kinoähnlich" },
+            { value: "16mm Film", en: "16mm Film", es: "Película de 16mm", de: "16mm-Film" },
+            { value: "Lego World", en: "Lego World", es: "Mundo Lego", de: "Lego-Welt" },
+            { value: "Pixar Style", en: "Pixar Style", es: "Estilo Pixar", de: "Pixar-Stil" },
+            { value: "Western", en: "Western", es: "Western", de: "Western" },
+            { value: "Anime", en: "Anime", es: "Anime", de: "Anime" },
+            { value: "Realistic", en: "Realistic", es: "Realista", de: "Realistisch" },
+            { value: "Noir", en: "Noir", es: "Cine Negro", de: "Film Noir" },
+            { value: "Documentary", en: "Documentary", es: "Documental", de: "Dokumentarfilm" },
+            { value: "Found Footage", en: "Found Footage", es: "Metraje Encontrado", de: "Found Footage" },
+            { value: "Retro Sci-Fi", en: "Retro Sci-Fi", es: "Ciencia Ficción Retro", de: "Retro-Sci-Fi" },
+            { value: "Fantasy", en: "Fantasy", es: "Fantasía", de: "Fantasie" },
+            { value: "Surreal", en: "Surreal", es: "Surrealista", de: "Surreal" },
+            { value: "Abstract", en: "Abstract", es: "Abstracto", de: "Abstrakt" },
+            { value: "Watercolor", en: "Watercolor", es: "Acuarela", de: "Aquarell" },
+            { value: "Oil Painting", en: "Oil Painting", es: "Pintura al Óleo", de: "Ölgemälde" },
+            { value: "Pixel Art", en: "Pixel Art", es: "Pixel Art", de: "Pixelkunst" },
+            { value: "Gothic", en: "Gothic", es: "Gótico", de: "Gotisch" },
+            { value: "Steampunk", en: "Steampunk", es: "Steampunk", de: "Steampunk" },
+            { value: "Vaporwave", en: "Vaporwave", es: "Vaporwave", de: "Vaporwave" },
+            { value: "Horror", en: "Horror", es: "Terror", de: "Horror" },
+            { value: "Comedic", en: "Comedic", es: "Cómico", de: "Komödie" },
+            { value: "Wes Anderson Style", en: "Wes Anderson Style", es: "Estilo Wes Anderson", de: "Wes Anderson Stil" },
+            { value: "Tarantino Style", en: "Tarantino Style", es: "Estilo Tarantino", de: "Tarantino-Stil" },
+            { value: "Blade Runner Style", en: "Blade Runner Style", es: "Estilo Blade Runner", de: "Blade Runner Stil" }
+        ];
+
+        // --- DOM Elements ---
+        const langBtns = document.querySelectorAll('.lang-btn');
+        const translatableElements = document.querySelectorAll('[data-lang-en]');
+        const translatablePlaceholders = document.querySelectorAll('[data-ph-en]');
+        
+        // Sliders & Values
+        const tokenPriority = document.getElementById('tokenPriority');
+        const tokenValue = document.getElementById('tokenValue');
+        const styleWeight = document.getElementById('styleWeight');
+        const styleWeightValue = document.getElementById('styleWeightValue');
+
+        // Dropdowns
+        const visualStyleSelect = document.getElementById('visualStyle');
+        const shotTypeSelect = document.getElementById('shotType');
+        const lensSelect = document.getElementById('lens');
+        const lightingSelect = document.getElementById('lighting');
+        const cameraMovementSelect = document.getElementById('cameraMovement');
+        const voiceTypeSelect = document.getElementById('voiceType');
+        const accentSelect = document.getElementById('accent');
+        const emotionSelect = document.getElementById('emotion');
+
+
+        // Audio Toggles
+        const audioToggle = document.getElementById('audioToggle');
+        const audioControls = document.getElementById('audioControls');
+        const voiceToggle = document.getElementById('voiceToggle');
+        const voiceControls = document.getElementById('voiceControls');
+        const scriptInput = document.getElementById('script');
+        const wordCountDisplay = document.getElementById('wordCount');
+
+        // Output
+        const virtualProfessor = document.getElementById('virtualProfessor');
+        const finalPrompt = document.getElementById('finalPrompt');
+        const generateBtn = document.getElementById('generateBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        // --- State ---
+        let currentLang = 'en';
+
+        // --- Initialization ---
+        function init() {
+            // Populate Visual Styles with translation data
+            visualStyles.forEach(styleData => {
+                const option = document.createElement('option');
+                option.value = styleData.value;
+                // Store translations in data attributes
+                option.setAttribute('data-lang-en', styleData.en);
+                option.setAttribute('data-lang-es', styleData.es);
+                option.setAttribute('data-lang-de', styleData.de);
+                option.textContent = styleData[currentLang]; // Set initial text
+                visualStyleSelect.appendChild(option);
+            });
+
+            // Event Listeners for Language Buttons
+            langBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    setLanguage(btn.getAttribute('data-lang'));
+                });
+            });
+
+            // Other Event Listeners
+            tokenPriority.addEventListener('input', () => updateSliderValue(tokenPriority, tokenValue));
+            styleWeight.addEventListener('input', () => updateSliderValue(styleWeight, styleWeightValue));
+            audioToggle.addEventListener('change', toggleAudioModule);
+            voiceToggle.addEventListener('change', toggleVoiceModule);
+            scriptInput.addEventListener('input', updateWordCount);
+            generateBtn.addEventListener('click', generatePrompt);
+            copyBtn.addEventListener('click', copyToClipboard);
+            downloadBtn.addEventListener('click', downloadTxt);
+
+            // Initial updates
+            updateWordCount();
+        }
+
+        // --- Functions ---
+
+        // Language Switching
+        function setLanguage(lang) {
+            currentLang = lang;
+            
+            // ACTUALIZACIÓN CLAVE: Cambiar el atributo lang del HTML para que el footer lo detecte
+            document.documentElement.lang = lang;
+
+            // Update active button state
+            langBtns.forEach(btn => {
+                if (btn.getAttribute('data-lang') === lang) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Update text content
+            translatableElements.forEach(el => {
+                el.textContent = el.getAttribute(`data-lang-${lang}`);
+            });
+
+            // Update placeholders
+            translatablePlaceholders.forEach(el => {
+                el.placeholder = el.getAttribute(`data-ph-${lang}`);
+            });
+            
+            // Update Dropdown Options used in visual style select
+            Array.from(visualStyleSelect.options).forEach(option => {
+                 if (option.value !== "") {
+                    option.textContent = option.getAttribute(`data-lang-${lang}`);
+                 }
+            });
+
+
+            updateVirtualProfessor();
+        }
+
+        // Slider Value Update
+        function updateSliderValue(slider, display) {
+            display.textContent = `${slider.value}%`;
+        }
+
+        // Audio Module Toggles
+        function toggleAudioModule() {
+            if (audioToggle.checked) {
+                audioControls.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                audioControls.classList.add('opacity-50', 'pointer-events-none');
+                voiceToggle.checked = false;
+                toggleVoiceModule(); // Ensure voice is also disabled
+            }
+        }
+
+        function toggleVoiceModule() {
+            if (voiceToggle.checked && audioToggle.checked) {
+                voiceControls.classList.remove('opacity-50', 'pointer-events-none');
+            } else {
+                voiceControls.classList.add('opacity-50', 'pointer-events-none');
+            }
+        }
+
+        // Word Count Logic (Strict 10 words)
+        function updateWordCount() {
+            const text = scriptInput.value.trim();
+            const words = text.isEmpty() ? [] : text.split(/\s+/);
+            let count = words.length;
+
+            if (count > 10) {
+                // Truncate and set value back
+                const truncatedWords = words.slice(0, 10);
+                scriptInput.value = truncatedWords.join(" ");
+                count = 10;
+                wordCountDisplay.style.color = 'var(--alert)';
+            } else {
+                wordCountDisplay.style.color = 'var(--accent)';
+            }
+            wordCountDisplay.textContent = `${count}/10`;
+        }
+
+        // String Helper function to check for empty string
+        String.prototype.isEmpty = function() {
+            return (this.length === 0 || !this.trim());
+        };
+
+        // Virtual Professor Update
+        function updateVirtualProfessor() {
+            let message = "";
+            switch(currentLang) {
+                case 'en': message = "I'm waiting for your inputs."; break;
+                case 'es': message = "Estoy esperando tus entradas."; break;
+                case 'de': message = "Ich warte auf Ihre Eingaben."; break;
+            }
+            
+            const subject = document.getElementById('subjectAction').value;
+
+            if (!subject.isEmpty()) {
+                switch(currentLang) {
+                    case 'en': message = `Okay, we are defining a scene about: "${subject}".`; break;
+                    case 'es': message = `Bien, estamos definiendo una escena sobre: "${subject}".`; break;
+                    case 'de': message = `Okay, wir definieren eine Szene über: "${subject}".`; break;
+                }
+                
+                if (audioToggle.checked && voiceToggle.checked && !document.getElementById('characterName').value.isEmpty()) {
+                     switch(currentLang) {
+                        case 'en': message += ` And we are adding dialogue for ${document.getElementById('characterName').value}.`; break;
+                        case 'es': message += ` Y estamos añadiendo diálogo para ${document.getElementById('characterName').value}.`; break;
+                        case 'de': message += ` Und wir fügen einen Dialog für ${document.getElementById('characterName').value} hinzu.`; break;
+                    }
+                }
+            }
+            virtualProfessor.textContent = message;
+        }
+
+        // Core Prompt Generation Logic - ALWAYS IN ENGLISH
+        function generatePrompt() {
+            // Gather Inputs
+            const subject = document.getElementById('subjectAction').value || 'A scene';
+            const context = document.getElementById('contextLocation').value || '';
+            const tokenWeight = tokenPriority.value / 100;
+            
+            let style = visualStyleSelect.value; // value is English
+            const artisticWeight = styleWeight.value / 100;
+
+            const shotType = shotTypeSelect.value; // value is English
+            const lens = lensSelect.value;
+            const lighting = lightingSelect.value; // value is English
+            const atmosphere = document.getElementById('atmosphere').value;
+            const movement = cameraMovementSelect.value; // value is English
+
+            // Build Parts
+            let sceneDescription = subject;
+            if (context) sceneDescription += `, ${context}`;
+
+            // Apply weights
+            let finalScenePart = `(${sceneDescription}:${tokenWeight.toFixed(1)})`;
+            
+            let finalStylePart = style ? `(${style}:${artisticWeight.toFixed(1)})` : '';
+
+            let cameraParts = [];
+            if (shotType) cameraParts.push(shotType);
+            if (lens) cameraParts.push(lens);
+            if (lighting) cameraParts.push(lighting);
+            if (atmosphere) cameraParts.push(atmosphere);
+            if (movement) cameraParts.push(movement);
+            let finalCameraPart = cameraParts.join(", ");
+
+            // Build Base String: [Visual Style] :: [Scene Description] :: [Camera/Light Details]
+            let promptParts = [];
+            if (finalStylePart) promptParts.push(finalStylePart);
+            promptParts.push(finalScenePart);
+            if (finalCameraPart) promptParts.push(finalCameraPart);
+            
+            let fullPrompt = promptParts.join(" :: ");
+
+            // Audio Logic
+            if (audioToggle.checked) {
+                let audioParts = [];
+                const sfx = document.getElementById('sfxAmbience').value;
+                const music = document.getElementById('music').value;
+
+                if (sfx) audioParts.push(`SFX: ${sfx}`);
+                if (music) audioParts.push(`Music: ${music}`);
+                
+                let audioString = audioParts.join(", ");
+
+                // Voice Logic (Anti-Babble Structure)
+                if (voiceToggle.checked) {
+                    const charName = document.getElementById('characterName').value || 'Character';
+                    const vType = voiceTypeSelect.value; // value is English
+                    const vAccent = accentSelect.value; // value is English
+                    const vEmotion = emotionSelect.value; // value is English
+                    const vScript = document.getElementById('script').value;
+
+                    if (vScript && !vScript.isEmpty()) {
+                        // Structure: --audio "[SFX/Music] --voice [Name, Type, Emotion, Accent]: "[Script]""
+                        let voicePart = `--voice [${charName}, ${vType}, ${vEmotion.toLowerCase()}, ${vAccent} accent]: "${vScript}"`;
+                        
+                        if (audioString) {
+                             fullPrompt += ` :: --audio "${audioString} ${voicePart}"`;
+                        } else {
+                             fullPrompt += ` :: --audio "${voicePart}"`;
+                        }
+                    } else if (audioString) {
+                         // Audio enabled but no script provided
+                         fullPrompt += ` :: --audio "${audioString}"`;
+                    }
+                } else if (audioString) {
+                    // Audio enabled, voice disabled
+                    fullPrompt += ` :: --audio "${audioString}"`;
+                }
+            }
+
+            finalPrompt.value = fullPrompt;
+            updateVirtualProfessor();
+            
+            // Add a small animation effect to the text area
+            finalPrompt.style.borderColor = 'var(--accent)';
+            setTimeout(() => {
+                finalPrompt.style.borderColor = 'var(--border)';
+            }, 300);
+
+            // NEW: Copy and Open
+            navigator.clipboard.writeText(fullPrompt).then(() => {
+                window.open('https://grok.com', '_blank');
+            });
+        }
+
+        // Clipboard & Download
+        function copyToClipboard() {
+            finalPrompt.select();
+            document.execCommand('copy');
+            
+            const originalBtnHtml = copyBtn.innerHTML;
+            const copiedText = currentLang === 'en' ? "Copied!" : (currentLang === 'es' ? "¡Copiado!" : "Kopiert!");
+            
+            copyBtn.innerHTML = `<i class="fa-solid fa-check mr-2 text-[var(--accent)]"></i><span class="hidden sm:inline">${copiedText}</span>`;
+            setTimeout(() => {
+                copyBtn.innerHTML = originalBtnHtml;
+            }, 2000);
+        }
+
+        function downloadTxt() {
+            const content = finalPrompt.value;
+            if (content.isEmpty()) {
+                const alertMsg = currentLang === 'en' ? "Please generate a prompt first." : (currentLang === 'es' ? "Por favor, genera un prompt primero." : "Bitte generieren Sie zuerst einen Prompt.");
+                alert(alertMsg);
+                return;
+            }
+            const element = document.createElement('a');
+            const file = new Blob([content], {type: 'text/plain'});
+            element.href = URL.createObjectURL(file);
+            element.download = 'grok-video-prompt.txt';
+            document.body.appendChild(element);
+            element.click();
+            document.body.removeChild(element);
+        }
+
+        // Run init on load
+        window.addEventListener('DOMContentLoaded', init);
+
+    </script>
+</body>
+</html>

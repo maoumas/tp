@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta property="og:title" content="Guía de YouTube Studio: Cómo enlazar videos" />
+    <meta property="og:description" content="Manual paso a paso para añadir pantallas finales con enlaces a tus videos en YouTube Studio. Multilingüe (ES, DE, EN)." />
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://zmau.dev/tutor/youtube_manual_multi.html" />
+    <meta property="og:image" content="https://zmau.dev/tutor/preview.jpg" />
+    <meta property="og:site_name" content="Guías de Arti" />
+    
+    <title>Guía de YouTube Studio: Cómo enlazar videos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f9f9f9;
+        }
+        .yt-button {
+            background-color: #065fd4;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 2px;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            display: inline-block;
+        }
+        .yt-gray-button {
+            background-color: #f0f0f0;
+            color: #606060;
+            padding: 6px 12px;
+            border-radius: 2px;
+            font-weight: 500;
+            border: 1px solid #ccc;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .step-card {
+            transition: transform 0.2s;
+        }
+        .step-card:hover {
+            transform: translateY(-2px);
+        }
+        /* Dropdown styles - CORREGIDO */
+        .dropdown {
+            position: relative; /* Asegura que el menú se posicione relativo a esto */
+            display: inline-block;
+        }
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        /* CORRECCIÓN CLAVE AQUÍ */
+        .dropdown-menu {
+            /* Un margen superior negativo pequeño ayuda a cerrar la brecha */
+            margin-top: 0 !important; 
+            /* Se añade un padding superior transparente invisible para crear un "puente" */
+            padding-top: 10px; 
+            /* Se ajusta la posición para compensar el padding */
+            top: 100%; 
+        }
+        /* El contenido real del menú necesita un fondo y borde, separado del padding invisible */
+        .dropdown-content {
+            background-color: white;
+            border-radius: 0.375rem; /* rounded-md */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-lg */
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 relative">
+
+    <div class="absolute top-4 right-4 z-50">
+        <div class="dropdown">
+            <div>
+                <button type="button" class="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none" id="menu-button" aria-expanded="true" aria-haspopup="true">
+                    <i class="fas fa-globe mr-2 mt-0.5"></i> <span id="current-lang-label">Deutsch</span>
+                    <svg class="-mr-1 ml-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+
+            <div class="dropdown-menu origin-top-right absolute right-0 w-40 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1">
+                <div class="dropdown-content py-1">
+                    <a href="#" onclick="setLanguage('de'); return false;" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Deutsch</a>
+                    <a href="#" onclick="setLanguage('en'); return false;" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">English</a>
+                    <a href="#" onclick="setLanguage('es'); return false;" class="text-gray-700 block px-4 py-2 text-sm hover:bg-gray-100" role="menuitem" tabindex="-1">Español</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="max-w-3xl mx-auto p-6 bg-white shadow-xl my-8 rounded-lg border-t-8 border-red-600">
+        
+        <header class="text-center mb-10 mt-6">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2" data-i18n="mainTitle">Wie man Videos verlinkt</h1>
+            <p class="text-xl text-gray-600" data-i18n="subTitle">YouTube Studio Anleitung für Arti</p>
+            <div class="mt-4 inline-block bg-red-100 text-red-800 px-4 py-1 rounded-full text-sm font-semibold" data-i18n="goalTag">
+                Ziel: Klickbare Links am Ende des Videos
+            </div>
+        </header>
+
+        <div class="step-card bg-white border border-gray-200 rounded-lg p-6 mb-6 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 left-0 bg-red-600 text-white font-bold py-1 px-3 rounded-br-lg" data-i18n="step1Label">Schritt 1</div>
+            <div class="mt-4">
+                <h2 class="text-xl font-bold mb-3" data-i18n="step1Title">YouTube Studio öffnen</h2>
+                <p class="mb-4" data-i18n="step1Text">Gehe zu <strong>YouTube Studio</strong>. Im linken Menü klicke auf:</p>
+                <div class="w-full max-w-xs bg-white border border-gray-300 rounded shadow-inner p-4">
+                    <div class="space-y-2">
+                        <div class="flex items-center text-gray-400"><i class="fas fa-th-large w-6"></i> <span data-i18n="dashboardBtn">Dashboard</span></div>
+                        <div class="flex items-center text-red-600 font-bold bg-red-50 p-2 rounded"><i class="fas fa-video w-6"></i> <span data-i18n="contentBtn">Inhalte</span></div>
+                        <div class="flex items-center text-gray-400"><i class="fas fa-chart-bar w-6"></i> Analytics</div>
+                    </div>
+                </div>
+                <p class="mt-3 text-sm text-gray-500" data-i18n="step1Hint">Klicke dann auf das <strong>Stift-Symbol (Details)</strong> bei dem Video, das du bearbeiten möchtest.</p>
+            </div>
+        </div>
+
+        <div class="step-card bg-white border border-gray-200 rounded-lg p-6 mb-6 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 left-0 bg-red-600 text-white font-bold py-1 px-3 rounded-br-lg" data-i18n="step2Label">Schritt 2</div>
+            <div class="mt-4">
+                <h2 class="text-xl font-bold mb-3" data-i18n="step2Title">Abspann finden</h2>
+                <p class="mb-4" data-i18n="step2Text">Scrolle auf der rechten Seite nach unten, bis du diesen Bereich siehst:</p>
+                <div class="bg-gray-100 p-6 rounded-lg border border-gray-300 flex flex-col gap-4 max-w-sm">
+                    <div class="flex justify-between items-center bg-white p-3 rounded shadow-sm cursor-pointer border border-gray-200 hover:border-blue-400">
+                        <div class="flex flex-col">
+                            <span class="text-sm font-semibold text-gray-700" data-i18n="endScreenBtn">Abspann</span>
+                            <span class="text-xs text-gray-500" data-i18n="endScreenSub">Elemente am Ende hinzufügen</span>
+                        </div>
+                        <i class="fas fa-pen text-gray-400"></i>
+                    </div>
+                </div>
+                <p class="mt-3 text-green-700 font-medium"><i class="fas fa-check-circle"></i> <span data-i18n="step2Action">Klicke auf das Stift-Symbol neben "Abspann".</span></p>
+            </div>
+        </div>
+
+        <div class="step-card bg-white border border-gray-200 rounded-lg p-6 mb-6 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 left-0 bg-red-600 text-white font-bold py-1 px-3 rounded-br-lg" data-i18n="step3Label">Schritt 3</div>
+            <div class="mt-4">
+                <h2 class="text-xl font-bold mb-3" data-i18n="step3Title">Video hinzufügen</h2>
+                <p class="mb-4" data-i18n="step3Text">Ein neues Fenster öffnet sich. Klicke oben links auf:</p>
+                
+                <div class="flex gap-4 items-center mb-6">
+                    <span class="yt-gray-button"><i class="fas fa-plus"></i> <span data-i18n="elementBtn">Element</span></span>
+                    <i class="fas fa-arrow-right text-gray-400"></i>
+                    <span class="font-bold" data-i18n="videoOption">Video</span>
+                </div>
+
+                <p class="mb-2" data-i18n="chooseOptionText">Wähle dann die Option:</p>
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-4">
+                    <div class="flex items-center gap-2 mb-2 text-gray-400">
+                        <i class="far fa-circle"></i> <span data-i18n="recentUpload">Zuletzt hochgeladenes Video</span>
+                    </div>
+                    <div class="flex items-center gap-2 mb-2 text-gray-400">
+                        <i class="far fa-circle"></i> <span data-i18n="bestForViewer">Beste Option für Zuschauer</span>
+                    </div>
+                    <div class="flex items-center gap-2 font-bold text-gray-800">
+                        <i class="fas fa-dot-circle text-blue-600"></i> <span data-i18n="specificVideo">Bestimmtes Video auswählen</span>
+                    </div>
+                </div>
+                <p class="mt-3 text-sm" data-i18n="step3Hint">Wähle jetzt das Video von Zohran/Truthahn aus der Liste aus.</p>
+            </div>
+        </div>
+
+        <div class="step-card bg-white border border-gray-200 rounded-lg p-6 mb-6 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 left-0 bg-red-600 text-white font-bold py-1 px-3 rounded-br-lg" data-i18n="step4Label">Schritt 4</div>
+            <div class="mt-4">
+                <h2 class="text-xl font-bold mb-3" data-i18n="step4Title">Speichern</h2>
+                <p class="mb-4" data-i18n="step4Text1">Schiebe das Video an die gewünschte Stelle auf dem Bildschirm.</p>
+                <p class="mb-4" data-i18n="step4Text2">Zum Schluss klicke oben rechts auf:</p>
+                <div class="text-right">
+                    <span class="yt-button" data-i18n="saveBtn">SPEICHERN</span>
+                </div>
+                <div class="mt-6 p-4 bg-green-100 rounded text-green-800 text-center font-bold">
+                    <i class="fas fa-check"></i> <span data-i18n="finalMsg">Fertig! Der Link ist jetzt im Video.</span>
+                </div>
+            </div>
+        </div>
+
+        <footer class="text-center text-gray-500 text-sm mt-10 border-t pt-4" data-i18n="footer">
+            Erstellt für Arti • YouTube Guide 2025
+        </footer>
+
+    </div>
+
+    <script>
+        const translations = {
+            de: {
+                mainTitle: "Wie man Videos verlinkt",
+                subTitle: "YouTube Studio Anleitung für Arti",
+                goalTag: "Ziel: Klickbare Links am Ende des Videos",
+                step1Label: "Schritt 1",
+                step1Title: "YouTube Studio öffnen",
+                step1Text: "Gehe zu <strong>YouTube Studio</strong>. Im linken Menü klicke auf:",
+                dashboardBtn: "Dashboard",
+                contentBtn: "Inhalte",
+                step1Hint: "Klicke dann auf das <strong>Stift-Symbol (Details)</strong> bei dem Video, das du bearbeiten möchtest.",
+                step2Label: "Schritt 2",
+                step2Title: "Abspann finden",
+                step2Text: "Scrolle auf der rechten Seite nach unten, bis du diesen Bereich siehst:",
+                endScreenBtn: "Abspann",
+                endScreenSub: "Elemente am Ende hinzufügen",
+                step2Action: "Klicke auf das Stift-Symbol neben \"Abspann\".",
+                step3Label: "Schritt 3",
+                step3Title: "Video hinzufügen",
+                step3Text: "Ein neues Fenster öffnet sich. Klicke oben links auf:",
+                elementBtn: "Element",
+                videoOption: "Video",
+                chooseOptionText: "Wähle dann die Option:",
+                recentUpload: "Zuletzt hochgeladenes Video",
+                bestForViewer: "Beste Option für Zuschauer",
+                specificVideo: "Bestimmtes Video auswählen",
+                step3Hint: "Wähle jetzt das Video von Zohran/Truthahn aus der Liste aus.",
+                step4Label: "Schritt 4",
+                step4Title: "Speichern",
+                step4Text1: "Schiebe das Video an die gewünschte Stelle auf dem Bildschirm.",
+                step4Text2: "Zum Schluss klicke oben rechts auf:",
+                saveBtn: "SPEICHERN",
+                finalMsg: "Fertig! Der Link ist jetzt im Video.",
+                footer: "Erstellt für Arti • YouTube Guide 2025"
+            },
+            en: {
+                mainTitle: "How to Link Videos",
+                subTitle: "YouTube Studio Guide for Arti",
+                goalTag: "Goal: Clickable links at the end of the video",
+                step1Label: "Step 1",
+                step1Title: "Open YouTube Studio",
+                step1Text: "Go to <strong>YouTube Studio</strong>. In the left menu click on:",
+                dashboardBtn: "Dashboard",
+                contentBtn: "Content",
+                step1Hint: "Then click on the <strong>Pencil Icon (Details)</strong> for the video you want to edit.",
+                step2Label: "Step 2",
+                step2Title: "Find End Screen",
+                step2Text: "Scroll down on the right side until you see this section:",
+                endScreenBtn: "End screen",
+                endScreenSub: "Add elements to the end",
+                step2Action: "Click on the pencil icon next to \"End screen\".",
+                step3Label: "Step 3",
+                step3Title: "Add Video",
+                step3Text: "A new window opens. Click on the top left on:",
+                elementBtn: "Element",
+                videoOption: "Video",
+                chooseOptionText: "Then choose the option:",
+                recentUpload: "Most recent upload",
+                bestForViewer: "Best for viewer",
+                specificVideo: "Choose specific video",
+                step3Hint: "Now select the Zohran/Turkey video from the list.",
+                step4Label: "Step 4",
+                step4Title: "Save",
+                step4Text1: "Move the video to the desired position on the screen.",
+                step4Text2: "Finally, click on the top right on:",
+                saveBtn: "SAVE",
+                finalMsg: "Done! The link is now in the video.",
+                footer: "Created for Arti • YouTube Guide 2025"
+            },
+            es: {
+                mainTitle: "Cómo enlazar videos",
+                subTitle: "Guía de YouTube Studio para Arti",
+                goalTag: "Objetivo: Enlaces clicables al final del video",
+                step1Label: "Paso 1",
+                step1Title: "Abrir YouTube Studio",
+                step1Text: "Ve a <strong>YouTube Studio</strong>. En el menú de la izquierda haz clic en:",
+                dashboardBtn: "Panel",
+                contentBtn: "Contenido",
+                step1Hint: "Luego haz clic en el <strong>Icono del Lápiz (Detalles)</strong> en el video que quieres editar.",
+                step2Label: "Paso 2",
+                step2Title: "Encontrar Pantalla final",
+                step2Text: "Desplázate hacia abajo en el lado derecho hasta ver esta sección:",
+                endScreenBtn: "Pantalla final",
+                endScreenSub: "Añadir elementos al final",
+                step2Action: "Haz clic en el icono del lápiz junto a \"Pantalla final\".",
+                step3Label: "Paso 3",
+                step3Title: "Añadir Video",
+                step3Text: "Se abre una nueva ventana. Haz clic arriba a la izquierda en:",
+                elementBtn: "Elemento",
+                videoOption: "Video",
+                chooseOptionText: "Elige entonces la opción:",
+                recentUpload: "Video subido más recientemente",
+                bestForViewer: "La mejor opción para el usuario",
+                specificVideo: "Elegir un video específico",
+                step3Hint: "Ahora selecciona el video de Zohran/Pavo de la lista.",
+                step4Label: "Paso 4",
+                step4Title: "Guardar",
+                step4Text1: "Mueve el video a la posición deseada en la pantalla.",
+                step4Text2: "Finalmente, haz clic arriba a la derecha en:",
+                saveBtn: "GUARDAR",
+                finalMsg: "¡Listo! El enlace ya está en el video.",
+                footer: "Creado para Arti • Guía de YouTube 2025"
+            }
+        };
+
+        function setLanguage(lang) {
+            const elements = document.querySelectorAll('[data-i18n]');
+            
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) {
+                    if (el.innerHTML.includes('<strong') || el.innerHTML.includes('<i')) {
+                         if (key === 'step1Text' || key === 'step1Hint') {
+                             el.innerHTML = translations[lang][key];
+                         } else {
+                             el.innerText = translations[lang][key];
+                         }
+                    } else {
+                         el.innerText = translations[lang][key];
+                    }
+                }
+            });
+
+            // Update Dropdown Label
+            const label = document.getElementById('current-lang-label');
+            if (lang === 'de') label.innerText = 'Deutsch';
+            if (lang === 'en') label.innerText = 'English';
+            if (lang === 'es') label.innerText = 'Español';
+
+            // Force close dropdown by removing hover effect temporarily is tricky with pure CSS hover.
+            // The padding trick should solve the usability issue.
+            // Adding 'return false' to onclick links to prevent unwanted scrolling/jumping.
+        }
+    </script>
+</body>
+</html>
