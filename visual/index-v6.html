@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Teleprompter Pro V6 (Offline)</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-app: #000000;
+            --text-main: #ffffff;
+            --panel-bg: #1a1a1a;
+            --accent-green: #2ecc71;
+            --accent-red: #e74c3c;
+            --accent-blue: #3498db;
+            --accent-orange: #e67e22;
+            --accent-purple: #9b59b6;
+            --header-height: 60px;
+            --footer-height: 90px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            height: 100dvh;
+            width: 100vw;
+            overflow: hidden;
+        }
+
+        /* --- ICONOS SVG (Para que funcionen sin internet) --- */
+        svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor; /* Toma el color del texto del botón */
+            display: block;
+        }
+
+        /* --- BARRA SUPERIOR --- */
+        .top-bar {
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--header-height);
+            background-color: var(--panel-bg); border-bottom: 1px solid #333;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 15px; padding-top: env(safe-area-inset-top); z-index: 1000;
+        }
+        .logo { font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; gap: 8px; color: white; }
+        .btn-header {
+            background: #333; color: white; border: 1px solid #555;
+            padding: 6px 12px; border-radius: 6px; font-size: 0.9rem; cursor: pointer;
+            display: flex; align-items: center; gap: 5px;
+        }
+
+        /* --- BARRA INFERIOR --- */
+        .control-bar {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background-color: var(--panel-bg); border-top: 1px solid #333;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            padding: 10px; padding-bottom: calc(15px + env(safe-area-inset-bottom));
+            z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
+        }
+
+        .btn {
+            border: none; color: white; font-weight: bold; border-radius: 10px;
+            height: 46px; width: 46px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; flex-shrink: 0; font-size: 1.1rem;
+        }
+        .btn:active { transform: scale(0.95); opacity: 0.8; }
+        
+        .control-group {
+            display: flex; background: #000; border-radius: 10px;
+            border: 1px solid #333; overflow: hidden; align-items: center; height: 46px;
+        }
+        .display-val { width: 30px; text-align: center; font-size: 0.9rem; color: #ffffff; font-weight: bold; }
+        .btn-mini { width: 40px; height: 100%; background: transparent; color: white; border: none; font-weight: bold; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center;}
+        .btn-mini:active { background-color: rgba(255,255,255,0.1); }
+
+        .btn-start { background-color: var(--accent-green); width: 60px; }
+        .btn-start.paused { background-color: var(--accent-red); }
+        .btn-reset { background-color: #444; }
+        .bg-blue { background-color: var(--accent-blue); }
+        .bg-orange { background-color: var(--accent-orange); }
+        .btn-save { background-color: var(--accent-purple); margin-left: auto;}
+
+        /* --- ÁREA CENTRAL --- */
+        #teleprompter-area {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            overflow-y: auto; scroll-behavior: auto;
+            padding-top: calc(var(--header-height) + 20px);
+            padding-bottom: calc(var(--footer-height) + 80px);
+            padding-left: 20px; padding-right: 20px;
+            -webkit-overflow-scrolling: touch; outline: none;
+        }
+
+        .content-width {
+            max-width: 900px; margin: 0 auto; line-height: 1.6; font-weight: 500; margin-top: 30vh; 
+        }
+
+        .markdown-body h1 { color: #ffeaa7; margin-top: 1em; font-size: 1.6em; }
+        .markdown-body h2 { color: #ffeaa7; margin-top: 1em; font-size: 1.3em; }
+        .markdown-body p { margin-bottom: 1.5em; text-align: left; }
+        
+        .reading-guide {
+            position: fixed; top: 35%; left: 0; width: 100%; height: 0;
+            border-top: 2px dashed rgba(255, 255, 255, 0.2); pointer-events: none; z-index: 500;
+        }
+        .reading-guide::before { content: "▶"; position: absolute; left: 5px; top: -10px; color: var(--accent-green); opacity: 0.5;}
+
+        #status-overlay {
+            position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 100px; height: 100px; color: rgba(255,255,255,0.8); pointer-events: none; z-index: 2000; opacity: 0; transition: opacity 0.3s;
+        }
+        #status-overlay svg { width: 100%; height: 100%; }
+
+        .welcome { text-align: center; color: #777; }
+        @media (max-width: 400px) { .logo span { display: none; } .control-bar { gap: 5px; } }
+    </style>
+</head>
+<body>
+
+    <div style="display: none;">
+        <svg id="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        <svg id="icon-pause" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        <svg id="icon-reset" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+        <svg id="icon-folder" viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+        <svg id="icon-save" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+        <svg id="icon-text" viewBox="0 0 24 24"><path d="M2.5 4v3h5v12h3V7h5V4h-13zm19 5h-9v3h3v7h3v-7h3V9z"/></svg>
+        <svg id="icon-file" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+    </div>
+
+    <nav class="top-bar">
+        <div class="logo">
+            <svg viewBox="0 0 24 24" style="color:var(--accent-blue)"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg>
+            <span>Teleprompter</span>
+        </div>
+        <button class="btn-header" onclick="document.getElementById('fileInput').click()">
+            <svg viewBox="0 0 24 24"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm0 12H4V8h16v10z"/></svg>
+            Abrir
+        </button>
+    </nav>
+
+    <div id="status-overlay">
+        <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    </div>
+    <div class="reading-guide"></div>
+
+    <div id="teleprompter-area" onclick="handleAreaClick(event)">
+        <div id="content" class="content-width markdown-body">
+            <div class="welcome">
+                <h2>Versión V6 (Offline Ready)</h2>
+                <p>Carga tu archivo. Al guardar, los iconos y números funcionarán siempre.</p>
+            </div>
+        </div>
+    </div>
+    
+    <input type="file" id="fileInput" accept=".md,.txt" style="display:none">
+
+    <div class="control-bar">
+        <button class="btn btn-start" id="btnToggle" onclick="toggleScroll(event)">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </button>
+
+        <button class="btn btn-reset" onclick="resetScroll()">
+            <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+        </button>
+
+        <div class="control-group bg-blue">
+            <button class="btn-mini" onclick="adjustSpeed(-1)">-</button>
+            <span class="display-val" id="speedDisplay">4</span>
+            <button class="btn-mini" onclick="adjustSpeed(1)">+</button>
+        </div>
+
+        <div class="control-group bg-orange">
+            <button class="btn-mini" onclick="adjustSize(-2)">-</button>
+            <span class="display-val">
+                <svg viewBox="0 0 24 24" style="width:20px; height:20px"><path d="M2.5 4v3h5v12h3V7h5V4h-13zm19 5h-9v3h3v7h3v-7h3V9z"/></svg>
+            </span>
+            <button class="btn-mini" onclick="adjustSize(2)">+</button>
+        </div>
+
+        <button class="btn btn-save" onclick="saveDocument()">
+            <svg viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+        </button>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN ---
+        let isMobile = window.innerWidth < 768;
+        let fontSize = isMobile ? 24 : 42; 
+        let isScrolling = false;
+        let scrollSpeed = 4; 
+        let animationId;
+        let lastTime = 0;
+        let accumulator = 0;
+        let loadedName = "guion";
+
+        const area = document.getElementById('teleprompter-area');
+        const content = document.getElementById('content');
+        const btnToggle = document.getElementById('btnToggle');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const overlay = document.getElementById('status-overlay');
+
+        content.style.fontSize = fontSize + "px";
+        speedDisplay.innerText = scrollSpeed;
+
+        // SVG STRINGS PARA USO EN JS
+        const svgPlay = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+        const svgPause = '<svg viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>';
+        const svgRotate = '<svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>';
+
+        // --- CARGA ---
+        document.getElementById('fileInput').addEventListener('change', e => {
+            const file = e.target.files[0];
+            if(!file) return;
+            loadedName = file.name.replace(/\.[^/.]+$/, "");
+            const reader = new FileReader();
+            reader.onload = evt => {
+                const md = evt.target.result;
+                try { content.innerHTML = marked.parse(md); } 
+                catch(err) { content.innerText = md; }
+                area.scrollTop = 0;
+                showFeedback(svgRotate);
+                setTimeout(() => startScroll(), 2000);
+            };
+            reader.readAsText(file);
+        });
+
+        // --- INTERACCIÓN ---
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') { e.preventDefault(); toggleScroll(); }
+        });
+        function handleAreaClick(e) {
+            if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.tagName === 'svg' || e.target.tagName === 'path') return;
+            toggleScroll();
+        }
+
+        // --- MOTOR ---
+        function step(timestamp) {
+            if (!isScrolling) return;
+            if (!lastTime) lastTime = timestamp;
+            const delta = timestamp - lastTime;
+            lastTime = timestamp;
+            const pxPerSec = scrollSpeed * 3; 
+            const move = (pxPerSec * delta) / 1000;
+            accumulator += move;
+            if (accumulator >= 1) {
+                const pixelsToScroll = Math.floor(accumulator);
+                area.scrollTop += pixelsToScroll;
+                accumulator -= pixelsToScroll;
+            }
+            if (area.scrollTop + area.clientHeight >= area.scrollHeight - 1) stopScroll();
+            else animationId = requestAnimationFrame(step);
+        }
+
+        function toggleScroll(e) { if(e) e.stopPropagation(); isScrolling ? stopScroll() : startScroll(); }
+        
+        function startScroll() {
+            if(isScrolling) return;
+            isScrolling = true; lastTime = 0; accumulator = 0;
+            btnToggle.innerHTML = svgPause;
+            btnToggle.classList.add('paused'); showFeedback(svgPlay);
+            animationId = requestAnimationFrame(step);
+        }
+
+        function stopScroll() {
+            isScrolling = false; cancelAnimationFrame(animationId);
+            btnToggle.innerHTML = svgPlay;
+            btnToggle.classList.remove('paused'); showFeedback(svgPause);
+        }
+
+        function resetScroll() { stopScroll(); area.scrollTop = 0; accumulator=0; showFeedback(svgRotate); }
+
+        function adjustSpeed(delta) {
+            let s = scrollSpeed + delta;
+            if(s < 1) s = 1; if(s > 50) s = 50;
+            scrollSpeed = s; speedDisplay.innerText = s;
+        }
+
+        function adjustSize(delta) {
+            let s = fontSize + delta;
+            if(s < 12) s = 12; if(s > 150) s = 150;
+            fontSize = s; content.style.fontSize = fontSize + "px";
+        }
+
+        function showFeedback(svgContent) {
+            overlay.innerHTML = svgContent;
+            overlay.style.opacity = "1";
+            overlay.style.transform = "translate(-50%, -50%) scale(1.2)";
+            setTimeout(() => { overlay.style.opacity = "0"; overlay.style.transform = "translate(-50%, -50%) scale(1)"; }, 600);
+        }
+
+        function saveDocument() {
+            const styles = document.querySelector('style').innerHTML;
+            const contentHTML = content.innerHTML;
+            
+            // Aquí construimos el HTML completo con los iconos SVG INCRUSTADOS
+            // No dependemos de variables externas ni librerías
+            
+            const fileContent = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover"><title>${loadedName}</title><style>${styles}</style></head><body>
+            
+            <nav class="top-bar">
+                <div class="logo"><svg viewBox="0 0 24 24" style="color:#3498db; width:24px; height:24px; fill:currentColor"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zM6 20V4h7v5h5v11H6z"/></svg> <span>${loadedName}</span></div>
+            </nav>
+
+            <div id="status-overlay">${svgPlay}</div>
+            <div class="reading-guide"></div>
+
+            <div id="teleprompter-area" onclick="handleAreaClick(event)">
+                <div id="content" class="content-width markdown-body" style="font-size: ${fontSize}px;">${contentHTML}</div>
+            </div>
+
+            <div class="control-bar">
+                <button class="btn btn-start" id="btnToggle" onclick="toggleScroll(event)">${svgPlay}</button>
+                <button class="btn btn-reset" onclick="resetScroll()"><svg viewBox="0 0 24 24" style="width:24px;height:24px;fill:white"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+                
+                <div class="control-group bg-blue">
+                    <button class="btn-mini" onclick="adjustSpeed(-1)">-</button>
+                    <span class="display-val" id="speedDisplay" style="color:white">${scrollSpeed}</span>
+                    <button class="btn-mini" onclick="adjustSpeed(1)">+</button>
+                </div>
+                
+                <div class="control-group bg-orange">
+                    <button class="btn-mini" onclick="adjustSize(-2)">-</button>
+                    <span class="display-val"><svg viewBox="0 0 24 24" style="width:20px; height:20px; fill:white"><path d="M2.5 4v3h5v12h3V7h5V4h-13zm19 5h-9v3h3v7h3v-7h3V9z"/></svg></span>
+                    <button class="btn-mini" onclick="adjustSize(2)">+</button>
+                </div>
+            </div>
+
+            <script>
+            let isMobile=window.innerWidth<768;let isScrolling=false;let scrollSpeed=${scrollSpeed};let fontSize=${fontSize};let animationId;let lastTime=0;let accumulator=0;
+            
+            const area=document.getElementById('teleprompter-area');const content=document.getElementById('content');const btnToggle=document.getElementById('btnToggle');const speedDisplay=document.getElementById('speedDisplay');const overlay=document.getElementById('status-overlay');
+            
+            const svgPlay = '${svgPlay}';
+            const svgPause = '${svgPause}';
+            const svgRotate = '${svgRotate}';
+
+            document.addEventListener('keydown',(e)=>{if(e.code==='Space'){e.preventDefault();toggleScroll()}});
+            function handleAreaClick(e){if(e.target.tagName==='BUTTON'||e.target.tagName==='svg'||e.target.tagName==='path')return;toggleScroll()}
+            
+            function step(timestamp){if(!isScrolling)return;if(!lastTime)lastTime=timestamp;const delta=timestamp-lastTime;lastTime=timestamp;const pxPerSec=scrollSpeed*3;const move=(pxPerSec*delta)/1000;accumulator+=move;if(accumulator>=1){const pixelsToScroll=Math.floor(accumulator);area.scrollTop+=pixelsToScroll;accumulator-=pixelsToScroll}if(area.scrollTop+area.clientHeight>=area.scrollHeight-1)stopScroll();else animationId=requestAnimationFrame(step)}
+            
+            function toggleScroll(e){if(e)e.stopPropagation();isScrolling?stopScroll():startScroll()}
+            function startScroll(){if(isScrolling)return;isScrolling=true;lastTime=0;accumulator=0;btnToggle.innerHTML=svgPause;btnToggle.classList.add('paused');showFeedback(svgPlay);animationId=requestAnimationFrame(step)}
+            function stopScroll(){isScrolling=false;cancelAnimationFrame(animationId);btnToggle.innerHTML=svgPlay;btnToggle.classList.remove('paused');showFeedback(svgPause)}
+            function resetScroll(){stopScroll();area.scrollTop=0;accumulator=0;showFeedback(svgRotate)}
+            function adjustSpeed(delta){let s=scrollSpeed+delta;if(s<1)s=1;if(s>50)s=50;scrollSpeed=s;speedDisplay.innerText=s}
+            function adjustSize(delta){let s=fontSize+delta;if(s<12)s=12;if(s>150)s=150;fontSize=s;content.style.fontSize=fontSize+"px"}
+            function showFeedback(icon){overlay.innerHTML=icon;overlay.style.opacity="1";overlay.style.transform="translate(-50%, -50%) scale(1.2)";setTimeout(()=>{overlay.style.opacity="0";overlay.style.transform="translate(-50%, -50%) scale(1)"},600)}
+            <\/script></body></html>`;
+            
+            const blob = new Blob([fileContent], {type: 'text/html'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = loadedName + "_v6.html";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    </script>
+</body>
+</html>
