@@ -3,230 +3,417 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Visor Markdown Móvil</title>
+    <title>Teleprompter Markdown</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --bg-app: #242424;
-            --bg-sidebar: #1a1a1a;
-            --bg-card: #2b2b2b;
+            --bg-app: #000000; /* Fondo negro puro para teleprompter */
             --text-main: #ffffff;
-            --text-muted: #a0a0a0;
-            --accent-color: #3B8ED0;
-            --accent-hover: #36719f;
-            --border-radius: 10px;
-        }
-
-        [data-theme="light"] {
-            --bg-app: #f0f0f0;
-            --bg-sidebar: #ffffff;
-            --bg-card: #ffffff;
-            --text-main: #333333;
-            --text-muted: #666666;
-            --accent-color: #1F6AA5;
+            --accent-green: #2ecc71;
+            --accent-blue: #3498db;
+            --accent-orange: #e67e22;
+            --accent-purple: #9b59b6;
+            --accent-gray: #34495e;
+            --panel-bg: #1a1a1a;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: sans-serif;
             background-color: var(--bg-app);
             color: var(--text-main);
-            /* Importante: Fija la altura al 100% de la ventana */
             height: 100vh;
-            width: 100vw;
-            display: flex;
-            flex-direction: row; 
-            overflow: hidden; /* Evita scroll en el body completo */
-        }
-
-        /* --- BARRA LATERAL --- */
-        .sidebar {
-            width: 260px;
-            background-color: var(--bg-sidebar);
+            overflow: hidden; /* El body no hace scroll, lo hace el contenedor */
             display: flex;
             flex-direction: column;
-            padding: 20px;
-            border-right: 1px solid rgba(128, 128, 128, 0.1);
-            z-index: 10;
-            flex-shrink: 0; /* Evita que la barra se aplaste */
         }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin-bottom: 30px;
-            color: var(--text-main);
-            display: flex; align-items: center; gap: 8px;
+        /* --- ZONA DE LECTURA --- */
+        #teleprompter-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 40px 20px;
+            /* Espacio gigante abajo para que el texto final suba hasta arriba */
+            padding-bottom: 50vh; 
+            scroll-behavior: auto; /* Importante: auto para que el JS controle el scroll pixel a pixel */
+        }
+
+        .content-width {
+            max-width: 900px;
+            margin: 0 auto;
+            line-height: 1.6;
+            /* El tamaño de fuente se controla por JS */
+            transition: font-size 0.2s;
+        }
+
+        /* Estilos Markdown básicos para alto contraste */
+        .markdown-body h1, .markdown-body h2 { color: #ffeaa7; margin-top: 1.5em; border-bottom: none; }
+        .markdown-body p { margin-bottom: 1.5em; }
+        .markdown-body ul { margin-left: 20px; margin-bottom: 1.5em; }
+
+        /* --- BARRA DE CONTROLES INFERIOR --- */
+        .control-bar {
+            height: 80px;
+            background-color: var(--panel-bg);
+            border-top: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            padding: 10px;
+            z-index: 100;
+            flex-shrink: 0;
+            overflow-x: auto; /* Scroll horizontal si la pantalla es muy pequeña */
+        }
+
+        /* Grupos de botones */
+        .control-group {
+            display: flex;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #333;
+            align-items: center;
         }
 
         .btn {
-            background-color: var(--accent-color);
-            color: white;
             border: none;
-            padding: 12px 20px;
-            border-radius: 6px;
-            font-size: 0.95rem;
+            color: white;
+            font-weight: bold;
+            font-size: 1.2rem;
             cursor: pointer;
-            transition: background 0.2s;
-            font-weight: 500;
-            text-align: center;
-            width: 100%;
-        }
-        .btn:hover { background-color: var(--accent-hover); }
-
-        .spacer { flex: 1; }
-        .controls { display: flex; flex-direction: column; gap: 10px; }
-        
-        select {
-            width: 100%; padding: 8px; border-radius: 6px;
-            background-color: var(--bg-app); color: var(--text-main);
-            border: 1px solid rgba(128,128,128,0.3);
-        }
-
-        /* --- CONTENEDOR PRINCIPAL --- */
-        .main-content {
-            flex: 1; /* Toma el espacio restante */
+            width: 50px;
+            height: 50px;
             display: flex;
-            flex-direction: column;
-            /* CRUCIAL: min-height: 0 permite que el hijo (card) haga scroll */
-            min-height: 0; 
-            min-width: 0;
-            position: relative;
-            padding: 20px;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s;
+        }
+        .btn:active { opacity: 0.7; }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .display-val {
+            width: 30px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: bold;
+            color: #ccc;
+            user-select: none;
         }
 
-        .markdown-card {
-            background-color: var(--bg-card);
-            border-radius: var(--border-radius);
-            padding: 40px;
-            max-width: 900px;
-            width: 100%;
-            margin: 0 auto;
-            
-            /* --- MAGIA DEL SCROLL --- */
-            flex: 1; /* Ocupa todo el alto disponible */
-            overflow-y: auto; /* Activa el scroll vertical */
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch; /* Scroll suave en iPhone/Android */
-            
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
+        /* Colores Específicos */
+        .btn-start { background-color: var(--accent-green); width: 80px; border-radius: 12px; font-size: 1rem; gap: 5px;}
+        .btn-reset { background-color: var(--accent-gray); border-radius: 12px; margin-right: 10px; }
+        .bg-blue { background-color: var(--accent-blue); }
+        .bg-orange { background-color: var(--accent-orange); }
+        .btn-save { background-color: var(--accent-purple); border-radius: 12px; margin-left: 10px; }
 
+        /* Input de archivo oculto */
         #fileInput { display: none; }
+        
+        /* Mensaje inicial */
+        .welcome-msg { text-align: center; margin-top: 20vh; color: #777; }
+        .welcome-msg h1 { color: #fff; margin-bottom: 10px; }
 
-        /* Estilos Markdown */
-        .markdown-body { line-height: 1.6; font-size: 16px; padding-bottom: 50px; } /* padding-bottom extra para leer el final cómodo */
-        .markdown-body h1 { font-size: 1.8em; border-bottom: 1px solid rgba(128,128,128,0.2); padding-bottom: 0.3em; margin-top: 0; color: var(--accent-color); }
-        .markdown-body h2 { margin-top: 24px; color: var(--accent-color); }
-        .markdown-body p { margin-bottom: 16px; }
-        .markdown-body code { background-color: rgba(128,128,128,0.2); padding: 2px 4px; border-radius: 4px; font-family: monospace; }
-        .markdown-body pre { background-color: rgba(0,0,0,0.3); padding: 16px; border-radius: 8px; overflow-x: auto; max-width: 100%; }
-        .markdown-body img { max-width: 100%; height: auto; border-radius: 8px; }
-
-        /* =========================================
-           DISEÑO RESPONSIVO (MÓVIL)
-           ========================================= */
-        @media (max-width: 768px) {
-            body {
-                flex-direction: column; /* Apilar verticalmente */
-            }
-
-            .sidebar {
-                width: 100%;
-                /* Altura fija para la barra superior en móvil */
-                height: 70px; 
-                flex-direction: row;
-                align-items: center;
-                padding: 10px 15px;
-                border-right: none;
-                border-bottom: 1px solid rgba(128, 128, 128, 0.1);
-            }
-
-            .logo { margin-bottom: 0; font-size: 1.1rem; white-space: nowrap;}
-            
-            .btn {
-                width: auto; padding: 8px 12px; font-size: 0.8rem;
-            }
-
-            .spacer, .controls label { display: none; }
-            
-            .controls { flex-direction: row; width: auto; }
-            select { padding: 6px; width: auto; font-size: 0.8rem;}
-
-            .main-content {
-                padding: 10px;
-                /* Asegura que el contenido ocupe el resto de la pantalla menos la barra */
-                height: calc(100vh - 70px); 
-            }
-
-            .markdown-card {
-                padding: 20px;
-                padding-bottom: 80px; /* Espacio extra al final para scroll cómodo en móvil */
-            }
+        /* GUIDELINE PARA EL USUARIO (Linea de lectura) */
+        .reading-guide {
+            position: fixed;
+            top: 35%;
+            left: 0;
+            width: 100%;
+            height: 0px;
+            border-top: 2px dashed rgba(255, 255, 255, 0.2);
+            pointer-events: none;
+            z-index: 50;
         }
+        /* Flecha indicadora al lado */
+        .reading-guide::before {
+            content: "▶";
+            position: absolute;
+            left: 10px;
+            top: -12px;
+            color: var(--accent-green);
+            opacity: 0.5;
+        }
+
     </style>
 </head>
 <body>
 
-    <aside class="sidebar">
-        <div class="logo">📄 MD Viewer</div>
-        
-        <div style="display:flex; gap:10px; align-items:center; margin-left: auto;">
-            <div class="controls">
-                <select id="themeSelector" onchange="toggleTheme(this.value)">
-                    <option value="dark">🌙</option>
-                    <option value="light">☀️</option>
-                </select>
-            </div>
-            <button class="btn" onclick="triggerFileInput()">Abrir</button>
-        </div>
-        
-        <input type="file" id="fileInput" accept=".md,.txt,.markdown">
-    </aside>
+    <div class="reading-guide"></div>
 
-    <main class="main-content">
-        <div id="markdown-container" class="markdown-card markdown-body">
-            <div style="text-align: center; color: var(--text-muted); margin-top: 30%;">
-                <h3>Esperando archivo...</h3>
-                <p>Toca "Abrir" arriba.</p>
+    <div id="teleprompter-area">
+        <div id="content" class="content-width markdown-body" style="font-size: 32px;">
+            <div class="welcome-msg">
+                <h1>Teleprompter Pro</h1>
+                <p>Carga un archivo .md para comenzar</p>
+                <button onclick="document.getElementById('fileInput').click()" 
+                        style="padding:10px 20px; font-size:1.2rem; margin-top:20px; background:#333; color:#fff; border:none; border-radius:5px;">
+                    Abrir Archivo
+                </button>
             </div>
         </div>
-    </main>
+    </div>
+    
+    <input type="file" id="fileInput" accept=".md,.txt">
+
+    <div class="control-bar">
+        
+        <button class="btn btn-start" id="btnToggle" onclick="toggleScroll()">
+            <i class="fa-solid fa-play"></i>
+        </button>
+
+        <button class="btn btn-reset" onclick="resetScroll()">
+            <i class="fa-solid fa-rotate-left"></i>
+        </button>
+
+        <div class="control-group">
+            <button class="btn bg-blue" onclick="adjustSpeed(-1)">-</button>
+            <span class="display-val" id="speedDisplay">3</span>
+            <button class="btn bg-blue" onclick="adjustSpeed(1)">+</button>
+        </div>
+
+        <div class="control-group" style="margin-left: 10px;">
+            <button class="btn bg-orange" onclick="adjustSize(-2)">-</button>
+            <span class="display-val"><i class="fa-solid fa-text-height"></i></span>
+            <button class="btn bg-orange" onclick="adjustSize(2)">+</button>
+        </div>
+
+        <button class="btn btn-save" onclick="saveDocument()">
+            <i class="fa-solid fa-floppy-disk"></i>
+        </button>
+
+    </div>
 
     <script>
+        // --- VARIABLES DE ESTADO ---
+        let isScrolling = false;
+        let scrollSpeed = 3;     // 1 a 10
+        let fontSize = 32;       // px
+        let animationFrameId;
+        let lastTimestamp = 0;
+        let scrollAccumulator = 0;
+        let loadedFileName = "teleprompter_script.html";
+        let rawMarkdown = ""; // Guardamos el texto original
+
+        // Referencias DOM
+        const area = document.getElementById('teleprompter-area');
+        const contentDiv = document.getElementById('content');
+        const btnToggle = document.getElementById('btnToggle');
+        const speedDisplay = document.getElementById('speedDisplay');
         const fileInput = document.getElementById('fileInput');
-        const container = document.getElementById('markdown-container');
-        const root = document.documentElement;
 
-        function triggerFileInput() { fileInput.click(); }
-
-        fileInput.addEventListener('change', function(e) {
+        // --- CARGA DE ARCHIVO ---
+        fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
+            loadedFileName = file.name.replace('.md', '.html');
 
-            container.innerHTML = "<p style='text-align:center; color: var(--text-muted); margin-top:20px'>Procesando...</p>";
-            
             const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    if (typeof marked === 'undefined') throw new Error("Falta internet para cargar la librería.");
-                    // Convertir
-                    container.innerHTML = marked.parse(e.target.result);
-                    // IMPORTANTE: Forzar scroll al inicio
-                    container.scrollTop = 0;
-                } catch (error) {
-                    container.innerHTML = `<div style="color:red; text-align:center; margin-top:20px">${error.message}</div>`;
-                }
+            reader.onload = (e) => {
+                rawMarkdown = e.target.result;
+                renderMarkdown(rawMarkdown);
+                // Auto-arranque a los 2 segundos
+                setTimeout(() => {
+                    startScroll();
+                }, 2000);
             };
             reader.readAsText(file);
         });
 
-        function toggleTheme(theme) {
-            if (theme === 'light') root.setAttribute('data-theme', 'light');
-            else root.removeAttribute('data-theme');
+        function renderMarkdown(mdText) {
+            try {
+                contentDiv.innerHTML = marked.parse(mdText);
+            } catch (err) {
+                contentDiv.innerHTML = "<p>Error cargando librería marked.js</p>";
+            }
+        }
+
+        // --- MOTOR DE SCROLL ---
+        function step(timestamp) {
+            if (!isScrolling) return;
+
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            const delta = timestamp - lastTimestamp;
+            lastTimestamp = timestamp;
+
+            // Lógica de velocidad: 
+            // Velocidad 1 = 10px por segundo aprox
+            // Velocidad 10 = 100px por segundo aprox
+            const pixelsPerSecond = scrollSpeed * 15; 
+            
+            // Cuánto mover en este frame
+            const pixelsToMove = (pixelsPerSecond * delta) / 1000;
+            
+            scrollAccumulator += pixelsToMove;
+
+            // Si acumulamos más de 1 pixel, movemos
+            if (scrollAccumulator >= 1) {
+                const move = Math.floor(scrollAccumulator);
+                area.scrollTop += move;
+                scrollAccumulator -= move;
+            }
+
+            // Loop
+            animationFrameId = requestAnimationFrame(step);
+        }
+
+        // --- CONTROLES ---
+        function toggleScroll() {
+            if (isScrolling) {
+                stopScroll();
+            } else {
+                startScroll();
+            }
+        }
+
+        function startScroll() {
+            if (isScrolling) return;
+            isScrolling = true;
+            lastTimestamp = 0; // Reset tiempo
+            btnToggle.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            btnToggle.style.backgroundColor = "#e74c3c"; // Rojo para pausa
+            animationFrameId = requestAnimationFrame(step);
+        }
+
+        function stopScroll() {
+            isScrolling = false;
+            cancelAnimationFrame(animationFrameId);
+            btnToggle.innerHTML = "START";
+            btnToggle.style.backgroundColor = "var(--accent-green)";
+        }
+
+        function resetScroll() {
+            stopScroll();
+            area.scrollTop = 0;
+            scrollAccumulator = 0;
+        }
+
+        function adjustSpeed(delta) {
+            let newSpeed = scrollSpeed + delta;
+            if (newSpeed < 1) newSpeed = 1;
+            if (newSpeed > 20) newSpeed = 20;
+            scrollSpeed = newSpeed;
+            speedDisplay.innerText = scrollSpeed;
+        }
+
+        function adjustSize(delta) {
+            let newSize = fontSize + delta;
+            if (newSize < 12) newSize = 12;
+            if (newSize > 120) newSize = 120;
+            fontSize = newSize;
+            contentDiv.style.fontSize = fontSize + "px";
+        }
+
+        // --- FUNCIÓN GUARDAR (EXPORTAR) ---
+        function saveDocument() {
+            // Creamos un HTML autocontenido
+            // Básicamente tomamos el HTML actual, pero inyectamos el contenido ya renderizado
+            // y los valores de configuración en variables iniciales.
+            
+            const fullHTML = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${loadedFileName}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>${document.querySelector('style').innerHTML}</style>
+</head>
+<body>
+    <div class="reading-guide"></div>
+    <div id="teleprompter-area">
+        <div id="content" class="content-width markdown-body" style="font-size: ${fontSize}px;">
+            ${contentDiv.innerHTML}
+        </div>
+    </div>
+    
+    <div class="control-bar">
+        <button class="btn btn-start" id="btnToggle" onclick="toggleScroll()"><i class="fa-solid fa-play"></i></button>
+        <button class="btn btn-reset" onclick="resetScroll()"><i class="fa-solid fa-rotate-left"></i></button>
+        <div class="control-group">
+            <button class="btn bg-blue" onclick="adjustSpeed(-1)">-</button>
+            <span class="display-val" id="speedDisplay">${scrollSpeed}</span>
+            <button class="btn bg-blue" onclick="adjustSpeed(1)">+</button>
+        </div>
+        <div class="control-group" style="margin-left: 10px;">
+            <button class="btn bg-orange" onclick="adjustSize(-2)">-</button>
+            <span class="display-val"><i class="fa-solid fa-text-height"></i></span>
+            <button class="btn bg-orange" onclick="adjustSize(2)">+</button>
+        </div>
+    </div>
+
+    <script>
+        let isScrolling = false;
+        let scrollSpeed = ${scrollSpeed};
+        let fontSize = ${fontSize};
+        let animationFrameId;
+        let lastTimestamp = 0;
+        let scrollAccumulator = 0;
+        const area = document.getElementById('teleprompter-area');
+        const btnToggle = document.getElementById('btnToggle');
+        const speedDisplay = document.getElementById('speedDisplay');
+        const contentDiv = document.getElementById('content');
+
+        // Código de lógica duplicado para que funcione offline
+        function step(timestamp) {
+            if (!isScrolling) return;
+            if (!lastTimestamp) lastTimestamp = timestamp;
+            const delta = timestamp - lastTimestamp;
+            lastTimestamp = timestamp;
+            const pixelsPerSecond = scrollSpeed * 15; 
+            const pixelsToMove = (pixelsPerSecond * delta) / 1000;
+            scrollAccumulator += pixelsToMove;
+            if (scrollAccumulator >= 1) {
+                const move = Math.floor(scrollAccumulator);
+                area.scrollTop += move;
+                scrollAccumulator -= move;
+            }
+            animationFrameId = requestAnimationFrame(step);
+        }
+        function toggleScroll() { isScrolling ? stopScroll() : startScroll(); }
+        function startScroll() {
+            if (isScrolling) return;
+            isScrolling = true; lastTimestamp = 0;
+            btnToggle.innerHTML = '<i class="fa-solid fa-pause"></i>';
+            btnToggle.style.backgroundColor = "#e74c3c";
+            animationFrameId = requestAnimationFrame(step);
+        }
+        function stopScroll() {
+            isScrolling = false; cancelAnimationFrame(animationFrameId);
+            btnToggle.innerHTML = '<i class="fa-solid fa-play"></i>';
+            btnToggle.style.backgroundColor = "#2ecc71";
+        }
+        function resetScroll() { stopScroll(); area.scrollTop = 0; scrollAccumulator = 0; }
+        function adjustSpeed(delta) {
+            let newSpeed = scrollSpeed + delta;
+            if (newSpeed < 1) newSpeed = 1; if (newSpeed > 20) newSpeed = 20;
+            scrollSpeed = newSpeed; speedDisplay.innerText = scrollSpeed;
+        }
+        function adjustSize(delta) {
+            let newSize = fontSize + delta;
+            if (newSize < 12) newSize = 12; if (newSize > 120) newSize = 120;
+            fontSize = newSize; contentDiv.style.fontSize = fontSize + "px";
+        }
+    <\/script>
+</body>
+</html>`;
+
+            // Descargar el archivo
+            const blob = new Blob([fullHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = loadedFileName || "teleprompter_guardado.html";
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
     </script>
 </body>
