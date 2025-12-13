@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Teleprompter Pro V4</title>
+    <title>Teleprompter Pro V5 (Calibrado)</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,14 +12,14 @@
         :root {
             --bg-app: #000000;
             --text-main: #ffffff;
-            --panel-bg: #1a1a1a; /* Gris oscuro para barras */
+            --panel-bg: #1a1a1a;
             --accent-green: #2ecc71;
             --accent-red: #e74c3c;
             --accent-blue: #3498db;
             --accent-orange: #e67e22;
             --accent-purple: #9b59b6;
             --header-height: 60px;
-            --footer-height: 90px; /* Altura base footer */
+            --footer-height: 90px;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -30,81 +30,46 @@
             color: var(--text-main);
             height: 100dvh;
             width: 100vw;
-            overflow: hidden; /* El body no hace scroll, solo el área central */
+            overflow: hidden;
         }
 
-        /* --- 1. BARRA SUPERIOR (HEADER) --- */
+        /* --- BARRA SUPERIOR --- */
         .top-bar {
-            position: fixed;
-            top: 0; left: 0; width: 100%;
-            height: var(--header-height);
-            background-color: var(--panel-bg);
-            border-bottom: 1px solid #333;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 15px;
-            padding-top: env(safe-area-inset-top); /* Para el "Notch" del iPhone */
-            z-index: 1000;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            position: fixed; top: 0; left: 0; width: 100%; height: var(--header-height);
+            background-color: var(--panel-bg); border-bottom: 1px solid #333;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 15px; padding-top: env(safe-area-inset-top); z-index: 1000;
         }
-
-        .logo {
-            font-weight: bold; font-size: 1.2rem;
-            display: flex; align-items: center; gap: 8px;
-        }
-
+        .logo { font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; gap: 8px; }
         .btn-header {
-            background: #333; color: white;
-            border: 1px solid #555;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            cursor: pointer;
+            background: #333; color: white; border: 1px solid #555;
+            padding: 6px 12px; border-radius: 6px; font-size: 0.9rem; cursor: pointer;
         }
 
-        /* --- 2. BARRA INFERIOR (FOOTER CONTROLS) --- */
+        /* --- BARRA INFERIOR --- */
         .control-bar {
-            position: fixed;
-            bottom: 0; left: 0; width: 100%;
-            background-color: var(--panel-bg);
-            border-top: 1px solid #333;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            
-            /* PADDING DE SEGURIDAD CRUCIAL */
-            padding: 10px;
-            padding-bottom: calc(15px + env(safe-area-inset-bottom));
-            
-            z-index: 1000;
-            box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background-color: var(--panel-bg); border-top: 1px solid #333;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            padding: 10px; padding-bottom: calc(15px + env(safe-area-inset-bottom));
+            z-index: 1000; box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
         }
 
-        /* Ajustes botones footer */
         .btn {
-            border: none; color: white;
-            font-weight: bold; border-radius: 10px;
-            height: 46px; width: 46px; /* Botones grandes y fáciles de tocar */
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; flex-shrink: 0;
-            font-size: 1.1rem;
+            border: none; color: white; font-weight: bold; border-radius: 10px;
+            height: 46px; width: 46px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; flex-shrink: 0; font-size: 1.1rem;
         }
         .btn:active { transform: scale(0.95); opacity: 0.8; }
         
-        /* Grupos de botones (Velocidad/Tamaño) */
         .control-group {
             display: flex; background: #000; border-radius: 10px;
-            border: 1px solid #333; overflow: hidden; align-items: center;
-            height: 46px;
+            border: 1px solid #333; overflow: hidden; align-items: center; height: 46px;
         }
-        .display-val {
-            width: 30px; text-align: center; font-size: 0.9rem; color: #aaa;
-        }
-        .btn-mini { width: 40px; height: 100%; background: transparent; color: inherit; border: none; font-weight: bold; font-size: 1.2rem;}
+        .display-val { width: 30px; text-align: center; font-size: 0.9rem; color: #aaa; }
+        .btn-mini { width: 40px; height: 100%; background: transparent; color: inherit; border: none; font-weight: bold; font-size: 1.2rem; cursor: pointer; }
+        .btn-mini:active { background-color: rgba(255,255,255,0.1); }
 
-        /* Colores */
         .btn-start { background-color: var(--accent-green); width: 60px; font-size: 1.3rem; }
         .btn-start.paused { background-color: var(--accent-red); }
         .btn-reset { background-color: #444; }
@@ -112,65 +77,44 @@
         .bg-orange { background-color: var(--accent-orange); }
         .btn-save { background-color: var(--accent-purple); margin-left: auto;}
 
-        /* --- 3. ÁREA CENTRAL (SCROLL) --- */
+        /* --- ÁREA CENTRAL --- */
         #teleprompter-area {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            overflow-y: auto;
-            scroll-behavior: auto;
-            
-            /* Márgenes internos para que el texto no choque con las barras */
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            overflow-y: auto; scroll-behavior: auto;
             padding-top: calc(var(--header-height) + 20px);
-            padding-bottom: calc(var(--footer-height) + 80px); /* Mucho espacio abajo */
+            padding-bottom: calc(var(--footer-height) + 80px);
             padding-left: 20px; padding-right: 20px;
-            
-            -webkit-overflow-scrolling: touch; /* Scroll suave iOS */
-            outline: none;
+            -webkit-overflow-scrolling: touch; outline: none;
         }
 
         .content-width {
-            max-width: 900px; margin: 0 auto;
-            line-height: 1.6; font-weight: 500;
-            /* Espacio inicial vacío para empezar a leer al centro */
-            margin-top: 30vh; 
+            max-width: 900px; margin: 0 auto; line-height: 1.6; font-weight: 500; margin-top: 30vh; 
         }
 
         .markdown-body h1 { color: #ffeaa7; margin-top: 1em; font-size: 1.6em; }
         .markdown-body h2 { color: #ffeaa7; margin-top: 1em; font-size: 1.3em; }
         .markdown-body p { margin-bottom: 1.5em; text-align: left; }
         
-        /* Guía de lectura */
         .reading-guide {
             position: fixed; top: 35%; left: 0; width: 100%; height: 0;
             border-top: 2px dashed rgba(255, 255, 255, 0.2); pointer-events: none; z-index: 500;
         }
         .reading-guide::before { content: "▶"; position: absolute; left: 5px; top: -10px; color: var(--accent-green); opacity: 0.5;}
 
-        /* Feedback Visual (Play/Pause Gigante) */
         #status-overlay {
             position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
             font-size: 80px; color: rgba(255,255,255,0.7); pointer-events: none; z-index: 2000; opacity: 0; transition: opacity 0.3s;
         }
 
-        /* Mensaje Bienvenida */
         .welcome { text-align: center; color: #777; }
-
-        @media (max-width: 400px) {
-            .logo span { display: none; } /* Ocultar texto logo en pantallas mini */
-            .control-bar { gap: 5px; }
-        }
+        @media (max-width: 400px) { .logo span { display: none; } .control-bar { gap: 5px; } }
     </style>
 </head>
 <body>
 
     <nav class="top-bar">
-        <div class="logo">
-            <i class="fa-solid fa-file-lines" style="color:var(--accent-blue)"></i>
-            <span>Teleprompter</span>
-        </div>
-        <button class="btn-header" onclick="document.getElementById('fileInput').click()">
-            <i class="fa-solid fa-folder-open"></i> Abrir
-        </button>
+        <div class="logo"><i class="fa-solid fa-file-lines" style="color:var(--accent-blue)"></i><span>Teleprompter</span></div>
+        <button class="btn-header" onclick="document.getElementById('fileInput').click()"><i class="fa-solid fa-folder-open"></i> Abrir</button>
     </nav>
 
     <div id="status-overlay"><i class="fa-solid fa-play"></i></div>
@@ -179,9 +123,8 @@
     <div id="teleprompter-area" onclick="handleAreaClick(event)">
         <div id="content" class="content-width markdown-body">
             <div class="welcome">
-                <h2>Listo para empezar</h2>
-                <p>Usa el botón "Abrir" de arriba para cargar tu guion.</p>
-                <p><small>Toca la pantalla para Pausar/Seguir</small></p>
+                <h2>Motor Calibrado V5</h2>
+                <p>Carga tu archivo. La velocidad ahora responde con precisión.</p>
             </div>
         </div>
     </div>
@@ -189,107 +132,103 @@
     <input type="file" id="fileInput" accept=".md,.txt" style="display:none">
 
     <div class="control-bar">
-        <button class="btn btn-start" id="btnToggle" onclick="toggleScroll(event)">
-            <i class="fa-solid fa-play"></i>
-        </button>
-
-        <button class="btn btn-reset" onclick="resetScroll()">
-            <i class="fa-solid fa-rotate-left"></i>
-        </button>
-
+        <button class="btn btn-start" id="btnToggle" onclick="toggleScroll(event)"><i class="fa-solid fa-play"></i></button>
+        <button class="btn btn-reset" onclick="resetScroll()"><i class="fa-solid fa-rotate-left"></i></button>
         <div class="control-group bg-blue">
             <button class="btn-mini" onclick="adjustSpeed(-1)">-</button>
-            <span class="display-val" id="speedDisplay">3</span>
+            <span class="display-val" id="speedDisplay">4</span>
             <button class="btn-mini" onclick="adjustSpeed(1)">+</button>
         </div>
-
         <div class="control-group bg-orange">
             <button class="btn-mini" onclick="adjustSize(-2)">-</button>
             <span class="display-val"><i class="fa-solid fa-text-height"></i></span>
             <button class="btn-mini" onclick="adjustSize(2)">+</button>
         </div>
-
-        <button class="btn btn-save" onclick="saveDocument()">
-            <i class="fa-solid fa-floppy-disk"></i>
-        </button>
+        <button class="btn btn-save" onclick="saveDocument()"><i class="fa-solid fa-floppy-disk"></i></button>
     </div>
 
     <script>
-        // --- CONFIGURACIÓN INICIAL ---
+        // --- CONFIGURACIÓN ---
         let isMobile = window.innerWidth < 768;
-        let fontSize = isMobile ? 24 : 42; // Letra un poco más grande por defecto
+        let fontSize = isMobile ? 24 : 42; 
         let isScrolling = false;
-        let scrollSpeed = 3; 
+        
+        // CALIBRACIÓN DE VELOCIDAD
+        // scrollSpeed es el valor visual (1-50)
+        // El movimiento real se calcula en píxeles por segundo
+        let scrollSpeed = 4; 
+        
         let animationId;
         let lastTime = 0;
+        
+        // ACUMULADOR DE PRECISIÓN (CRUCIAL PARA MOVIMIENTO LENTO)
+        // Guarda las fracciones de píxel (0.2, 0.5...) hasta sumar 1 entero
         let accumulator = 0;
+        
         let loadedName = "guion";
 
-        // Referencias
         const area = document.getElementById('teleprompter-area');
         const content = document.getElementById('content');
         const btnToggle = document.getElementById('btnToggle');
         const speedDisplay = document.getElementById('speedDisplay');
         const overlay = document.getElementById('status-overlay');
 
-        // Aplicar tamaño inicial
         content.style.fontSize = fontSize + "px";
+        speedDisplay.innerText = scrollSpeed;
 
-        // --- CARGA DE ARCHIVO ---
+        // --- CARGA ---
         document.getElementById('fileInput').addEventListener('change', e => {
             const file = e.target.files[0];
             if(!file) return;
             loadedName = file.name.replace(/\.[^/.]+$/, "");
-            
             const reader = new FileReader();
             reader.onload = evt => {
                 const md = evt.target.result;
-                try {
-                    content.innerHTML = marked.parse(md);
-                } catch(err) {
-                    content.innerText = md;
-                }
-                // Reset scroll
+                try { content.innerHTML = marked.parse(md); } 
+                catch(err) { content.innerText = md; }
                 area.scrollTop = 0;
                 showFeedback("fa-hourglass-half");
-                // Auto-arranque en 2 segundos
                 setTimeout(() => startScroll(), 2000);
             };
             reader.readAsText(file);
         });
 
-        // --- INTERACCIONES ---
-        // Teclado (Barra Espaciadora)
+        // --- INTERACCIÓN ---
         document.addEventListener('keydown', (e) => {
             if (e.code === 'Space') { e.preventDefault(); toggleScroll(); }
         });
-
-        // Click en pantalla
         function handleAreaClick(e) {
-            // Ignorar si clic en botones o enlaces dentro del texto
             if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
             toggleScroll();
         }
 
-        // --- MOTOR DE SCROLL ---
+        // --- MOTOR FÍSICO (CORREGIDO) ---
         function step(timestamp) {
             if (!isScrolling) return;
             if (!lastTime) lastTime = timestamp;
             const delta = timestamp - lastTime;
             lastTime = timestamp;
 
-            // Ajuste fino de velocidad
-            const pxPerSec = scrollSpeed * (isMobile ? 12 : 15);
-            const move = (pxPerSec * delta) / 1000;
+            // FÓRMULA CALIBRADA:
+            // Cada unidad de velocidad = 3 píxeles por segundo (aprox)
+            // Velocidad 1 = 3px/seg (muy lento, pero se mueve)
+            // Velocidad 4 = 12px/seg
+            // Velocidad 10 = 30px/seg
+            const pixelsPerSecond = scrollSpeed * 3; 
+
+            // Distancia teórica a mover en este frame (puede ser 0.16px por ejemplo)
+            const move = (pixelsPerSecond * delta) / 1000;
             
+            // Sumamos al acumulador decimal
             accumulator += move;
             
-            if (accumulator >= 0.5) {
-                area.scrollTop += accumulator;
-                accumulator = 0;
+            // Si el acumulador completa al menos 1 píxel físico, movemos
+            if (accumulator >= 1) {
+                const pixelsToScroll = Math.floor(accumulator); // Parte entera
+                area.scrollTop += pixelsToScroll; // Mover scroll real
+                accumulator -= pixelsToScroll; // Guardar el sobrante decimal (0.2) para el siguiente frame
             }
 
-            // Detección de fin
             if (area.scrollTop + area.clientHeight >= area.scrollHeight - 1) {
                 stopScroll(); 
             } else {
@@ -297,15 +236,11 @@
             }
         }
 
-        // --- FUNCIONES DE CONTROL ---
-        function toggleScroll(e) {
-            if (e) e.stopPropagation();
-            isScrolling ? stopScroll() : startScroll();
-        }
-
+        function toggleScroll(e) { if(e) e.stopPropagation(); isScrolling ? stopScroll() : startScroll(); }
+        
         function startScroll() {
             if(isScrolling) return;
-            isScrolling = true; lastTime = 0;
+            isScrolling = true; lastTime = 0; accumulator = 0; // Reset acumulador
             btnToggle.innerHTML = '<i class="fa-solid fa-pause"></i>';
             btnToggle.classList.add('paused'); showFeedback("fa-play");
             animationId = requestAnimationFrame(step);
@@ -317,14 +252,15 @@
             btnToggle.classList.remove('paused'); showFeedback("fa-pause");
         }
 
-        function resetScroll() {
-            stopScroll(); area.scrollTop = 0; showFeedback("fa-rotate-left");
-        }
+        function resetScroll() { stopScroll(); area.scrollTop = 0; accumulator=0; showFeedback("fa-rotate-left"); }
 
         function adjustSpeed(delta) {
             let s = scrollSpeed + delta;
-            if(s < 1) s = 1; if(s > 25) s = 25;
-            scrollSpeed = s; speedDisplay.innerText = s;
+            // Rango ampliado y validación estricta
+            if(s < 1) s = 1; 
+            if(s > 50) s = 50;
+            scrollSpeed = s; 
+            speedDisplay.innerText = s;
         }
 
         function adjustSize(delta) {
@@ -340,84 +276,15 @@
             setTimeout(() => { overlay.style.opacity = "0"; overlay.style.transform = "translate(-50%, -50%) scale(1)"; }, 600);
         }
 
-        // --- GUARDAR (Copia exacta) ---
         function saveDocument() {
             const styles = document.querySelector('style').innerHTML;
             const contentHTML = content.innerHTML;
-            
-            const fileContent = `
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>${loadedName}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>${styles}</style>
-</head>
-<body>
-    <nav class="top-bar">
-        <div class="logo"><i class="fa-solid fa-file-lines" style="color:#3498db"></i><span>${loadedName}</span></div>
-    </nav>
-    <div id="status-overlay"><i class="fa-solid fa-play"></i></div>
-    <div class="reading-guide"></div>
-    <div id="teleprompter-area" onclick="handleAreaClick(event)">
-        <div id="content" class="content-width markdown-body" style="font-size: ${fontSize}px;">
-            ${contentHTML}
-        </div>
-    </div>
-    <div class="control-bar">
-        <button class="btn btn-start" id="btnToggle" onclick="toggleScroll(event)"><i class="fa-solid fa-play"></i></button>
-        <button class="btn btn-reset" onclick="resetScroll()"><i class="fa-solid fa-rotate-left"></i></button>
-        <div class="control-group bg-blue">
-            <button class="btn-mini" onclick="adjustSpeed(-1)">-</button>
-            <span class="display-val" id="speedDisplay">${scrollSpeed}</span>
-            <button class="btn-mini" onclick="adjustSpeed(1)">+</button>
-        </div>
-        <div class="control-group bg-orange">
-            <button class="btn-mini" onclick="adjustSize(-2)">-</button>
-            <span class="display-val"><i class="fa-solid fa-text-height"></i></span>
-            <button class="btn-mini" onclick="adjustSize(2)">+</button>
-        </div>
-    </div>
-    <script>
-        let isMobile = window.innerWidth < 768;
-        let isScrolling = false;
-        let scrollSpeed = ${scrollSpeed};
-        let fontSize = ${fontSize};
-        let animationId; let lastTime = 0; let accumulator = 0;
-        const area = document.getElementById('teleprompter-area');
-        const content = document.getElementById('content');
-        const btnToggle = document.getElementById('btnToggle');
-        const speedDisplay = document.getElementById('speedDisplay');
-        const overlay = document.getElementById('status-overlay');
-        
-        document.addEventListener('keydown', (e) => { if (e.code === 'Space') { e.preventDefault(); toggleScroll(); } });
-        function handleAreaClick(e) { if (e.target.tagName === 'BUTTON') return; toggleScroll(); }
-        function step(timestamp) {
-            if (!isScrolling) return; if (!lastTime) lastTime = timestamp;
-            const delta = timestamp - lastTime; lastTime = timestamp;
-            const pxPerSec = scrollSpeed * (isMobile ? 12 : 15);
-            const move = (pxPerSec * delta) / 1000; accumulator += move;
-            if (accumulator >= 0.5) { area.scrollTop += accumulator; accumulator = 0; }
-            if (area.scrollTop + area.clientHeight >= area.scrollHeight - 1) stopScroll();
-            else animationId = requestAnimationFrame(step);
-        }
-        function toggleScroll(e) { if(e) e.stopPropagation(); isScrolling ? stopScroll() : startScroll(); }
-        function startScroll() { if(isScrolling) return; isScrolling = true; lastTime = 0; btnToggle.innerHTML = '<i class="fa-solid fa-pause"></i>'; btnToggle.classList.add('paused'); showFeedback("fa-play"); animationId = requestAnimationFrame(step); }
-        function stopScroll() { isScrolling = false; cancelAnimationFrame(animationId); btnToggle.innerHTML = '<i class="fa-solid fa-play"></i>'; btnToggle.classList.remove('paused'); showFeedback("fa-pause"); }
-        function resetScroll() { stopScroll(); area.scrollTop = 0; showFeedback("fa-rotate-left"); }
-        function adjustSpeed(delta) { let s = scrollSpeed + delta; if(s < 1) s = 1; if(s > 25) s = 25; scrollSpeed = s; speedDisplay.innerText = s; }
-        function adjustSize(delta) { let s = fontSize + delta; if(s < 12) s = 12; if(s > 150) s = 150; fontSize = s; content.style.fontSize = fontSize + "px"; }
-        function showFeedback(icon) { overlay.innerHTML = '<i class="fa-solid '+icon+'"></i>'; overlay.style.opacity = "1"; overlay.style.transform = "translate(-50%, -50%) scale(1.2)"; setTimeout(() => { overlay.style.opacity = "0"; overlay.style.transform = "translate(-50%, -50%) scale(1)"; }, 600); }
-    <\/script>
-</body>
-</html>`;
+            const fileContent = `<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover"><title>${loadedName}</title><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"><style>${styles}</style></head><body><nav class="top-bar"><div class="logo"><i class="fa-solid fa-file-lines" style="color:#3498db"></i><span>${loadedName}</span></div></nav><div id="status-overlay"><i class="fa-solid fa-play"></i></div><div class="reading-guide"></div><div id="teleprompter-area" onclick="handleAreaClick(event)"><div id="content" class="content-width markdown-body" style="font-size: ${fontSize}px;">${contentHTML}</div></div><div class="control-bar"><button class="btn btn-start" id="btnToggle" onclick="toggleScroll(event)"><i class="fa-solid fa-play"></i></button><button class="btn btn-reset" onclick="resetScroll()"><i class="fa-solid fa-rotate-left"></i></button><div class="control-group bg-blue"><button class="btn-mini" onclick="adjustSpeed(-1)">-</button><span class="display-val" id="speedDisplay">${scrollSpeed}</span><button class="btn-mini" onclick="adjustSpeed(1)">+</button></div><div class="control-group bg-orange"><button class="btn-mini" onclick="adjustSize(-2)">-</button><span class="display-val"><i class="fa-solid fa-text-height"></i></span><button class="btn-mini" onclick="adjustSize(2)">+</button></div></div><script>let isMobile=window.innerWidth<768;let isScrolling=false;let scrollSpeed=${scrollSpeed};let fontSize=${fontSize};let animationId;let lastTime=0;let accumulator=0;const area=document.getElementById('teleprompter-area');const content=document.getElementById('content');const btnToggle=document.getElementById('btnToggle');const speedDisplay=document.getElementById('speedDisplay');const overlay=document.getElementById('status-overlay');document.addEventListener('keydown',(e)=>{if(e.code==='Space'){e.preventDefault();toggleScroll()}});function handleAreaClick(e){if(e.target.tagName==='BUTTON')return;toggleScroll()}function step(timestamp){if(!isScrolling)return;if(!lastTime)lastTime=timestamp;const delta=timestamp-lastTime;lastTime=timestamp;const pxPerSec=scrollSpeed*3;const move=(pxPerSec*delta)/1000;accumulator+=move;if(accumulator>=1){const pixelsToScroll=Math.floor(accumulator);area.scrollTop+=pixelsToScroll;accumulator-=pixelsToScroll}if(area.scrollTop+area.clientHeight>=area.scrollHeight-1)stopScroll();else animationId=requestAnimationFrame(step)}function toggleScroll(e){if(e)e.stopPropagation();isScrolling?stopScroll():startScroll()}function startScroll(){if(isScrolling)return;isScrolling=true;lastTime=0;accumulator=0;btnToggle.innerHTML='<i class="fa-solid fa-pause"></i>';btnToggle.classList.add('paused');showFeedback("fa-play");animationId=requestAnimationFrame(step)}function stopScroll(){isScrolling=false;cancelAnimationFrame(animationId);btnToggle.innerHTML='<i class="fa-solid fa-play"></i>';btnToggle.classList.remove('paused');showFeedback("fa-pause")}function resetScroll(){stopScroll();area.scrollTop=0;accumulator=0;showFeedback("fa-rotate-left")}function adjustSpeed(delta){let s=scrollSpeed+delta;if(s<1)s=1;if(s>50)s=50;scrollSpeed=s;speedDisplay.innerText=s}function adjustSize(delta){let s=fontSize+delta;if(s<12)s=12;if(s>150)s=150;fontSize=s;content.style.fontSize=fontSize+"px"}function showFeedback(icon){overlay.innerHTML='<i class="fa-solid '+icon+'"></i>';overlay.style.opacity="1";overlay.style.transform="translate(-50%, -50%) scale(1.2)";setTimeout(()=>{overlay.style.opacity="0";overlay.style.transform="translate(-50%, -50%) scale(1)"},600)}<\/script></body></html>`;
             
             const blob = new Blob([fileContent], {type: 'text/html'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = loadedName + "_v4.html";
+            a.download = loadedName + "_calibrado.html";
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
