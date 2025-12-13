@@ -2,168 +2,179 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Teleprompter Markdown</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Teleprompter Pro V2</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.2/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         :root {
-            --bg-app: #000000; /* Fondo negro puro para teleprompter */
+            --bg-app: #000000;
             --text-main: #ffffff;
+            --panel-bg: #1a1a1a;
             --accent-green: #2ecc71;
+            --accent-red: #e74c3c;
             --accent-blue: #3498db;
             --accent-orange: #e67e22;
             --accent-purple: #9b59b6;
-            --accent-gray: #34495e;
-            --panel-bg: #1a1a1a;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
-            font-family: sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-app);
             color: var(--text-main);
-            height: 100vh;
-            overflow: hidden; /* El body no hace scroll, lo hace el contenedor */
+            /* Usamos dvh (dynamic viewport height) para evitar problemas con barras de navegador móvil */
+            height: 100dvh; 
+            width: 100vw;
             display: flex;
             flex-direction: column;
+            overflow: hidden;
         }
 
-        /* --- ZONA DE LECTURA --- */
+        /* --- ZONA DE LECTURA (Flexible) --- */
         #teleprompter-area {
-            flex: 1;
+            flex: 1; /* Ocupa todo el espacio disponible menos los controles */
             overflow-y: auto;
-            padding: 40px 20px;
-            /* Espacio gigante abajo para que el texto final suba hasta arriba */
-            padding-bottom: 50vh; 
-            scroll-behavior: auto; /* Importante: auto para que el JS controle el scroll pixel a pixel */
+            position: relative;
+            padding: 20px;
+            padding-top: 40vh; /* Empezar a media pantalla */
+            padding-bottom: 60vh; /* Permitir que el final suba hasta arriba */
+            scroll-behavior: auto;
+            cursor: pointer; /* Indica que es clicable */
+            outline: none;
         }
 
         .content-width {
             max-width: 900px;
             margin: 0 auto;
             line-height: 1.6;
-            /* El tamaño de fuente se controla por JS */
-            transition: font-size 0.2s;
+            font-weight: 500;
+            /* Transición suave al cambiar tamaño */
+            transition: font-size 0.2s ease-out; 
         }
 
-        /* Estilos Markdown básicos para alto contraste */
-        .markdown-body h1, .markdown-body h2 { color: #ffeaa7; margin-top: 1.5em; border-bottom: none; }
-        .markdown-body p { margin-bottom: 1.5em; }
-        .markdown-body ul { margin-left: 20px; margin-bottom: 1.5em; }
+        /* Markdown Styles */
+        .markdown-body h1, .markdown-body h2 { color: #ffeaa7; margin-bottom: 0.5em; margin-top: 1em; }
+        .markdown-body p { margin-bottom: 1.5em; text-align: left; }
+        .markdown-body ul { margin-left: 1.5em; margin-bottom: 1.5em; }
+        .markdown-body img { max-width: 100%; border-radius: 8px; }
 
-        /* --- BARRA DE CONTROLES INFERIOR --- */
+        /* --- GUIAS VISUALES --- */
+        .reading-guide {
+            position: fixed;
+            top: 30%; /* Punto focal de lectura */
+            left: 0;
+            width: 100%;
+            height: 0px;
+            border-top: 2px dashed rgba(255, 255, 255, 0.15);
+            pointer-events: none;
+            z-index: 10;
+        }
+        .reading-guide::before {
+            content: "▶"; position: absolute; left: 10px; top: -11px; 
+            color: var(--accent-green); opacity: 0.6; font-size: 14px;
+        }
+        .reading-guide::after {
+            content: "◀"; position: absolute; right: 10px; top: -11px; 
+            color: var(--accent-green); opacity: 0.6; font-size: 14px;
+        }
+
+        /* ICONO OVERLAY (Feedback Visual Play/Pause) */
+        #status-overlay {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            color: rgba(255,255,255,0.7);
+            pointer-events: none;
+            z-index: 50;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        /* --- BARRA DE CONTROLES (Fija abajo) --- */
         .control-bar {
-            height: 80px;
+            flex-shrink: 0; /* No encogerse nunca */
             background-color: var(--panel-bg);
             border-top: 1px solid #333;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
+            gap: 12px;
             padding: 10px;
+            /* Safe Area para iPhone X/11/12/etc (la barra inferior no tapa botones) */
+            padding-bottom: calc(10px + env(safe-area-inset-bottom));
             z-index: 100;
-            flex-shrink: 0;
-            overflow-x: auto; /* Scroll horizontal si la pantalla es muy pequeña */
+            width: 100%;
+            overflow-x: auto; /* Scroll horizontal en pantallas muy angostas */
         }
 
-        /* Grupos de botones */
-        .control-group {
-            display: flex;
-            background: #000;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #333;
-            align-items: center;
-        }
-
+        /* Botones */
         .btn {
-            border: none;
-            color: white;
-            font-weight: bold;
-            font-size: 1.2rem;
+            border: none; color: white;
+            font-size: 1.1rem; font-weight: bold;
+            border-radius: 12px;
+            height: 48px; width: 48px;
+            display: flex; align-items: center; justify-content: center;
             cursor: pointer;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: opacity 0.2s;
+            transition: transform 0.1s, opacity 0.2s;
+            flex-shrink: 0;
         }
-        .btn:active { opacity: 0.7; }
-        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
+        .btn:active { transform: scale(0.95); opacity: 0.8; }
+        
+        .control-group {
+            display: flex; background: #000; border-radius: 12px;
+            border: 1px solid #333; overflow: hidden; align-items: center;
+        }
         .display-val {
-            width: 30px;
-            text-align: center;
-            font-size: 0.9rem;
-            font-weight: bold;
-            color: #ccc;
-            user-select: none;
+            width: 32px; text-align: center; font-size: 0.9rem; color: #aaa;
+            font-variant-numeric: tabular-nums;
         }
 
-        /* Colores Específicos */
-        .btn-start { background-color: var(--accent-green); width: 80px; border-radius: 12px; font-size: 1rem; gap: 5px;}
-        .btn-reset { background-color: var(--accent-gray); border-radius: 12px; margin-right: 10px; }
+        /* Estilos específicos de botones */
+        .btn-start { background-color: var(--accent-green); width: 60px; font-size: 1.2rem; }
+        .btn-start.paused { background-color: var(--accent-red); }
+        .btn-reset { background-color: #555; }
         .bg-blue { background-color: var(--accent-blue); }
         .bg-orange { background-color: var(--accent-orange); }
-        .btn-save { background-color: var(--accent-purple); border-radius: 12px; margin-left: 10px; }
+        .btn-save { background-color: var(--accent-purple); margin-left: auto; }
 
-        /* Input de archivo oculto */
-        #fileInput { display: none; }
-        
-        /* Mensaje inicial */
-        .welcome-msg { text-align: center; margin-top: 20vh; color: #777; }
-        .welcome-msg h1 { color: #fff; margin-bottom: 10px; }
-
-        /* GUIDELINE PARA EL USUARIO (Linea de lectura) */
-        .reading-guide {
-            position: fixed;
-            top: 35%;
-            left: 0;
-            width: 100%;
-            height: 0px;
-            border-top: 2px dashed rgba(255, 255, 255, 0.2);
-            pointer-events: none;
-            z-index: 50;
-        }
-        /* Flecha indicadora al lado */
-        .reading-guide::before {
-            content: "▶";
-            position: absolute;
-            left: 10px;
-            top: -12px;
-            color: var(--accent-green);
-            opacity: 0.5;
+        /* Pantalla de bienvenida */
+        .welcome { text-align: center; color: #777; margin-top: 20px; }
+        .btn-upload {
+            background: #333; color: white; padding: 10px 20px;
+            border-radius: 8px; border: 1px solid #555; margin-top: 20px;
+            font-size: 1rem; cursor: pointer;
         }
 
     </style>
 </head>
 <body>
 
+    <div id="status-overlay"><i class="fa-solid fa-play"></i></div>
+    
     <div class="reading-guide"></div>
 
-    <div id="teleprompter-area">
-        <div id="content" class="content-width markdown-body" style="font-size: 32px;">
-            <div class="welcome-msg">
-                <h1>Teleprompter Pro</h1>
-                <p>Carga un archivo .md para comenzar</p>
-                <button onclick="document.getElementById('fileInput').click()" 
-                        style="padding:10px 20px; font-size:1.2rem; margin-top:20px; background:#333; color:#fff; border:none; border-radius:5px;">
-                    Abrir Archivo
+    <div id="teleprompter-area" onclick="handleAreaClick(event)">
+        <div id="content" class="content-width markdown-body" style="font-size: 36px;">
+            <div class="welcome">
+                <h1>Teleprompter Ready</h1>
+                <p>Toca abajo para cargar texto.</p>
+                <p><small>Espacio o Toque en pantalla para Pausar/Arrancar</small></p>
+                <button class="btn-upload" onclick="document.getElementById('fileInput').click()">
+                    <i class="fa-solid fa-folder-open"></i> Abrir Archivo
                 </button>
             </div>
         </div>
     </div>
     
-    <input type="file" id="fileInput" accept=".md,.txt">
+    <input type="file" id="fileInput" accept=".md,.txt" style="display:none">
 
     <div class="control-bar">
-        
-        <button class="btn btn-start" id="btnToggle" onclick="toggleScroll()">
+        <button class="btn btn-start" id="btnToggle" onclick="toggleScroll(event)">
             <i class="fa-solid fa-play"></i>
         </button>
 
@@ -177,7 +188,7 @@
             <button class="btn bg-blue" onclick="adjustSpeed(1)">+</button>
         </div>
 
-        <div class="control-group" style="margin-left: 10px;">
+        <div class="control-group">
             <button class="btn bg-orange" onclick="adjustSize(-2)">-</button>
             <span class="display-val"><i class="fa-solid fa-text-height"></i></span>
             <button class="btn bg-orange" onclick="adjustSize(2)">+</button>
@@ -186,38 +197,45 @@
         <button class="btn btn-save" onclick="saveDocument()">
             <i class="fa-solid fa-floppy-disk"></i>
         </button>
-
     </div>
 
     <script>
-        // --- VARIABLES DE ESTADO ---
+        // --- ESTADO ---
         let isScrolling = false;
-        let scrollSpeed = 3;     // 1 a 10
-        let fontSize = 32;       // px
-        let animationFrameId;
-        let lastTimestamp = 0;
-        let scrollAccumulator = 0;
-        let loadedFileName = "teleprompter_script.html";
-        let rawMarkdown = ""; // Guardamos el texto original
+        let scrollSpeed = 3; 
+        let fontSize = 36;
+        let animationId;
+        let lastTime = 0;
+        let accumulator = 0;
+        let loadedName = "script";
 
-        // Referencias DOM
+        // --- DOM ---
         const area = document.getElementById('teleprompter-area');
-        const contentDiv = document.getElementById('content');
+        const content = document.getElementById('content');
         const btnToggle = document.getElementById('btnToggle');
         const speedDisplay = document.getElementById('speedDisplay');
-        const fileInput = document.getElementById('fileInput');
+        const overlay = document.getElementById('status-overlay');
 
         // --- CARGA DE ARCHIVO ---
-        fileInput.addEventListener('change', (e) => {
+        document.getElementById('fileInput').addEventListener('change', e => {
             const file = e.target.files[0];
-            if (!file) return;
-            loadedFileName = file.name.replace('.md', '.html');
-
+            if(!file) return;
+            loadedName = file.name.replace(/\.[^/.]+$/, ""); // quitar extensión
+            
             const reader = new FileReader();
-            reader.onload = (e) => {
-                rawMarkdown = e.target.result;
-                renderMarkdown(rawMarkdown);
+            reader.onload = evt => {
+                const md = evt.target.result;
+                try {
+                    content.innerHTML = marked.parse(md);
+                } catch(err) {
+                    content.innerText = md; // Fallback texto plano
+                }
+                
+                // Resetear posición
+                area.scrollTop = 0;
+                
                 // Auto-arranque a los 2 segundos
+                showFeedback("fa-hourglass-half"); // Icono de espera
                 setTimeout(() => {
                     startScroll();
                 }, 2000);
@@ -225,123 +243,139 @@
             reader.readAsText(file);
         });
 
-        function renderMarkdown(mdText) {
-            try {
-                contentDiv.innerHTML = marked.parse(mdText);
-            } catch (err) {
-                contentDiv.innerHTML = "<p>Error cargando librería marked.js</p>";
+        // --- INTERACCIÓN TECLADO (BARRA ESPACIADORA) ---
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault(); // Evitar scroll nativo de navegador
+                toggleScroll();
             }
+        });
+
+        // --- INTERACCIÓN TÁCTIL (CLICK EN PANTALLA) ---
+        function handleAreaClick(e) {
+            // Ignorar si el clic fue en un enlace o botón dentro del texto (si los hubiera)
+            if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') return;
+            toggleScroll();
         }
 
-        // --- MOTOR DE SCROLL ---
+        // --- LÓGICA DE SCROLL ---
         function step(timestamp) {
             if (!isScrolling) return;
+            if (!lastTime) lastTime = timestamp;
+            const delta = timestamp - lastTime;
+            lastTime = timestamp;
 
-            if (!lastTimestamp) lastTimestamp = timestamp;
-            const delta = timestamp - lastTimestamp;
-            lastTimestamp = timestamp;
-
-            // Lógica de velocidad: 
-            // Velocidad 1 = 10px por segundo aprox
-            // Velocidad 10 = 100px por segundo aprox
-            const pixelsPerSecond = scrollSpeed * 15; 
+            // Velocidad base * multiplicador
+            const pxPerSec = scrollSpeed * 12; 
+            const move = (pxPerSec * delta) / 1000;
             
-            // Cuánto mover en este frame
-            const pixelsToMove = (pixelsPerSecond * delta) / 1000;
+            accumulator += move;
             
-            scrollAccumulator += pixelsToMove;
-
-            // Si acumulamos más de 1 pixel, movemos
-            if (scrollAccumulator >= 1) {
-                const move = Math.floor(scrollAccumulator);
-                area.scrollTop += move;
-                scrollAccumulator -= move;
+            if (accumulator >= 0.5) {
+                area.scrollTop += accumulator;
+                accumulator = 0;
             }
 
-            // Loop
-            animationFrameId = requestAnimationFrame(step);
+            // Detectar fin del documento
+            if (area.scrollTop + area.clientHeight >= area.scrollHeight - 1) {
+                stopScroll(); 
+            } else {
+                animationId = requestAnimationFrame(step);
+            }
         }
 
-        // --- CONTROLES ---
-        function toggleScroll() {
-            if (isScrolling) {
-                stopScroll();
-            } else {
-                startScroll();
-            }
+        function toggleScroll(e) {
+            if (e) e.stopPropagation(); // Evitar doble disparo si viene de botón
+            if (isScrolling) stopScroll();
+            else startScroll();
         }
 
         function startScroll() {
-            if (isScrolling) return;
+            if(isScrolling) return;
             isScrolling = true;
-            lastTimestamp = 0; // Reset tiempo
+            lastTime = 0;
             btnToggle.innerHTML = '<i class="fa-solid fa-pause"></i>';
-            btnToggle.style.backgroundColor = "#e74c3c"; // Rojo para pausa
-            animationFrameId = requestAnimationFrame(step);
+            btnToggle.classList.add('paused');
+            showFeedback("fa-play");
+            animationId = requestAnimationFrame(step);
         }
 
         function stopScroll() {
             isScrolling = false;
-            cancelAnimationFrame(animationFrameId);
-            btnToggle.innerHTML = "START";
-            btnToggle.style.backgroundColor = "var(--accent-green)";
+            cancelAnimationFrame(animationId);
+            btnToggle.innerHTML = '<i class="fa-solid fa-play"></i>';
+            btnToggle.classList.remove('paused');
+            showFeedback("fa-pause");
         }
 
         function resetScroll() {
             stopScroll();
             area.scrollTop = 0;
-            scrollAccumulator = 0;
+            showFeedback("fa-rotate-left");
         }
 
         function adjustSpeed(delta) {
-            let newSpeed = scrollSpeed + delta;
-            if (newSpeed < 1) newSpeed = 1;
-            if (newSpeed > 20) newSpeed = 20;
-            scrollSpeed = newSpeed;
-            speedDisplay.innerText = scrollSpeed;
+            let s = scrollSpeed + delta;
+            if(s < 1) s = 1; if(s > 20) s = 20;
+            scrollSpeed = s;
+            speedDisplay.innerText = s;
         }
 
         function adjustSize(delta) {
-            let newSize = fontSize + delta;
-            if (newSize < 12) newSize = 12;
-            if (newSize > 120) newSize = 120;
-            fontSize = newSize;
-            contentDiv.style.fontSize = fontSize + "px";
+            let s = fontSize + delta;
+            if(s < 10) s = 10; if(s > 150) s = 150;
+            fontSize = s;
+            content.style.fontSize = fontSize + "px";
         }
 
-        // --- FUNCIÓN GUARDAR (EXPORTAR) ---
-        function saveDocument() {
-            // Creamos un HTML autocontenido
-            // Básicamente tomamos el HTML actual, pero inyectamos el contenido ya renderizado
-            // y los valores de configuración en variables iniciales.
+        // --- EFECTOS VISUALES ---
+        function showFeedback(iconClass) {
+            overlay.innerHTML = `<i class="fa-solid ${iconClass}"></i>`;
+            overlay.style.opacity = "1";
+            overlay.style.transform = "translate(-50%, -50%) scale(1.2)";
             
-            const fullHTML = `
+            setTimeout(() => {
+                overlay.style.opacity = "0";
+                overlay.style.transform = "translate(-50%, -50%) scale(1)";
+            }, 600);
+        }
+
+        // --- GUARDAR DOCUMENTO (Auto-Contenido) ---
+        function saveDocument() {
+            // Copiamos el HTML actual pero preparamos el estado inicial
+            const styles = document.querySelector('style').innerHTML;
+            const contentHTML = content.innerHTML;
+            
+            // Creamos un HTML nuevo que inyecta los valores actuales
+            const fileContent = `
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${loadedFileName}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>${loadedName} - Teleprompter</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>${document.querySelector('style').innerHTML}</style>
+    <style>${styles}</style>
 </head>
 <body>
+    <div id="status-overlay"><i class="fa-solid fa-play"></i></div>
     <div class="reading-guide"></div>
-    <div id="teleprompter-area">
+    
+    <div id="teleprompter-area" onclick="handleAreaClick(event)">
         <div id="content" class="content-width markdown-body" style="font-size: ${fontSize}px;">
-            ${contentDiv.innerHTML}
+            ${contentHTML}
         </div>
     </div>
-    
+
     <div class="control-bar">
-        <button class="btn btn-start" id="btnToggle" onclick="toggleScroll()"><i class="fa-solid fa-play"></i></button>
+        <button class="btn btn-start" id="btnToggle" onclick="toggleScroll(event)"><i class="fa-solid fa-play"></i></button>
         <button class="btn btn-reset" onclick="resetScroll()"><i class="fa-solid fa-rotate-left"></i></button>
         <div class="control-group">
             <button class="btn bg-blue" onclick="adjustSpeed(-1)">-</button>
             <span class="display-val" id="speedDisplay">${scrollSpeed}</span>
             <button class="btn bg-blue" onclick="adjustSpeed(1)">+</button>
         </div>
-        <div class="control-group" style="margin-left: 10px;">
+        <div class="control-group">
             <button class="btn bg-orange" onclick="adjustSize(-2)">-</button>
             <span class="display-val"><i class="fa-solid fa-text-height"></i></span>
             <button class="btn bg-orange" onclick="adjustSize(2)">+</button>
@@ -349,71 +383,86 @@
     </div>
 
     <script>
+        /* SCRIPT AUTO-CONTENIDO */
         let isScrolling = false;
         let scrollSpeed = ${scrollSpeed};
         let fontSize = ${fontSize};
-        let animationFrameId;
-        let lastTimestamp = 0;
-        let scrollAccumulator = 0;
+        let animationId; let lastTime = 0; let accumulator = 0;
+
         const area = document.getElementById('teleprompter-area');
+        const content = document.getElementById('content');
         const btnToggle = document.getElementById('btnToggle');
         const speedDisplay = document.getElementById('speedDisplay');
-        const contentDiv = document.getElementById('content');
+        const overlay = document.getElementById('status-overlay');
 
-        // Código de lógica duplicado para que funcione offline
+        // Funciones duplicadas para el modo offline
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') { e.preventDefault(); toggleScroll(); }
+        });
+
+        function handleAreaClick(e) {
+            if (e.target.tagName === 'BUTTON') return;
+            toggleScroll();
+        }
+
         function step(timestamp) {
             if (!isScrolling) return;
-            if (!lastTimestamp) lastTimestamp = timestamp;
-            const delta = timestamp - lastTimestamp;
-            lastTimestamp = timestamp;
-            const pixelsPerSecond = scrollSpeed * 15; 
-            const pixelsToMove = (pixelsPerSecond * delta) / 1000;
-            scrollAccumulator += pixelsToMove;
-            if (scrollAccumulator >= 1) {
-                const move = Math.floor(scrollAccumulator);
-                area.scrollTop += move;
-                scrollAccumulator -= move;
-            }
-            animationFrameId = requestAnimationFrame(step);
+            if (!lastTime) lastTime = timestamp;
+            const delta = timestamp - lastTime;
+            lastTime = timestamp;
+            const pxPerSec = scrollSpeed * 12; 
+            const move = (pxPerSec * delta) / 1000;
+            accumulator += move;
+            if (accumulator >= 0.5) { area.scrollTop += accumulator; accumulator = 0; }
+            if (area.scrollTop + area.clientHeight >= area.scrollHeight - 1) stopScroll();
+            else animationId = requestAnimationFrame(step);
         }
-        function toggleScroll() { isScrolling ? stopScroll() : startScroll(); }
+
+        function toggleScroll(e) { if(e) e.stopPropagation(); isScrolling ? stopScroll() : startScroll(); }
+        
         function startScroll() {
-            if (isScrolling) return;
-            isScrolling = true; lastTimestamp = 0;
+            if(isScrolling) return; isScrolling = true; lastTime = 0;
             btnToggle.innerHTML = '<i class="fa-solid fa-pause"></i>';
-            btnToggle.style.backgroundColor = "#e74c3c";
-            animationFrameId = requestAnimationFrame(step);
+            btnToggle.classList.add('paused'); showFeedback("fa-play");
+            animationId = requestAnimationFrame(step);
         }
+
         function stopScroll() {
-            isScrolling = false; cancelAnimationFrame(animationFrameId);
+            isScrolling = false; cancelAnimationFrame(animationId);
             btnToggle.innerHTML = '<i class="fa-solid fa-play"></i>';
-            btnToggle.style.backgroundColor = "#2ecc71";
+            btnToggle.classList.remove('paused'); showFeedback("fa-pause");
         }
-        function resetScroll() { stopScroll(); area.scrollTop = 0; scrollAccumulator = 0; }
+
+        function resetScroll() { stopScroll(); area.scrollTop = 0; showFeedback("fa-rotate-left"); }
+        
         function adjustSpeed(delta) {
-            let newSpeed = scrollSpeed + delta;
-            if (newSpeed < 1) newSpeed = 1; if (newSpeed > 20) newSpeed = 20;
-            scrollSpeed = newSpeed; speedDisplay.innerText = scrollSpeed;
+            let s = scrollSpeed + delta; if(s < 1) s = 1; if(s > 20) s = 20;
+            scrollSpeed = s; speedDisplay.innerText = s;
         }
+
         function adjustSize(delta) {
-            let newSize = fontSize + delta;
-            if (newSize < 12) newSize = 12; if (newSize > 120) newSize = 120;
-            fontSize = newSize; contentDiv.style.fontSize = fontSize + "px";
+            let s = fontSize + delta; if(s < 10) s = 10; if(s > 150) s = 150;
+            fontSize = s; content.style.fontSize = fontSize + "px";
+        }
+
+        function showFeedback(icon) {
+            overlay.innerHTML = '<i class="fa-solid '+icon+'"></i>';
+            overlay.style.opacity = "1";
+            overlay.style.transform = "translate(-50%, -50%) scale(1.2)";
+            setTimeout(() => { overlay.style.opacity = "0"; overlay.style.transform = "translate(-50%, -50%) scale(1)"; }, 600);
         }
     <\/script>
 </body>
 </html>`;
 
-            // Descargar el archivo
-            const blob = new Blob([fullHTML], { type: 'text/html' });
+            const blob = new Blob([fileContent], {type: 'text/html'});
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = loadedFileName || "teleprompter_guardado.html";
+            a.download = loadedName + "_teleprompter.html";
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            URL.revokeObjectURL(url);
         }
     </script>
 </body>
