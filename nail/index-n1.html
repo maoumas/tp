@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Thumbnail Generator Pro - Workbench</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Bangers&family=Bebas+Neue&family=Oswald:wght@700&family=Roboto:ital,wght@0,700;1,700&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --accent-color: #E62117;
+            --panel-bg: #1e1e1e;
+            --input-bg: #2d2d2d;
+            --border-color: #444;
+            --success-color: #28a745;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Ocupa toda la altura */
+            overflow: hidden; /* Evita scroll en el body principal */
+        }
+
+        /* --- Cabecera Compacta --- */
+        .header-actions {
+            width: 100%; padding: 10px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--panel-bg); border-bottom: 1px solid var(--border-color);
+            height: 60px; flex-shrink: 0;
+        }
+        .header-title h1 { margin: 0; font-size: 1.1rem; font-family: 'Archivo Black'; text-transform: uppercase; }
+        .lang-group { display: flex; gap: 5px; }
+        .lang-btn {
+            padding: 4px 8px; background: var(--input-bg); border: 1px solid var(--border-color);
+            color: var(--text-color); cursor: pointer; border-radius: 4px; font-size: 0.75rem;
+        }
+        .lang-btn.active { background: var(--accent-color); border-color: var(--accent-color); color: white; }
+
+        /* --- Layout de Trabajo (Split View) --- */
+        .workbench-container {
+            display: flex;
+            flex: 1; /* Ocupa el espacio restante */
+            overflow: hidden; /* Contiene el scroll interno */
+            width: 100%;
+        }
+
+        /* LADO IZQUIERDO: PREVIEW (Fijo) */
+        .preview-pane {
+            flex: 2; /* Ocupa más espacio */
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            border-right: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+            max-width: 100%;
+            max-height: 100%;
+            transition: all 0.3s ease;
+        }
+        
+        #canvas { display: block; max-width: 100%; max-height: 70vh; object-fit: contain; }
+
+        /* Controles flotantes sobre el canvas */
+        .canvas-toolbar {
+            display: flex; gap: 10px; margin-bottom: 10px;
+            background: rgba(30,30,30,0.8); padding: 5px 10px; border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+        .format-btn {
+            background: transparent; border: none; color: #ccc; cursor: pointer; font-size: 1.2rem;
+            padding: 5px; transition: 0.2s;
+        }
+        .format-btn:hover, .format-btn.active { color: var(--accent-color); transform: scale(1.1); }
+
+        /* LADO DERECHO: CONTROLES (Scrollable) */
+        .controls-pane {
+            flex: 1; /* Ocupa menos espacio */
+            min-width: 350px;
+            max-width: 450px;
+            background: var(--bg-color);
+            overflow-y: auto; /* Scroll independiente */
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Paneles de controles compactos */
+        .panel { 
+            background: var(--panel-bg); padding: 12px; 
+            border-radius: 6px; border: 1px solid var(--border-color); 
+        }
+        .panel-title { 
+            font-size: 0.8rem; font-weight: bold; color: var(--accent-color); 
+            text-transform: uppercase; margin-bottom: 8px; display: block; 
+            border-bottom: 1px solid #333; padding-bottom: 4px;
+        }
+
+        /* Inputs más compactos */
+        .control-group { margin-bottom: 10px; }
+        label { display: block; font-size: 0.7rem; color: #888; font-weight: bold; margin-bottom: 2px; }
+        input[type="text"], select, textarea {
+            width: 100%; background: var(--input-bg); border: 1px solid var(--border-color);
+            color: white; padding: 6px; border-radius: 3px; font-size: 0.85rem;
+        }
+        
+        .style-row { display: flex; gap: 5px; align-items: center; margin-top: 4px; }
+        input[type="color"] { border: none; width: 30px; height: 30px; padding: 0; background: none; }
+        .checkbox-btn {
+            width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+            background: var(--input-bg); border: 1px solid var(--border-color); color: white;
+            cursor: pointer; font-style: italic; font-weight: bold; border-radius: 3px; font-size: 0.8rem;
+        }
+        .checkbox-btn.active { background: var(--accent-color); border-color: var(--accent-color); }
+
+        /* Sliders compactos */
+        .slider-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+        .slider-row span { font-size: 0.65rem; color: #aaa; width: 15px; font-weight: bold; }
+        input[type="range"] { flex: 1; accent-color: var(--accent-color); cursor: pointer; height: 4px; }
+
+        /* Botones de acción */
+        .download-btn {
+            width: 100%; padding: 10px; margin-bottom: 10px;
+            background: var(--success-color); color: white; font-family: 'Archivo Black', sans-serif;
+            font-size: 1rem; text-transform: uppercase; border: none; border-radius: 4px;
+            cursor: pointer;
+        }
+        .download-btn:hover { filter: brightness(1.1); }
+
+        .top-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 10px;}
+        .tool-btn {
+            background: #333; border: 1px solid #444; color: #fff; padding: 8px;
+            font-size: 0.75rem; cursor: pointer; border-radius: 4px;
+        }
+
+        /* Footer Integrado en el panel */
+        .pane-footer { margin-top: auto; padding-top: 20px; font-size: 0.7rem; color: #555; text-align: center; }
+        .pane-footer a { color: #777; text-decoration: none; }
+
+        /* RESPONSIVE: Si es móvil, vuelve a apilarse verticalmente */
+        @media (max-width: 900px) {
+            .workbench-container { flex-direction: column; overflow-y: auto; }
+            .preview-pane { flex: none; height: 50vh; border-right: none; border-bottom: 1px solid var(--border-color); }
+            .controls-pane { flex: none; overflow-y: visible; }
+            body { overflow: auto; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="header-actions">
+        <div class="header-title">
+            <h1 data-key="mainTitle">Thumbnail Gen <span style="color:var(--accent-color)">Pro</span></h1>
+        </div>
+        <div class="lang-group">
+            <button class="lang-btn" onclick="setLang('es')">ES</button>
+            <button class="lang-btn" onclick="setLang('en')">EN</button>
+            <button class="lang-btn active" onclick="setLang('de')">DE</button>
+        </div>
+    </header>
+
+    <div class="workbench-container">
+        
+        <div class="preview-pane">
+            <div class="canvas-toolbar">
+                <button class="format-btn active" id="btn169" onclick="setFormat('16:9')" title="YouTube Landscape"><i class="fa-solid fa-desktop"></i></button>
+                <button class="format-btn" id="btn916" onclick="setFormat('9:16')" title="Shorts/TikTok"><i class="fa-solid fa-mobile-screen"></i></button>
+            </div>
+            
+            <div class="canvas-wrapper">
+                <canvas id="canvas" width="1280" height="720"></canvas>
+            </div>
+            
+            <p style="color:#555; font-size:0.7rem; margin-top:10px;">
+                <i class="fa-solid fa-arrows-up-down-left-right"></i> Drag on canvas to move elements
+            </p>
+        </div>
+
+        <div class="controls-pane">
+            
+            <button class="download-btn" onclick="downloadImage()" data-key="btnDownload">DOWNLOAD IMAGE</button>
+            
+            <div class="top-grid">
+                <button class="tool-btn" onclick="toggleOverlay()" data-key="btnPreview">👁 Preview</button>
+                <button class="tool-btn" onclick="resetImages()" data-key="btnReset">↺ Reset Imgs</button>
+            </div>
+
+            <div class="panel">
+                <span class="panel-title" data-key="sectionText">Text Editor</span>
+                
+                <div class="control-group">
+                    <label data-key="lblTitle">HEADLINE</label>
+                    <input type="text" id="titleText" placeholder="TITLE..." oninput="draw()">
+                    <div class="style-row">
+                        <select id="titleFont" onchange="draw()">
+                            <option value="'Anton', sans-serif">Anton</option>
+                            <option value="'Archivo Black', sans-serif">Archivo Black</option>
+                            <option value="'Bangers', cursive">Bangers</option>
+                        </select>
+                        <input type="color" id="titleColor" value="#FFFFFF" oninput="draw()">
+                        <input type="color" id="titleBg" value="#CC0000" oninput="draw()">
+                        <div class="checkbox-btn" id="btnItalicTitle" onclick="toggleItalic('title')">I</div>
+                    </div>
+                    <div class="slider-row"><span>Sz</span><input type="range" id="titleSize" min="20" max="200" value="90" oninput="draw()"></div>
+                    <div class="slider-row"><span>X</span><input type="range" id="titleX" min="-600" max="600" value="0" oninput="draw()"></div>
+                    <div class="slider-row"><span>Y</span><input type="range" id="titleY" min="-600" max="600" value="0" oninput="draw()"></div>
+                </div>
+
+                <div class="control-group">
+                    <label data-key="lblDesc">SUBTITLE</label>
+                    <input type="text" id="descText" placeholder="Subtitle..." oninput="draw()">
+                    <div class="style-row">
+                        <select id="descFont" onchange="draw()">
+                            <option value="'Anton', sans-serif">Anton</option>
+                            <option value="'Roboto', sans-serif">Roboto</option>
+                        </select>
+                        <input type="color" id="descColor" value="#FFFFFF" oninput="draw()">
+                        <input type="color" id="descBg" value="#000000" oninput="draw()">
+                        <div class="checkbox-btn" id="btnItalicDesc" onclick="toggleItalic('desc')">I</div>
+                    </div>
+                    <div class="slider-row"><span>Sz</span><input type="range" id="descSize" min="10" max="150" value="50" oninput="draw()"></div>
+                    <div class="slider-row"><span>X</span><input type="range" id="descX" min="-600" max="600" value="0" oninput="draw()"></div>
+                    <div class="slider-row"><span>Y</span><input type="range" id="descY" min="-600" max="600" value="0" oninput="draw()"></div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <span class="panel-title" data-key="sectionBg">Background / Layers</span>
+                <div id="layerList" style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:5px;"></div>
+                <button class="tool-btn" style="width:100%; border:1px dashed #666;" onclick="document.getElementById('imgUpload').click()" data-key="btnAddImg">+ Add Image</button>
+                <input type="file" id="imgUpload" multiple accept="image/*" style="display:none" onchange="handleImages(this)">
+                
+                <div class="slider-row" style="margin-top:10px;">
+                    <span>Zm</span>
+                    <input type="range" id="imgScale" min="0.1" max="4" step="0.05" value="1" oninput="updateActiveImageScale()">
+                </div>
+            </div>
+
+            <div class="panel">
+                <span class="panel-title">AI Prompt</span>
+                <input type="text" id="grokIdea" placeholder="Idea..." style="margin-bottom:5px;">
+                <button class="tool-btn" style="width:100%; background:var(--accent-color); border:none;" onclick="genAndOpenGrok()" data-key="btnGenGrok">Generate Prompt</button>
+            </div>
+
+            <div class="pane-footer">
+                &copy; <span id="year">2025</span> Mauricio Umana.<br>
+                <a href="https://youtube.com/@translatedpressde" target="_blank"><i class="fa-brands fa-youtube"></i> YouTube</a> | 
+                <a href="https://github.com/maoumas" target="_blank"><i class="fa-brands fa-github"></i> GitHub</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN
+        const translations = {
+            en: { mainTitle: 'Thumbnail Gen <span style="color:var(--accent-color)">Pro</span>', btnDownload: 'DOWNLOAD IMAGE', btnPreview: '👁 Preview', btnReset: '↺ Reset', sectionText: 'Text Editor', lblTitle: 'HEADLINE', lblDesc: 'SUBTITLE', sectionBg: 'Layers', btnAddImg: '+ Add Image', btnGenGrok: 'Generate Prompt', promptPrefix: 'Create a background. ' },
+            es: { mainTitle: 'Generador <span style="color:var(--accent-color)">Pro</span>', btnDownload: 'DESCARGAR', btnPreview: '👁 Vista', btnReset: '↺ Reset', sectionText: 'Editor Texto', lblTitle: 'TÍTULO', lblDesc: 'SUBTÍTULO', sectionBg: 'Capas', btnAddImg: '+ Imagen', btnGenGrok: 'Generar Prompt', promptPrefix: 'Crea un fondo. ' },
+            de: { mainTitle: 'Thumbnail Gen <span style="color:var(--accent-color)">Pro</span>', btnDownload: 'HERUNTERLADEN', btnPreview: '👁 Vorschau', btnReset: '↺ Reset', sectionText: 'Text-Editor', lblTitle: 'TITEL', lblDesc: 'UNTERTITEL', sectionBg: 'Ebenen', btnAddImg: '+ Bild', btnGenGrok: 'Prompt Erstellen', promptPrefix: 'Erstelle einen Hintergrund. ' }
+        };
+        let currentLang = 'de';
+        let currentFormat = '16:9';
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // ESTADO
+        let state = {
+            images: [], 
+            activeImgIndex: -1,
+            isDragging: false,
+            lastX: 0, lastY: 0,
+            titleItalic: false,
+            descItalic: false
+        };
+
+        window.onload = () => {
+            document.getElementById('year').textContent = new Date().getFullYear();
+            setLang('de');
+            draw();
+        };
+
+        // --- CAMBIO DE FORMATO (NUEVO) ---
+        function setFormat(fmt) {
+            currentFormat = fmt;
+            document.getElementById('btn169').classList.remove('active');
+            document.getElementById('btn916').classList.remove('active');
+            
+            if(fmt === '16:9') {
+                canvas.width = 1280; canvas.height = 720;
+                document.getElementById('btn169').classList.add('active');
+            } else {
+                canvas.width = 720; canvas.height = 1280;
+                document.getElementById('btn916').classList.add('active');
+            }
+            // Resetear posiciones de texto por defecto para que no queden fuera
+            document.getElementById('titleY').value = 0;
+            document.getElementById('descY').value = 0;
+            draw();
+        }
+
+        // --- DIBUJADO ---
+        function draw() {
+            // Fondo Base
+            ctx.fillStyle = '#111';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Imágenes
+            state.images.forEach((imgObj, index) => {
+                ctx.save();
+                const drawX = (canvas.width/2) + imgObj.x;
+                const drawY = (canvas.height/2) + imgObj.y;
+                ctx.translate(drawX, drawY);
+                ctx.scale(imgObj.scale, imgObj.scale);
+                ctx.drawImage(imgObj.img, -imgObj.width/2, -imgObj.height/2);
+                
+                // Borde selección
+                if (index === state.activeImgIndex) {
+                    ctx.strokeStyle = '#00FF00'; ctx.lineWidth = 4;
+                    ctx.strokeRect(-imgObj.width/2, -imgObj.height/2, imgObj.width, imgObj.height);
+                }
+                ctx.restore();
+            });
+
+            // Textos
+            drawTextGroup('title');
+            drawTextGroup('desc');
+        }
+
+        function drawTextGroup(type) {
+            const rawText = document.getElementById(type + 'Text').value.toUpperCase();
+            if (!rawText) return;
+
+            const size = parseInt(document.getElementById(type + 'Size').value);
+            const fontName = document.getElementById(type + 'Font').value;
+            const color = document.getElementById(type + 'Color').value;
+            const bgColor = document.getElementById(type + 'Bg').value;
+            const xOff = parseInt(document.getElementById(type + 'X').value);
+            const yOff = parseInt(document.getElementById(type + 'Y').value); // Slider value
+            const isItalic = type === 'title' ? state.titleItalic : state.descItalic;
+
+            const fontStyle = isItalic ? 'italic bold' : 'bold';
+            ctx.font = `${fontStyle} ${size}px ${fontName}`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle'; 
+
+            // Posición Dinámica según formato
+            let baseX = canvas.width / 2;
+            // Si es título, por defecto un poco arriba del centro, si es desc, abajo
+            let baseY = (type === 'title') ? (canvas.height * 0.4) : (canvas.height * 0.6);
+            
+            // Aplicar offset del slider (invertido para que subir slider suba texto)
+            let x = baseX + xOff;
+            let y = baseY - yOff;
+
+            // Render multilinea
+            const maxWidth = canvas.width * 0.9;
+            const lineHeight = size * 1.2;
+            const lines = wrapText(ctx, rawText, maxWidth);
+            const totalHeight = lines.length * lineHeight;
+            let currentY = y - (totalHeight / 2) + (lineHeight / 2);
+
+            lines.forEach(line => {
+                const metrics = ctx.measureText(line);
+                const width = metrics.width;
+                const height = size * 1.3;
+                
+                if (bgColor !== 'transparent') {
+                    ctx.fillStyle = bgColor;
+                    ctx.fillRect(x - width/2 - 10, currentY - height/2, width + 20, height);
+                }
+                ctx.fillStyle = color;
+                ctx.shadowColor = "rgba(0,0,0,0.8)";
+                ctx.shadowBlur = 8;
+                ctx.fillText(line, x, currentY);
+                ctx.shadowBlur = 0;
+                currentY += lineHeight;
+            });
+        }
+
+        function wrapText(context, text, maxWidth) {
+            const words = text.split(' ');
+            let lines = [];
+            let currentLine = words[0];
+            for (let i = 1; i < words.length; i++) {
+                let word = words[i];
+                let width = context.measureText(currentLine + " " + word).width;
+                if (width < maxWidth) currentLine += " " + word;
+                else { lines.push(currentLine); currentLine = word; }
+            }
+            lines.push(currentLine);
+            return lines;
+        }
+
+        // --- IMAGENES ---
+        function handleImages(input) {
+            if (!input.files || input.files.length === 0) return;
+            Array.from(input.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        // Escalar para cubrir pero no exceder demasiado
+                        const scale = Math.max(canvas.width/img.width, canvas.height/img.height);
+                        state.images.push({ img: img, width: img.width, height: img.height, x: 0, y: 0, scale: scale });
+                        state.activeImgIndex = state.images.length - 1;
+                        updateLayerUI(); draw();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+            input.value = ''; 
+        }
+
+        function updateLayerUI() {
+            const list = document.getElementById('layerList');
+            list.innerHTML = '';
+            state.images.forEach((_, idx) => {
+                const badge = document.createElement('div');
+                badge.style.cssText = `padding:4px 8px; background:#333; border-radius:4px; font-size:0.7rem; cursor:pointer; border:1px solid ${idx === state.activeImgIndex ? '#E62117' : 'transparent'};`;
+                badge.innerText = `Img ${idx + 1}`;
+                badge.onclick = () => {
+                    state.activeImgIndex = idx;
+                    document.getElementById('imgScale').value = state.images[idx].scale;
+                    updateLayerUI(); draw();
+                };
+                list.appendChild(badge);
+            });
+        }
+        function resetImages() { state.images = []; state.activeImgIndex = -1; updateLayerUI(); draw(); }
+        function updateActiveImageScale() {
+            if (state.activeImgIndex > -1) {
+                state.images[state.activeImgIndex].scale = parseFloat(document.getElementById('imgScale').value);
+                draw();
+            }
+        }
+
+        // --- DRAG ---
+        // Ajustamos los eventos para que funcionen con el canvas dentro del contenedor flexible
+        const canvasEl = document.getElementById('canvas');
+        
+        // Coordenadas relativas al canvas, no a la ventana
+        function getCanvasCoordinates(event) {
+            const rect = canvasEl.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            
+            let clientX = event.clientX;
+            let clientY = event.clientY;
+            
+            if(event.touches && event.touches.length > 0) {
+                clientX = event.touches[0].clientX;
+                clientY = event.touches[0].clientY;
+            }
+
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY
+            };
+        }
+
+        canvasEl.addEventListener('mousedown', (e) => startDrag(e));
+        canvasEl.addEventListener('touchstart', (e) => startDrag(e), {passive:false});
+        window.addEventListener('mousemove', (e) => doDrag(e));
+        window.addEventListener('touchmove', (e) => doDrag(e), {passive:false});
+        window.addEventListener('mouseup', () => state.isDragging = false);
+        window.addEventListener('touchend', () => state.isDragging = false);
+
+        function startDrag(e) {
+            if (state.activeImgIndex > -1) { 
+                state.isDragging = true; 
+                const coords = getCanvasCoordinates(e);
+                state.lastX = coords.x; 
+                state.lastY = coords.y; 
+            }
+        }
+        function doDrag(e) {
+            if (!state.isDragging || state.activeImgIndex === -1) return;
+            if (e.type === 'touchmove') e.preventDefault();
+            
+            const coords = getCanvasCoordinates(e);
+            
+            // Movimiento relativo
+            // El desplazamiento en el canvas debe ser relativo a la escala visual
+            // Pero aquí movemos las coordenadas internas X/Y de la imagen
+            state.images[state.activeImgIndex].x += (coords.x - state.lastX);
+            state.images[state.activeImgIndex].y += (coords.y - state.lastY);
+            
+            state.lastX = coords.x;
+            state.lastY = coords.y;
+            draw();
+        }
+
+        // --- UTILS ---
+        function toggleItalic(type) {
+            if (type === 'title') state.titleItalic = !state.titleItalic;
+            else state.descItalic = !state.descItalic;
+            document.getElementById(type === 'title' ? 'btnItalicTitle' : 'btnItalicDesc').classList.toggle('active');
+            draw();
+        }
+        function genAndOpenGrok() {
+            const idea = document.getElementById('grokIdea').value;
+            const prefix = translations[currentLang].promptPrefix;
+            const prompt = `${prefix} Style: Hyper-realistic/Anime. Subject: ${idea}. High contrast, 8k. Aspect Ratio ${currentFormat === '16:9' ? '16:9' : '9:16'}.`;
+            navigator.clipboard.writeText(prompt).then(() => { window.open('https://grok.com', '_blank'); });
+        }
+        function downloadImage() {
+            const link = document.createElement('a'); 
+            link.download = `thumbnail_${currentFormat.replace(':','-')}.png`; 
+            link.href = canvas.toDataURL('image/png'); link.click();
+        }
+        function toggleOverlay() { alert("Simulación de elementos de UI de YouTube (Próximamente)"); }
+
+        function setLang(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            const btns = document.querySelectorAll('.lang-btn');
+            for(let btn of btns) { if(btn.innerText.toLowerCase() === lang) btn.classList.add('active'); }
+            const t = translations[lang];
+            document.querySelectorAll('[data-key]').forEach(el => {
+                const key = el.getAttribute('data-key');
+                if(t[key]) el.innerHTML = t[key];
+            });
+        }
+    </script>
+</body>
+</html>
