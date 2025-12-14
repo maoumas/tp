@@ -373,12 +373,15 @@
             draw();
         }
 
-        const templateURLs = {
-            'T1': 'https://placehold.co/1280x720/111111/E62117/png?text=Template+1',
-            'T2': 'https://placehold.co/1280x720/000000/3498db/png?text=Template+2',
-            'T3': 'https://placehold.co/1280x720/222222/2ecc71/png?text=Template+3',
-            'T4': 'https://placehold.co/1280x720/111111/f1c40f/png?text=Template+4'
-        };
+        // --- TEMPLATES ---
+// Configuración para leer archivos locales en el mismo directorio
+const templateURLs = {
+    'T1': 'template1.png',
+    'T2': 'template2.png',
+    'T3': 'template3.png',
+    'T4': 'template4.png'
+};
+
 
         function handleTemplateSelect(select) { if(select.value) loadTemplate(select.value); select.value = ""; }
 
