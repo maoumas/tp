@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VisualCue V21 - Ultimate</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Bangers&family=Bebas+Neue&family=Oswald:wght@700&family=Roboto:ital,wght@0,700;1,700&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            /* MODO OSCURO (Default) */
+            --bg-app: #000000;
+            --panel-bg: #111111;
+            --text-main: #e0e0e0;
+            --text-muted: #888888;
+            --border-color: #333333;
+            --input-bg: #222222;
+            
+            --accent-color: #E62117; /* YouTube Red */
+            --accent-blue: #3498db;
+            --success-color: #28a745;
+            --link-color: #FFD700; /* Dorado */
+        }
+
+        /* MODO CLARO */
+        body.light-theme {
+            --bg-app: #f0f2f5;
+            --panel-bg: #ffffff;
+            --text-main: #1a1a1a;
+            --text-muted: #555555;
+            --border-color: #cccccc;
+            --input-bg: #e4e6eb;
+            --link-color: #d35400; /* Dorado oscuro para fondo blanco */
+        }
+
+        * { box-sizing: border-box; transition: background-color 0.3s, color 0.3s; }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            margin: 0; display: flex; flex-direction: column;
+            height: 100vh; overflow: hidden;
+        }
+
+        /* --- HEADER --- */
+        .header-actions {
+            width: 100%; padding: 10px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--panel-bg); border-bottom: 1px solid var(--border-color);
+            height: 60px; flex-shrink: 0; z-index: 100;
+        }
+        .header-title h1 { margin: 0; font-size: 1.2rem; font-family: 'Archivo Black'; text-transform: uppercase; color: var(--text-main); }
+        
+        .top-right { display: flex; gap: 10px; align-items: center; }
+
+        /* Botón Tema */
+        .btn-theme {
+            background: transparent; border: 1px solid var(--border-color);
+            color: var(--text-main); width: 36px; height: 36px; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .btn-theme:hover { background: var(--input-bg); }
+
+        .lang-group { display: flex; gap: 5px; background: var(--input-bg); padding: 3px; border-radius: 6px; }
+        .lang-btn {
+            padding: 4px 8px; background: transparent; border: none;
+            color: var(--text-muted); cursor: pointer; border-radius: 4px; font-size: 0.75rem; font-weight: bold;
+        }
+        .lang-btn.active { background: var(--accent-color); color: white; }
+
+        /* --- LAYOUT PRINCIPAL --- */
+        .workbench-container { display: flex; flex: 1; overflow: hidden; width: 100%; }
+
+        /* --- PANEL IZQUIERDO (PREVIEW) --- */
+        .preview-pane {
+            flex: 2; background: #000; /* Siempre negro para resaltar imagen */
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; border-right: 1px solid var(--border-color);
+        }
+
+        .canvas-toolbar {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 10px; background: rgba(30,30,30,0.9); 
+            padding: 5px 15px; border-radius: 20px; border: 1px solid #444; z-index: 10;
+        }
+        .format-btn {
+            background: transparent; border: none; color: #aaa; cursor: pointer; font-size: 1.2rem;
+        }
+        .format-btn.active { color: var(--accent-color); transform: scale(1.1); }
+
+        /* Sidebar de Plantillas (Flotante a la derecha del canvas) */
+        .template-sidebar {
+            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            display: flex; flex-direction: column; gap: 8px;
+            background: rgba(30,30,30,0.8); padding: 8px; border-radius: 8px; border: 1px solid #444;
+        }
+        .tmpl-btn {
+            width: 40px; height: 40px; background: #222; color: #fff;
+            border: 1px solid #555; border-radius: 4px; cursor: pointer;
+            font-weight: bold; font-family: 'Archivo Black'; font-size: 0.8rem;
+            transition: 0.2s;
+        }
+        .tmpl-btn:hover { background: var(--accent-color); border-color: var(--accent-color); }
+
+        .canvas-wrapper {
+            position: relative;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            border: 1px solid #333;
+            max-width: 90%; max-height: 80%;
+        }
+        #canvas { display: block; max-width: 100%; max-height: 75vh; object-fit: contain; cursor: crosshair; }
+
+        /* --- PANEL DERECHO (CONTROLES) --- */
+        .controls-pane {
+            flex: 1; min-width: 340px; max-width: 420px;
+            background: var(--bg-app); overflow-y: auto;
+            padding: 20px; display: flex; flex-direction: column; gap: 15px;
+        }
+
+        .download-btn {
+            width: 100%; padding: 12px;
+            background: var(--success-color); color: white; font-family: 'Archivo Black';
+            font-size: 1.1rem; text-transform: uppercase; border: none; border-radius: 6px;
+            cursor: pointer; margin-bottom: 5px; letter-spacing: 1px;
+        }
+        .download-btn:hover { filter: brightness(1.1); transform: scale(1.01); }
+
+        .panel { 
+            background: var(--panel-bg); padding: 15px; 
+            border-radius: 8px; border: 1px solid var(--border-color); 
+        }
+        .panel-title { 
+            font-size: 0.8rem; font-weight: bold; color: var(--accent-color); 
+            text-transform: uppercase; margin-bottom: 12px; display: block; 
+            border-bottom: 1px solid var(--border-color); padding-bottom: 5px;
+        }
+
+        .control-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; }
+        input[type="text"], select, textarea {
+            width: 100%; background: var(--input-bg); border: 1px solid var(--border-color);
+            color: var(--text-main); padding: 8px; border-radius: 4px; font-size: 0.9rem;
+        }
+
+        .style-row { display: flex; gap: 8px; align-items: center; margin-top: 5px; }
+        input[type="color"] { border: none; width: 40px; height: 35px; padding: 0; background: none; cursor: pointer; }
+        .checkbox-btn {
+            width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;
+            background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main);
+            cursor: pointer; font-weight: bold; border-radius: 4px; font-family: serif; font-size: 1.1rem;
+        }
+        .checkbox-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+
+        .tool-btn {
+            width: 100%; background: var(--input-bg); border: 1px dashed var(--border-color); 
+            color: var(--text-main); padding: 10px; border-radius: 4px; cursor: pointer; margin-top: 5px;
+        }
+        .tool-btn:hover { background: var(--border-color); }
+
+        /* GROK PANEL */
+        .grok-btn {
+            background: #000; color: white; border: 1px solid #333;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .grok-btn:hover { background: #222; }
+
+        /* FOOTER */
+        .site-footer-inner {
+            margin-top: auto; padding-top: 30px; border-top: 1px solid var(--border-color);
+            text-align: center; padding-bottom: 20px;
+        }
+        .footer-links {
+            display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 10px;
+        }
+        .footer-links a {
+            color: var(--link-color) !important;
+            text-decoration: none !important;
+            font-weight: bold; display: inline-flex; align-items: center; gap: 5px; font-size: 0.9rem;
+        }
+        .footer-links a:hover { text-decoration: underline !important; }
+        .footer-copy { color: var(--text-muted); font-size: 0.8em; }
+
+        /* SVG Icons Inline */
+        .icon-gold { color: var(--link-color); fill: currentColor; }
+
+        @media (max-width: 900px) {
+            .workbench-container { flex-direction: column; overflow-y: auto; }
+            .preview-pane { flex: none; height: 50vh; border-right: none; border-bottom: 1px solid var(--border-color); }
+            .template-sidebar { right: 10px; }
+            .controls-pane { flex: none; overflow-y: visible; }
+            body { overflow: auto; }
+        }
+    </style>
+</head>
+<body class="">
+
+    <header class="header-actions">
+        <div class="header-title">
+            <h1 data-key="mainTitle">VisualCue <span style="color:var(--accent-color)">V21</span></h1>
+        </div>
+        <div class="top-right">
+            <button class="btn-theme" onclick="toggleTheme()" id="btnTheme" title="Toggle Theme">
+                <i class="fa-solid fa-sun"></i>
+            </button>
+            <div class="lang-group">
+                <button class="lang-btn" onclick="setLang('es')">ES</button>
+                <button class="lang-btn active" onclick="setLang('de')">DE</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="workbench-container">
+        
+        <div class="preview-pane">
+            <div class="canvas-toolbar">
+                <button class="format-btn active" id="btn169" onclick="setFormat('16:9')"><i class="fa-solid fa-desktop"></i></button>
+                <button class="format-btn" id="btn916" onclick="setFormat('9:16')"><i class="fa-solid fa-mobile-screen"></i></button>
+            </div>
+
+            <div class="template-sidebar">
+                <button class="tmpl-btn" onclick="loadTemplate('T1')" title="Template 1">T1</button>
+                <button class="tmpl-btn" onclick="loadTemplate('T2')" title="Template 2">T2</button>
+                <button class="tmpl-btn" onclick="loadTemplate('T3')" title="Template 3">T3</button>
+                <button class="tmpl-btn" onclick="loadTemplate('T4')" title="Template 4">T4</button>
+                <button class="tmpl-btn" onclick="resetImages()" style="font-size:0.6rem; color:#E62117;">CLR</button>
+            </div>
+
+            <div class="canvas-wrapper">
+                <canvas id="canvas" width="1280" height="720"></canvas>
+            </div>
+            <p style="margin-top:10px; color:#666; font-size:0.75rem; font-style:italic;">
+                <i class="fa-solid fa-hand-pointer"></i> Click & Drag elements directly
+            </p>
+        </div>
+
+        <div class="controls-pane">
+            <button class="download-btn" onclick="downloadImage()" data-key="btnDownload">DOWNLOAD IMAGE</button>
+
+            <div class="panel">
+                <span class="panel-title" data-key="sectionText">Text Layers</span>
+                <div class="control-group">
+                    <label data-key="lblTitle">HEADLINE</label>
+                    <input type="text" id="titleText" value="THE TRUTH ABOUT..." oninput="updateText('title')">
+                    <div class="style-row">
+                        <select id="titleFont" onchange="draw()">
+                            <option value="'Archivo Black', sans-serif">Archivo Black</option>
+                            <option value="'Anton', sans-serif">Anton</option>
+                            <option value="'Bangers', cursive">Bangers</option>
+                        </select>
+                        <input type="color" id="titleColor" value="#FFFFFF" oninput="draw()">
+                        <input type="color" id="titleBg" value="#CC0000" oninput="draw()">
+                        <div class="checkbox-btn" id="btnItalicTitle" onclick="toggleItalic('title')">I</div>
+                    </div>
+                </div>
+                <hr style="border-color:var(--border-color); opacity:0.5; margin:10px 0;">
+                <div class="control-group">
+                    <label data-key="lblDesc">SUBTITLE</label>
+                    <input type="text" id="descText" value="Details here..." oninput="updateText('desc')">
+                    <div class="style-row">
+                        <select id="descFont" onchange="draw()">
+                            <option value="'Roboto', sans-serif">Roboto</option>
+                            <option value="'Anton', sans-serif">Anton</option>
+                        </select>
+                        <input type="color" id="descColor" value="#FFFFFF" oninput="draw()">
+                        <input type="color" id="descBg" value="#000000" oninput="draw()">
+                        <div class="checkbox-btn" id="btnItalicDesc" onclick="toggleItalic('desc')">I</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <span class="panel-title" data-key="sectionBg">Images / Layers</span>
+                <div id="layerList" style="display:flex; gap:5px; flex-wrap:wrap; margin-bottom:8px;"></div>
+                <button class="tool-btn" onclick="document.getElementById('imgUpload').click()" data-key="btnAddImg">+ Upload Image</button>
+                <input type="file" id="imgUpload" multiple accept="image/*" style="display:none" onchange="handleImages(this)">
+            </div>
+
+            <div class="panel">
+                <span class="panel-title"><i class="fa-solid fa-robot"></i> Grok AI Prompt</span>
+                <input type="text" id="grokIdea" placeholder="Describe your background idea..." style="margin-bottom:8px;">
+                <button class="tool-btn grok-btn" onclick="genGrok()">
+                    Generar & Abrir Grok <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </button>
+            </div>
+
+            <div class="site-footer-inner">
+                <div class="footer-links">
+                    <a href="https://www.youtube.com/@TranslatedPressDE/videos" target="_blank">
+                        <i class="fa-brands fa-youtube icon-gold"></i> YouTube
+                    </a>
+                    <span style="color:var(--border-color)">|</span>
+                    <a href="https://tpascal.com" target="_blank">
+                        <i class="fa-solid fa-globe icon-gold"></i> tpascal.com
+                    </a>
+                </div>
+                <p class="footer-copy">&copy; 2025 Mauricio Umana. Alle Rechte vorbehalten.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIG & STATE ---
+        const translations = {
+            es: { mainTitle: 'VisualCue <span style="color:var(--accent-color)">V21</span>', btnDownload: 'DESCARGAR IMAGEN', sectionText: 'Capas de Texto', lblTitle: 'TÍTULO', lblDesc: 'SUBTÍTULO', sectionBg: 'Imágenes', btnAddImg: '+ Subir Imagen' },
+            de: { mainTitle: 'VisualCue <span style="color:var(--accent-color)">V21</span>', btnDownload: 'BILD HERUNTERLADEN', sectionText: 'Textebenen', lblTitle: 'TITEL', lblDesc: 'UNTERTITEL', sectionBg: 'Bilder', btnAddImg: '+ Bild hochladen' }
+        };
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let currentFormat = '16:9';
+        let isLightMode = false;
+
+        let texts = {
+            title: { text: "THE TRUTH ABOUT...", x: 0, y: 0, size: 90, width:0, height:0, italic: false },
+            desc:  { text: "Details here...", x: 0, y: 0, size: 50, width:0, height:0, italic: false }
+        };
+        let images = [];
+        let selection = { type: null, id: null, action: null, lastX: 0, lastY: 0, isDragging: false };
+
+        // --- INIT ---
+        window.onload = () => {
+            setLang('de');
+            setFormat('16:9');
+            
+            // Cargar estado inicial
+            document.getElementById('titleText').value = texts.title.text;
+            document.getElementById('descText').value = texts.desc.text;
+        };
+
+        // --- THEME ---
+        function toggleTheme() {
+            isLightMode = !isLightMode;
+            document.body.className = isLightMode ? 'light-theme' : '';
+            document.getElementById('btnTheme').innerHTML = isLightMode ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+        }
+
+        // --- FORMAT ---
+        function setFormat(fmt) {
+            currentFormat = fmt;
+            document.getElementById('btn169').classList.remove('active');
+            document.getElementById('btn916').classList.remove('active');
+            
+            if(fmt === '16:9') {
+                canvas.width = 1280; canvas.height = 720;
+                document.getElementById('btn169').classList.add('active');
+            } else {
+                canvas.width = 720; canvas.height = 1280;
+                document.getElementById('btn916').classList.add('active');
+            }
+            
+            // Recenter elements
+            texts.title.x = canvas.width / 2; texts.title.y = canvas.height * 0.4;
+            texts.desc.x = canvas.width / 2; texts.desc.y = canvas.height * 0.6;
+            
+            // Recenter images if any
+            images.forEach(img => {
+                img.x = canvas.width/2; img.y = canvas.height/2;
+            });
+            draw();
+        }
+
+        // --- TEMPLATES (T1-T4) ---
+        // Nota: Reemplaza estas URLs con las rutas de tus archivos reales: 'templates/T1.png'
+        const templateURLs = {
+            'T1': 'https://placehold.co/1280x720/111111/E62117/png?text=Template+1',
+            'T2': 'https://placehold.co/1280x720/000000/3498db/png?text=Template+2',
+            'T3': 'https://placehold.co/1280x720/222222/2ecc71/png?text=Template+3',
+            'T4': 'https://placehold.co/1280x720/111111/f1c40f/png?text=Template+4'
+        };
+
+        function loadTemplate(key) {
+            const url = templateURLs[key];
+            const img = new Image();
+            img.crossOrigin = "Anonymous"; // Necesario para evitar tainted canvas
+            img.onload = () => {
+                const scale = Math.max(canvas.width/img.width, canvas.height/img.height);
+                const newImgObj = { img: img, width: img.width, height: img.height, x: canvas.width/2, y: canvas.height/2, scale: scale, isTemplate: true };
+                
+                // Si la primera imagen es un template, reemplázala. Si no, añade al principio.
+                if (images.length > 0 && images[0].isTemplate) {
+                    images[0] = newImgObj;
+                } else {
+                    images.unshift(newImgObj); // Añadir al fondo (índice 0)
+                }
+                draw(); updateLayerList();
+            };
+            img.src = url;
+        }
+
+        // --- DRAWING ---
+        function draw() {
+            ctx.fillStyle = isLightMode ? '#fff' : '#111'; // Fondo base del canvas
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Imágenes
+            images.forEach((imgObj, idx) => {
+                ctx.save();
+                ctx.translate(imgObj.x, imgObj.y);
+                ctx.scale(imgObj.scale, imgObj.scale);
+                ctx.drawImage(imgObj.img, -imgObj.width/2, -imgObj.height/2);
+                
+                // Selección Imagen
+                if (selection.type === 'image' && selection.id === idx) {
+                    ctx.strokeStyle = '#28a745'; ctx.lineWidth = 4/imgObj.scale;
+                    ctx.strokeRect(-imgObj.width/2, -imgObj.height/2, imgObj.width, imgObj.height);
+                    // Handle
+                    ctx.fillStyle = '#28a745';
+                    ctx.fillRect((imgObj.width/2) - 20/imgObj.scale, (imgObj.height/2) - 20/imgObj.scale, 40/imgObj.scale, 40/imgObj.scale);
+                }
+                ctx.restore();
+            });
+
+            // Textos
+            drawText('title');
+            drawText('desc');
+        }
+
+        function drawText(key) {
+            const t = texts[key];
+            if (!t.text) return;
+
+            const fontName = document.getElementById(key + 'Font').value;
+            const color = document.getElementById(key + 'Color').value;
+            const bgColor = document.getElementById(key + 'Bg').value;
+            const style = t.italic ? 'italic bold' : 'bold';
+
+            ctx.font = `${style} ${t.size}px ${fontName}`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+
+            const lines = wrapText(ctx, t.text, canvas.width * 0.9);
+            const lh = t.size * 1.2;
+            const totalH = lines.length * lh;
+            
+            // Calcular caja
+            let maxW = 0; lines.forEach(l => { const m=ctx.measureText(l); if(m.width>maxW)maxW=m.width; });
+            t.width = maxW + 40; t.height = totalH + 20;
+
+            let curY = t.y - (totalH/2) + (lh/2);
+            lines.forEach(l => {
+                // Fondo
+                if (bgColor !== 'transparent') {
+                    const w = ctx.measureText(l).width + 30;
+                    ctx.fillStyle = bgColor;
+                    ctx.fillRect(t.x - w/2, curY - lh/2, w, lh);
+                }
+                // Texto
+                ctx.fillStyle = color;
+                ctx.shadowColor = "rgba(0,0,0,0.8)"; ctx.shadowBlur = 8;
+                ctx.fillText(l, t.x, curY);
+                ctx.shadowBlur = 0;
+                curY += lh;
+            });
+
+            // Selección Texto
+            if (selection.type === 'text' && selection.id === key) {
+                ctx.save();
+                ctx.strokeStyle = '#E62117'; ctx.lineWidth = 2; ctx.setLineDash([8, 6]);
+                ctx.strokeRect(t.x - t.width/2, t.y - t.height/2, t.width, t.height);
+                // Handle
+                ctx.fillStyle = '#28a745'; ctx.setLineDash([]);
+                ctx.beginPath(); ctx.arc(t.x + t.width/2, t.y + t.height/2, 10, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function wrapText(ctx, text, maxW) {
+            const words = text.split(' '); let lines=[], cur=words[0];
+            for(let i=1; i<words.length; i++) {
+                if(ctx.measureText(cur + " " + words[i]).width < maxW) cur += " " + words[i];
+                else { lines.push(cur); cur = words[i]; }
+            }
+            lines.push(cur); return lines;
+        }
+
+        // --- INTERACTION ---
+        function getCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            const sx = canvas.width / rect.width;
+            const sy = canvas.height / rect.height;
+            let cx = e.clientX, cy = e.clientY;
+            if(e.touches && e.touches.length) { cx=e.touches[0].clientX; cy=e.touches[0].clientY; }
+            return { x:(cx-rect.left)*sx, y:(cy-rect.top)*sy };
+        }
+
+        function hitTest(x,y) {
+            // 1. Textos
+            if(selection.type === 'text') { // Handle check first
+                const t = texts[selection.id];
+                if(Math.abs(x - (t.x+t.width/2)) < 30 && Math.abs(y - (t.y+t.height/2)) < 30) return {type:'text', id:selection.id, action:'resize'};
+            }
+            for(let k of ['title','desc']) {
+                const t = texts[k];
+                if(x > t.x-t.width/2 && x < t.x+t.width/2 && y > t.y-t.height/2 && y < t.y+t.height/2) return {type:'text', id:k, action:'move'};
+            }
+            // 2. Imágenes
+            for(let i=images.length-1; i>=0; i--) {
+                const img = images[i];
+                const lx = (x-img.x)/img.scale; const ly = (y-img.y)/img.scale;
+                if(selection.type==='image' && selection.id===i) { // Handle check
+                    if(Math.abs(lx - img.width/2) < 40 && Math.abs(ly - img.height/2) < 40) return {type:'image', id:i, action:'resize'};
+                }
+                if(Math.abs(lx) < img.width/2 && Math.abs(ly) < img.height/2) return {type:'image', id:i, action:'move'};
+            }
+            return null;
+        }
+
+        canvas.addEventListener('mousedown', start); canvas.addEventListener('touchstart', start, {passive:false});
+        window.addEventListener('mousemove', move); window.addEventListener('touchmove', move, {passive:false});
+        window.addEventListener('mouseup', end); window.addEventListener('touchend', end);
+
+        function start(e) {
+            e.preventDefault();
+            const c = getCoords(e);
+            const hit = hitTest(c.x, c.y);
+            if(hit) selection = { ...hit, lastX:c.x, lastY:c.y, isDragging:true };
+            else selection = { type:null, id:null, action:null };
+            updateLayerList(); draw();
+        }
+        function move(e) {
+            if(!selection.isDragging) return;
+            if(e.type==='touchmove') e.preventDefault();
+            const c = getCoords(e);
+            const dx = c.x - selection.lastX; const dy = c.y - selection.lastY;
+
+            if(selection.type === 'text') {
+                const t = texts[selection.id];
+                if(selection.action==='move') { t.x+=dx; t.y+=dy; }
+                else { t.size = Math.max(10, t.size + dy/2); }
+            } else if(selection.type === 'image') {
+                const img = images[selection.id];
+                if(selection.action==='move') { img.x+=dx; img.y+=dy; }
+                else { img.scale = Math.max(0.1, img.scale + (dx/500)); }
+            }
+            selection.lastX = c.x; selection.lastY = c.y;
+            draw();
+        }
+        function end() { selection.isDragging = false; }
+
+        // --- UTILS ---
+        function updateText(key) { texts[key].text = document.getElementById(key+'Text').value.toUpperCase(); draw(); }
+        function toggleItalic(key) { texts[key].italic = !texts[key].italic; document.getElementById('btnItalic'+(key==='title'?'Title':'Desc')).classList.toggle('active'); draw(); }
+        
+        function handleImages(inp) {
+            Array.from(inp.files).forEach(f => {
+                const r = new FileReader();
+                r.onload = e => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const s = Math.max(canvas.width/img.width, canvas.height/img.height);
+                        images.push({img:img, width:img.width, height:img.height, x:canvas.width/2, y:canvas.height/2, scale:s});
+                        selection = { type:'image', id:images.length-1, action:null };
+                        updateLayerList(); draw();
+                    };
+                    img.src = e.target.result;
+                };
+                r.readAsDataURL(f);
+            });
+            inp.value = '';
+        }
+        function updateLayerList() {
+            const el = document.getElementById('layerList'); el.innerHTML = '';
+            images.forEach((_,i) => {
+                const badge = document.createElement('div');
+                const active = selection.type==='image' && selection.id===i;
+                badge.style.cssText = `padding:4px 8px; background:var(--input-bg); border-radius:4px; font-size:0.7rem; cursor:pointer; border:1px solid ${active ? 'var(--accent-color)' : 'var(--border-color)'}; color:${active?'var(--accent-color)':'var(--text-muted)'}`;
+                badge.innerText = `Img ${i+1}`;
+                badge.onclick = () => { selection={type:'image', id:i, action:null}; draw(); updateLayerList(); };
+                el.appendChild(badge);
+            });
+        }
+        function resetImages() { images = []; selection={type:null}; updateLayerList(); draw(); }
+
+        // GROK GENERATOR
+        function genGrok() {
+            const idea = document.getElementById('grokIdea').value;
+            const prompt = `Create a high quality YouTube thumbnail background. Style: Hyper-realistic/Cinematic lighting. Subject: ${idea}. High contrast, 8k resolution. Aspect Ratio ${currentFormat === '16:9' ? '16:9' : '9:16'}. No text.`;
+            
+            navigator.clipboard.writeText(prompt).then(() => {
+                window.open('https://grok.com', '_blank');
+            });
+        }
+
+        function downloadImage() {
+            const a = document.createElement('a');
+            a.download = `visualcue_${currentFormat}.png`;
+            a.href = canvas.toDataURL('image/png');
+            a.click();
+        }
+
+        function setLang(l) {
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            // Lógica simple para botón
+            const btns = document.querySelectorAll('.lang-btn');
+            for(let b of btns) if(b.textContent.toLowerCase()===l) b.classList.add('active');
+            
+            const t = translations[l];
+            if(t) document.querySelectorAll('[data-key]').forEach(e => e.innerHTML = t[e.getAttribute('data-key')]);
+        }
+    </script>
+</body>
+</html>
