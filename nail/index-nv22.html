@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VisualCue V22</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Bangers&family=Bebas+Neue&family=Oswald:wght@700&family=Roboto:ital,wght@0,700;1,700&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-app: #000000;
+            --panel-bg: #111111;
+            --text-main: #e0e0e0;
+            --text-muted: #888888;
+            --border-color: #333333;
+            --input-bg: #222222;
+            
+            --accent-color: #E62117;
+            --accent-blue: #3498db;
+            --success-color: #28a745;
+            --link-color: #FFD700;
+            
+            --header-height: 60px;
+        }
+
+        body.light-theme {
+            --bg-app: #f0f2f5;
+            --panel-bg: #ffffff;
+            --text-main: #1a1a1a;
+            --text-muted: #555555;
+            --border-color: #cccccc;
+            --input-bg: #e4e6eb;
+            --link-color: #d35400;
+        }
+
+        * { box-sizing: border-box; transition: background-color 0.3s, color 0.3s; }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            margin: 0; display: flex; flex-direction: column;
+            height: 100vh; overflow: hidden;
+        }
+
+        /* HEADER */
+        .header-actions {
+            width: 100%; padding: 0 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--panel-bg); border-bottom: 1px solid var(--border-color);
+            height: var(--header-height); flex-shrink: 0; z-index: 100;
+        }
+        .header-title h1 { margin: 0; font-size: 1.1rem; font-family: 'Archivo Black'; text-transform: uppercase; color: var(--text-main); }
+        .top-right { display: flex; gap: 10px; align-items: center; }
+        .btn-theme {
+            background: transparent; border: 1px solid var(--border-color);
+            color: var(--text-main); width: 32px; height: 32px; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+        .lang-group { display: flex; gap: 2px; background: var(--input-bg); padding: 2px; border-radius: 4px; }
+        .lang-btn {
+            padding: 4px 6px; background: transparent; border: none;
+            color: var(--text-muted); cursor: pointer; border-radius: 2px; font-size: 0.7rem; font-weight: bold;
+        }
+        .lang-btn.active { background: var(--accent-color); color: white; }
+
+        /* LAYOUT */
+        .workbench-container { display: flex; flex: 1; overflow: hidden; width: 100%; }
+
+        /* --- PREVIEW PANE (Izquierda) --- */
+        .preview-pane {
+            flex: 2; background: #050505; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; border-right: 1px solid var(--border-color);
+            padding: 10px;
+        }
+
+        /* Barra de Herramientas Flotante (Formatos + Plantillas) */
+        .canvas-toolbar {
+            display: flex; gap: 8px; align-items: center;
+            background: rgba(20,20,20,0.9); padding: 5px 10px; 
+            border-radius: 8px; border: 1px solid #444; margin-bottom: 10px;
+            z-index: 20;
+        }
+        .format-btn {
+            background: transparent; border: 1px solid #444; color: #aaa; 
+            cursor: pointer; font-size: 1rem; width: 35px; height: 35px; border-radius: 4px;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .format-btn:hover { background: #333; }
+        .format-btn.active { color: white; background: var(--accent-color); border-color: var(--accent-color); }
+
+        /* Dropdown de Plantillas */
+        .tmpl-select {
+            background: #222; color: #fff; border: 1px solid #444;
+            padding: 0 10px; height: 35px; border-radius: 4px; font-size: 0.8rem;
+            outline: none; cursor: pointer;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            box-shadow: 0 0 40px rgba(0,0,0,0.6);
+            border: 1px solid #333;
+            max-width: 100%; max-height: 100%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #canvas { display: block; max-width: 100%; max-height: 75vh; object-fit: contain; cursor: crosshair; }
+
+        /* --- CONTROLES PANE (Derecha) --- */
+        .controls-pane {
+            flex: 1; min-width: 320px; max-width: 400px;
+            background: var(--bg-app); overflow-y: auto;
+            padding: 15px; display: flex; flex-direction: column; gap: 15px;
+        }
+
+        .download-btn {
+            width: 100%; padding: 12px;
+            background: var(--success-color); color: white; font-family: 'Archivo Black';
+            font-size: 1rem; text-transform: uppercase; border: none; border-radius: 6px;
+            cursor: pointer; letter-spacing: 1px;
+        }
+        .download-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+        .panel { 
+            background: var(--panel-bg); padding: 12px; 
+            border-radius: 8px; border: 1px solid var(--border-color); 
+        }
+        .panel-title { 
+            font-size: 0.75rem; font-weight: bold; color: var(--accent-color); 
+            text-transform: uppercase; margin-bottom: 10px; display: block; 
+            border-bottom: 1px solid var(--border-color); padding-bottom: 5px;
+        }
+
+        .control-group { margin-bottom: 12px; }
+        label { display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; }
+        input[type="text"], select {
+            width: 100%; background: var(--input-bg); border: 1px solid var(--border-color);
+            color: var(--text-main); padding: 8px; border-radius: 4px; font-size: 0.9rem;
+        }
+
+        .style-row { display: flex; gap: 5px; align-items: center; margin-top: 5px; }
+        input[type="color"] { border: none; width: 35px; height: 35px; padding: 0; background: none; cursor: pointer; }
+        .checkbox-btn {
+            width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;
+            background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main);
+            cursor: pointer; font-weight: bold; border-radius: 4px; font-family: serif; font-size: 1.1rem;
+        }
+        .checkbox-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+
+        /* LAYER CONTROLS */
+        .layer-actions { display: flex; gap: 5px; margin-top: 8px; }
+        .layer-btn {
+            flex: 1; background: var(--input-bg); border: 1px solid var(--border-color);
+            color: var(--text-main); padding: 6px; border-radius: 4px; cursor: pointer; font-size: 0.7rem;
+        }
+        .layer-btn:hover { background: var(--border-color); }
+
+        .layer-list { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+        .layer-badge {
+            padding: 4px 8px; background: var(--input-bg); border-radius: 4px; font-size: 0.7rem; cursor: pointer; 
+            border: 1px solid var(--border-color); color: var(--text-muted);
+        }
+        .layer-badge.active { border-color: var(--accent-color); color: var(--text-main); background: var(--border-color); }
+
+        /* FOOTER */
+        .site-footer-inner {
+            margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color);
+            text-align: center; padding-bottom: 10px;
+        }
+        .footer-links { display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 8px; }
+        .footer-links a {
+            color: var(--link-color) !important; text-decoration: none !important;
+            font-weight: bold; display: inline-flex; align-items: center; gap: 5px; font-size: 0.85rem;
+        }
+        .footer-copy { color: var(--text-muted); font-size: 0.75rem; }
+        .icon-gold { color: var(--link-color); }
+
+        /* RESPONSIVE MÓVIL */
+        @media (max-width: 900px) {
+            .workbench-container { flex-direction: column; overflow-y: auto; }
+            
+            /* Ajuste crítico para que el marco no cubra los controles en vertical */
+            .preview-pane { 
+                flex: none; 
+                height: auto;
+                min-height: 40vh; /* Mínimo asegurado */
+                max-height: 45vh; /* Máximo para dejar espacio a controles */
+                border-right: none; 
+                border-bottom: 1px solid var(--border-color); 
+                padding: 10px 5px;
+            }
+            
+            /* Canvas wrapper debe obedecer el contenedor padre */
+            .canvas-wrapper { max-height: 100%; }
+            #canvas { max-height: 35vh; } /* El canvas real más pequeño en móvil */
+
+            .controls-pane { flex: 1; overflow-y: auto; padding-bottom: 80px; } /* Espacio extra al final */
+            .header-title h1 { font-size: 0.9rem; }
+            body { overflow: hidden; } /* El body no scrollea, solo el controls-pane */
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header-actions">
+        <div class="header-title">
+            <h1 data-key="mainTitle">VisualCue <span style="color:var(--accent-color)">V22</span></h1>
+        </div>
+        <div class="top-right">
+            <button class="btn-theme" onclick="toggleTheme()" id="btnTheme"><i class="fa-solid fa-sun"></i></button>
+            <div class="lang-group">
+                <button class="lang-btn" onclick="setLang('es')">ES</button>
+                <button class="lang-btn active" onclick="setLang('de')">DE</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="workbench-container">
+        
+        <div class="preview-pane">
+            <div class="canvas-toolbar">
+                <button class="format-btn active" id="btn169" onclick="setFormat('16:9')"><i class="fa-solid fa-desktop"></i></button>
+                <button class="format-btn" id="btn916" onclick="setFormat('9:16')"><i class="fa-solid fa-mobile-screen"></i></button>
+                
+                <select id="templateSelect" class="tmpl-select" onchange="handleTemplateSelect(this)">
+                    <option value="">-- Templates --</option>
+                    <option value="T1">Template 1 (Red)</option>
+                    <option value="T2">Template 2 (Blue)</option>
+                    <option value="T3">Template 3 (Green)</option>
+                    <option value="T4">Template 4 (Yellow)</option>
+                </select>
+                <button class="format-btn" onclick="resetImages()" style="font-size:0.8rem; width:auto; padding:0 10px;" title="Clear All Images">CLR</button>
+            </div>
+
+            <div class="canvas-wrapper">
+                <canvas id="canvas" width="1280" height="720"></canvas>
+            </div>
+        </div>
+
+        <div class="controls-pane">
+            <button class="download-btn" onclick="downloadImage()" data-key="btnDownload">DOWNLOAD IMAGE</button>
+
+            <div class="panel">
+                <span class="panel-title" data-key="sectionText">Text Layers</span>
+                <div class="control-group">
+                    <label data-key="lblTitle">HEADLINE</label>
+                    <input type="text" id="titleText" value="THE TRUTH ABOUT..." oninput="updateText('title')">
+                    <div class="style-row">
+                        <select id="titleFont" onchange="draw()">
+                            <option value="'Archivo Black', sans-serif">Archivo Black</option>
+                            <option value="'Anton', sans-serif">Anton</option>
+                            <option value="'Bangers', cursive">Bangers</option>
+                        </select>
+                        <input type="color" id="titleColor" value="#FFFFFF" oninput="draw()">
+                        <input type="color" id="titleBg" value="#CC0000" oninput="draw()">
+                        <div class="checkbox-btn" id="btnItalicTitle" onclick="toggleItalic('title')">I</div>
+                    </div>
+                </div>
+                <hr style="border-color:var(--border-color); opacity:0.5; margin:10px 0;">
+                <div class="control-group">
+                    <label data-key="lblDesc">SUBTITLE</label>
+                    <input type="text" id="descText" value="Details here..." oninput="updateText('desc')">
+                    <div class="style-row">
+                        <select id="descFont" onchange="draw()">
+                            <option value="'Roboto', sans-serif">Roboto</option>
+                            <option value="'Anton', sans-serif">Anton</option>
+                        </select>
+                        <input type="color" id="descColor" value="#FFFFFF" oninput="draw()">
+                        <input type="color" id="descBg" value="#000000" oninput="draw()">
+                        <div class="checkbox-btn" id="btnItalicDesc" onclick="toggleItalic('desc')">I</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <span class="panel-title" data-key="sectionBg">Images / Layers</span>
+                
+                <div id="layerList" class="layer-list"></div>
+                
+                <div class="layer-actions">
+                    <button class="layer-btn" onclick="document.getElementById('imgUpload').click()" data-key="btnAddImg"><i class="fa-solid fa-plus"></i> Upload</button>
+                    <button class="layer-btn" onclick="moveLayer(-1)" title="Send Backward"><i class="fa-solid fa-arrow-down"></i> Back</button>
+                    <button class="layer-btn" onclick="moveLayer(1)" title="Bring Forward"><i class="fa-solid fa-arrow-up"></i> Front</button>
+                </div>
+                <input type="file" id="imgUpload" multiple accept="image/*" style="display:none" onchange="handleImages(this)">
+            </div>
+
+            <div class="panel">
+                <span class="panel-title"><i class="fa-solid fa-robot"></i> Grok AI Prompt</span>
+                <input type="text" id="grokIdea" placeholder="Idea (e.g. Cyberpunk city...)" style="margin-bottom:8px;">
+                <button class="layer-btn" style="width:100%; background:var(--border-color); font-weight:bold;" onclick="genGrok()">
+                    Generate & Copy & Open <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </button>
+            </div>
+
+            <div class="site-footer-inner">
+                <div class="footer-links">
+                    <a href="https://www.youtube.com/@TranslatedPressDE/videos" target="_blank">
+                        <i class="fa-brands fa-youtube icon-gold"></i> YouTube
+                    </a>
+                    <span style="color:var(--border-color)">|</span>
+                    <a href="https://tpascal.com" target="_blank">
+                        <i class="fa-solid fa-globe icon-gold"></i> tpascal.com
+                    </a>
+                </div>
+                <p class="footer-copy">&copy; 2025 Mauricio Umana. Alle Rechte vorbehalten.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIG ---
+        const translations = {
+            es: { mainTitle: 'VisualCue <span style="color:var(--accent-color)">V22</span>', btnDownload: 'DESCARGAR', sectionText: 'Textos', lblTitle: 'TÍTULO', lblDesc: 'SUBTÍTULO', sectionBg: 'Capas', btnAddImg: '+ Subir' },
+            de: { mainTitle: 'VisualCue <span style="color:var(--accent-color)">V22</span>', btnDownload: 'HERUNTERLADEN', sectionText: 'Texte', lblTitle: 'TITEL', lblDesc: 'UNTERTITEL', sectionBg: 'Ebenen', btnAddImg: '+ Hochladen' }
+        };
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let currentFormat = '16:9';
+        let isLightMode = false;
+
+        let texts = {
+            title: { text: "THE TRUTH ABOUT...", x: 0, y: 0, size: 90, width:0, height:0, italic: false },
+            desc:  { text: "Details here...", x: 0, y: 0, size: 50, width:0, height:0, italic: false }
+        };
+        
+        // Array de imágenes. Orden: [0]=Fondo ... [n]=Frente
+        let images = []; 
+        let selection = { type: null, id: null, action: null, lastX: 0, lastY: 0, isDragging: false };
+
+        window.onload = () => {
+            setLang('de');
+            setFormat('16:9');
+            document.getElementById('titleText').value = texts.title.text;
+            document.getElementById('descText').value = texts.desc.text;
+        };
+
+        // --- CORE FUNCTIONS ---
+        function toggleTheme() {
+            isLightMode = !isLightMode;
+            document.body.className = isLightMode ? 'light-theme' : '';
+            document.getElementById('btnTheme').innerHTML = isLightMode ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun"></i>';
+            draw();
+        }
+
+        function setFormat(fmt) {
+            currentFormat = fmt;
+            document.getElementById('btn169').classList.remove('active');
+            document.getElementById('btn916').classList.remove('active');
+            
+            if(fmt === '16:9') {
+                canvas.width = 1280; canvas.height = 720;
+                document.getElementById('btn169').classList.add('active');
+            } else {
+                canvas.width = 720; canvas.height = 1280;
+                document.getElementById('btn916').classList.add('active');
+            }
+            
+            // Re-centrar todo
+            texts.title.x = canvas.width / 2; texts.title.y = canvas.height * 0.4;
+            texts.desc.x = canvas.width / 2; texts.desc.y = canvas.height * 0.6;
+            images.forEach(img => { img.x = canvas.width/2; img.y = canvas.height/2; });
+            draw();
+        }
+
+        // --- TEMPLATES ---
+        const templateURLs = {
+            'T1': 'https://placehold.co/1280x720/111111/E62117/png?text=Frame+Red',
+            'T2': 'https://placehold.co/1280x720/000000/3498db/png?text=Frame+Blue',
+            'T3': 'https://placehold.co/1280x720/222222/2ecc71/png?text=Frame+Green',
+            'T4': 'https://placehold.co/1280x720/111111/f1c40f/png?text=Frame+Gold'
+        };
+
+        function handleTemplateSelect(select) {
+            if(select.value) loadTemplate(select.value);
+            select.value = ""; // Reset dropdown
+        }
+
+        function loadTemplate(key) {
+            const url = templateURLs[key];
+            const img = new Image();
+            img.crossOrigin = "Anonymous";
+            img.onload = () => {
+                const scale = Math.max(canvas.width/img.width, canvas.height/img.height);
+                // "Primera Capa" = Top Layer (Overlay) según la petición
+                // Usamos push() para ponerlo al final del array (arriba)
+                images.push({ 
+                    img: img, width: img.width, height: img.height, 
+                    x: canvas.width/2, y: canvas.height/2, scale: scale, isTemplate: true 
+                });
+                selection = { type: 'image', id: images.length-1, action: null }; // Seleccionar nuevo
+                updateLayerList(); draw();
+            };
+            img.src = url;
+        }
+
+        // --- LAYER MANAGEMENT (Nuevo) ---
+        function moveLayer(direction) {
+            if (selection.type !== 'image' || selection.id === null) return;
+            const idx = selection.id;
+            const newIdx = idx + direction;
+
+            // Limites del array
+            if (newIdx < 0 || newIdx >= images.length) return;
+
+            // Swap
+            const temp = images[idx];
+            images[idx] = images[newIdx];
+            images[newIdx] = temp;
+
+            // Actualizar selección
+            selection.id = newIdx;
+            updateLayerList();
+            draw();
+        }
+
+        // --- DRAWING ---
+        function draw() {
+            ctx.fillStyle = isLightMode ? '#fff' : '#111';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Imágenes (Orden: 0 es fondo, N es frente)
+            images.forEach((imgObj, idx) => {
+                ctx.save();
+                ctx.translate(imgObj.x, imgObj.y);
+                ctx.scale(imgObj.scale, imgObj.scale);
+                ctx.drawImage(imgObj.img, -imgObj.width/2, -imgObj.height/2);
+                
+                // Marco Selección
+                if (selection.type === 'image' && selection.id === idx) {
+                    ctx.strokeStyle = '#28a745'; ctx.lineWidth = 4/imgObj.scale;
+                    ctx.strokeRect(-imgObj.width/2, -imgObj.height/2, imgObj.width, imgObj.height);
+                    // Handle Resize
+                    ctx.fillStyle = '#28a745';
+                    ctx.fillRect((imgObj.width/2) - 20/imgObj.scale, (imgObj.height/2) - 20/imgObj.scale, 40/imgObj.scale, 40/imgObj.scale);
+                }
+                ctx.restore();
+            });
+
+            // Textos (Siempre encima de imágenes)
+            drawTextLayer('title');
+            drawTextLayer('desc');
+        }
+
+        function drawTextLayer(key) {
+            const t = texts[key];
+            if (!t.text) return;
+
+            const fontName = document.getElementById(key + 'Font').value;
+            const color = document.getElementById(key + 'Color').value;
+            const bgColor = document.getElementById(key + 'Bg').value;
+            const style = t.italic ? 'italic bold' : 'bold';
+
+            ctx.font = `${style} ${t.size}px ${fontName}`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+
+            const lines = wrapText(ctx, t.text, canvas.width * 0.9);
+            const lh = t.size * 1.2;
+            const totalH = lines.length * lh;
+            
+            let maxW = 0; lines.forEach(l => { const m=ctx.measureText(l); if(m.width>maxW)maxW=m.width; });
+            t.width = maxW + 40; t.height = totalH + 20;
+
+            let curY = t.y - (totalH/2) + (lh/2);
+            lines.forEach(l => {
+                if (bgColor !== 'transparent') {
+                    const w = ctx.measureText(l).width + 30;
+                    ctx.fillStyle = bgColor; ctx.fillRect(t.x - w/2, curY - lh/2, w, lh);
+                }
+                ctx.fillStyle = color;
+                ctx.shadowColor = "rgba(0,0,0,0.8)"; ctx.shadowBlur = 8;
+                ctx.fillText(l, t.x, curY);
+                ctx.shadowBlur = 0;
+                curY += lh;
+            });
+
+            if (selection.type === 'text' && selection.id === key) {
+                ctx.save();
+                ctx.strokeStyle = '#E62117'; ctx.lineWidth = 2; ctx.setLineDash([8, 6]);
+                ctx.strokeRect(t.x - t.width/2, t.y - t.height/2, t.width, t.height);
+                ctx.fillStyle = '#28a745'; ctx.setLineDash([]);
+                ctx.beginPath(); ctx.arc(t.x + t.width/2, t.y + t.height/2, 12, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function wrapText(ctx, text, maxW) {
+            const words = text.split(' '); let lines=[], cur=words[0];
+            for(let i=1; i<words.length; i++) {
+                if(ctx.measureText(cur + " " + words[i]).width < maxW) cur += " " + words[i];
+                else { lines.push(cur); cur = words[i]; }
+            }
+            lines.push(cur); return lines;
+        }
+
+        // --- INTERACTION ---
+        function getCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            const sx = canvas.width / rect.width;
+            const sy = canvas.height / rect.height;
+            let cx = e.clientX, cy = e.clientY;
+            if(e.touches && e.touches.length) { cx=e.touches[0].clientX; cy=e.touches[0].clientY; }
+            return { x:(cx-rect.left)*sx, y:(cy-rect.top)*sy };
+        }
+
+        function hitTest(x,y) {
+            // Textos
+            if(selection.type === 'text') {
+                const t = texts[selection.id];
+                if(Math.abs(x - (t.x+t.width/2)) < 35 && Math.abs(y - (t.y+t.height/2)) < 35) return {type:'text', id:selection.id, action:'resize'};
+            }
+            for(let k of ['title','desc']) {
+                const t = texts[k];
+                if(x > t.x-t.width/2 && x < t.x+t.width/2 && y > t.y-t.height/2 && y < t.y+t.height/2) return {type:'text', id:k, action:'move'};
+            }
+            // Imágenes (Reverso para pillar la de arriba)
+            for(let i=images.length-1; i>=0; i--) {
+                const img = images[i];
+                const lx = (x-img.x)/img.scale; const ly = (y-img.y)/img.scale;
+                if(selection.type==='image' && selection.id===i) {
+                    if(Math.abs(lx - img.width/2) < 40 && Math.abs(ly - img.height/2) < 40) return {type:'image', id:i, action:'resize'};
+                }
+                if(Math.abs(lx) < img.width/2 && Math.abs(ly) < img.height/2) return {type:'image', id:i, action:'move'};
+            }
+            return null;
+        }
+
+        canvas.addEventListener('mousedown', start); canvas.addEventListener('touchstart', start, {passive:false});
+        window.addEventListener('mousemove', move); window.addEventListener('touchmove', move, {passive:false});
+        window.addEventListener('mouseup', end); window.addEventListener('touchend', end);
+
+        function start(e) {
+            e.preventDefault(); const c = getCoords(e); const hit = hitTest(c.x, c.y);
+            if(hit) selection = { ...hit, lastX:c.x, lastY:c.y, isDragging:true };
+            else selection = { type:null, id:null, action:null };
+            updateLayerList(); draw();
+        }
+        function move(e) {
+            if(!selection.isDragging) return;
+            if(e.type==='touchmove') e.preventDefault();
+            const c = getCoords(e); const dx = c.x - selection.lastX; const dy = c.y - selection.lastY;
+
+            if(selection.type === 'text') {
+                const t = texts[selection.id];
+                if(selection.action==='move') { t.x+=dx; t.y+=dy; }
+                else { t.size = Math.max(10, t.size + dy/2); }
+            } else if(selection.type === 'image') {
+                const img = images[selection.id];
+                if(selection.action==='move') { img.x+=dx; img.y+=dy; }
+                else { img.scale = Math.max(0.1, img.scale + (dx/500)); }
+            }
+            selection.lastX = c.x; selection.lastY = c.y; draw();
+        }
+        function end() { selection.isDragging = false; }
+
+        // --- UTILS ---
+        function updateText(key) { texts[key].text = document.getElementById(key+'Text').value.toUpperCase(); draw(); }
+        function toggleItalic(key) { texts[key].italic = !texts[key].italic; document.getElementById('btnItalic'+(key==='title'?'Title':'Desc')).classList.toggle('active'); draw(); }
+        
+        function handleImages(inp) {
+            Array.from(inp.files).forEach(f => {
+                const r = new FileReader();
+                r.onload = e => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const s = Math.max(canvas.width/img.width, canvas.height/img.height);
+                        images.push({img:img, width:img.width, height:img.height, x:canvas.width/2, y:canvas.height/2, scale:s});
+                        selection = { type:'image', id:images.length-1, action:null };
+                        updateLayerList(); draw();
+                    };
+                    img.src = e.target.result;
+                };
+                r.readAsDataURL(f);
+            });
+            inp.value = '';
+        }
+
+        function updateLayerList() {
+            const el = document.getElementById('layerList'); el.innerHTML = '';
+            images.forEach((img,i) => {
+                const badge = document.createElement('div');
+                const active = selection.type==='image' && selection.id===i;
+                badge.className = `layer-badge ${active ? 'active' : ''}`;
+                badge.innerText = img.isTemplate ? `Tmpl ${i+1}` : `Img ${i+1}`;
+                badge.onclick = () => { selection={type:'image', id:i, action:null}; draw(); updateLayerList(); };
+                el.appendChild(badge);
+            });
+        }
+        function resetImages() { images = []; selection={type:null}; updateLayerList(); draw(); }
+
+        function genGrok() {
+            const idea = document.getElementById('grokIdea').value;
+            const prompt = `Create a YouTube thumbnail background. Style: Hyper-realistic. Subject: ${idea}. High contrast, 8k. Aspect Ratio ${currentFormat === '16:9' ? '16:9' : '9:16'}. No text.`;
+            navigator.clipboard.writeText(prompt).then(() => { window.open('https://grok.com', '_blank'); });
+        }
+
+        function downloadImage() {
+            const a = document.createElement('a'); a.download = `visualcue_${currentFormat}.png`;
+            a.href = canvas.toDataURL('image/png'); a.click();
+        }
+
+        function setLang(l) {
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+            const btns = document.querySelectorAll('.lang-btn');
+            for(let b of btns) if(b.textContent.toLowerCase()===l) b.classList.add('active');
+            const t = translations[l];
+            if(t) document.querySelectorAll('[data-key]').forEach(e => e.innerHTML = t[e.getAttribute('data-key')]);
+        }
+    </script>
+</body>
+</html>
