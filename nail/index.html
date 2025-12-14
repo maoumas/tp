@@ -117,7 +117,6 @@
         .control-group { margin-bottom: 12px; }
         label { display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; }
         
-        /* Inputs con touch-action para evitar zoom */
         input[type="text"], select {
             width: 100%; background: var(--input-bg); border: 1px solid var(--border-color);
             color: var(--text-main); padding: 8px; border-radius: 4px; font-size: 0.9rem;
@@ -213,7 +212,7 @@
         </div>
 
         <div class="controls-pane">
-            <button class="download-btn" onclick="downloadImage()" data-key="btnDownload">DOWNLOAD IMAGE</button>
+            <button class="download-btn" onclick="downloadImage()" data-key="btnDownload" id="btnDownloadAction">DOWNLOAD IMAGE</button>
 
             <div class="panel">
                 <span class="panel-title" data-key="sectionText">Text Layers</span>
@@ -285,9 +284,9 @@
 
     <script>
         const translations = {
-            es: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v1</span>', btnDownload: 'DESCARGAR IMAGEN', sectionText: 'Capas de Texto', lblTitle: 'TÍTULO', lblDesc: 'SUBTÍTULO', sectionBg: 'Capas', btnAddImg: '+ Subir' },
-            de: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v1</span>', btnDownload: 'BILD HERUNTERLADEN', sectionText: 'Texte', lblTitle: 'TITEL', lblDesc: 'UNTERTITEL', sectionBg: 'Ebenen', btnAddImg: '+ Hochladen' },
-            en: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v1</span>', btnDownload: 'DOWNLOAD IMAGE', sectionText: 'Text Layers', lblTitle: 'HEADLINE', lblDesc: 'SUBTITLE', sectionBg: 'Layers', btnAddImg: '+ Upload' }
+            es: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v1</span>', btnDownload: 'DESCARGAR / COMPARTIR', sectionText: 'Capas de Texto', lblTitle: 'TÍTULO', lblDesc: 'SUBTÍTULO', sectionBg: 'Capas', btnAddImg: '+ Subir' },
+            de: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v1</span>', btnDownload: 'BILD SPEICHERN / TEILEN', sectionText: 'Texte', lblTitle: 'TITEL', lblDesc: 'UNTERTITEL', sectionBg: 'Ebenen', btnAddImg: '+ Hochladen' },
+            en: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v1</span>', btnDownload: 'DOWNLOAD / SHARE', sectionText: 'Text Layers', lblTitle: 'HEADLINE', lblDesc: 'SUBTITLE', sectionBg: 'Layers', btnAddImg: '+ Upload' }
         };
 
         const canvas = document.getElementById('canvas');
@@ -295,7 +294,6 @@
         let currentFormat = '16:9';
         let isLightMode = false;
 
-        // VALORES POR DEFECTO PARA DETECCIÓN DE LIMPIEZA
         const defaultTexts = {
             title: "THE TRUTH ABOUT...",
             desc: "Details here..."
@@ -310,23 +308,19 @@
 
         window.onload = () => {
             setLang('de');
-            
             if(localStorage.getItem('maxflow_state')) {
                 loadState();
             } else {
                 setFormat('16:9');
-                // Inicializar valores en inputs
                 document.getElementById('titleText').value = texts.title.text;
                 document.getElementById('descText').value = texts.desc.text;
             }
         };
 
-        // --- FUNCION NUEVA: LIMPIAR INPUT AL FOCO ---
         function checkClear(input, key) {
-            // Si el texto actual es igual al texto por defecto, bórralo
             if (input.value === defaultTexts[key]) {
                 input.value = "";
-                updateText(key); // Actualiza el canvas (se borrará visualmente, dando feedback)
+                updateText(key);
             }
         }
 
@@ -385,7 +379,6 @@
                 });
 
             } catch(e) {
-                console.error("Error loading state", e);
                 setFormat('16:9');
             }
         }
@@ -395,12 +388,10 @@
                 localStorage.removeItem('maxflow_state');
                 images = [];
                 selection = { type: null };
-                // Restore defaults
                 texts.title.text = defaultTexts.title;
                 texts.desc.text = defaultTexts.desc;
                 document.getElementById('titleText').value = defaultTexts.title;
                 document.getElementById('descText').value = defaultTexts.desc;
-                
                 setFormat(currentFormat); 
                 updateLayerList();
                 draw();
@@ -617,11 +608,37 @@
 
         function genGrok() { const idea = document.getElementById('grokIdea').value; const prompt = `Create a YouTube thumbnail background. Style: Hyper-realistic. Subject: ${idea}. High contrast, 8k. Aspect Ratio ${currentFormat === '16:9' ? '16:9' : '9:16'}. No text.`; navigator.clipboard.writeText(prompt).then(() => { window.open('https://grok.com', '_blank'); }); }
         
-        function downloadImage() { 
-            saveState();
+        // --- NATIVE SHARE / DOWNLOAD LOGIC (V27) ---
+        async function downloadImage() {
+            saveState(); // Guardar antes de actuar
+            
+            const filename = `maxflow_thumbnail_${currentFormat.replace(':','-')}.png`;
+            
+            // 1. Intentar API Nativa de Compartir (Móvil)
+            if (navigator.share && navigator.canShare) {
+                try {
+                    // Convertir Canvas a Blob
+                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                    const file = new File([blob], filename, { type: 'image/png' });
+                    
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: 'MaxFlow Thumbnail',
+                            text: 'Thumbnail created with MaxFlow'
+                        });
+                        return; // Si funcionó, terminamos aquí
+                    }
+                } catch (err) {
+                    console.log("Share cancelado o fallido, usando descarga normal.");
+                }
+            }
+
+            // 2. Fallback: Descarga Clásica (PC / Navegadores viejos)
             const a = document.createElement('a'); 
-            a.download = `maxflow_thumbnail_${currentFormat.replace(':','-')}.png`; 
-            a.href = canvas.toDataURL('image/png'); a.click(); 
+            a.download = filename; 
+            a.href = canvas.toDataURL('image/png'); 
+            a.click(); 
         }
 
         function setLang(l) { 
