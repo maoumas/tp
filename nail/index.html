@@ -12,6 +12,7 @@
 
     <style>
         :root {
+            /* MODO OSCURO (Default) */
             --bg-app: #000000;
             --panel-bg: #111111;
             --text-main: #e0e0e0;
@@ -30,7 +31,6 @@
 
         * { box-sizing: border-box; transition: background-color 0.3s, color 0.3s; }
         
-        /* Prevenir Zoom en doble tap */
         html, body { touch-action: manipulation; overscroll-behavior: none; }
 
         body {
@@ -116,16 +116,20 @@
         }
         .control-group { margin-bottom: 12px; }
         label { display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; }
+        
+        /* Inputs con touch-action para evitar zoom */
         input[type="text"], select {
             width: 100%; background: var(--input-bg); border: 1px solid var(--border-color);
             color: var(--text-main); padding: 8px; border-radius: 4px; font-size: 0.9rem;
+            touch-action: manipulation;
         }
         .style-row { display: flex; gap: 5px; align-items: center; margin-top: 5px; }
-        input[type="color"] { border: none; width: 35px; height: 35px; padding: 0; background: none; cursor: pointer; }
+        input[type="color"] { border: none; width: 35px; height: 35px; padding: 0; background: none; cursor: pointer; touch-action: manipulation;}
         .checkbox-btn {
             width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;
             background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main);
             cursor: pointer; font-weight: bold; border-radius: 4px; font-family: serif; font-size: 1.1rem;
+            touch-action: manipulation;
         }
         .checkbox-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
         
@@ -133,13 +137,13 @@
         .layer-btn {
             flex: 1; background: var(--input-bg); border: 1px solid var(--border-color);
             color: var(--text-main); padding: 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;
-            display: flex; align-items: center; justify-content: center; gap: 5px;
+            display: flex; align-items: center; justify-content: center; gap: 5px; touch-action: manipulation;
         }
         .btn-delete { color: #e74c3c; border-color: rgba(231,76,60,0.3); }
         .layer-list { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
         .layer-badge {
             padding: 4px 8px; background: var(--input-bg); border-radius: 4px; font-size: 0.7rem; cursor: pointer; 
-            border: 1px solid var(--border-color); color: var(--text-muted);
+            border: 1px solid var(--border-color); color: var(--text-muted); touch-action: manipulation;
         }
         .layer-badge.active { border-color: var(--accent-color); color: var(--text-main); background: var(--border-color); }
 
@@ -215,7 +219,7 @@
                 <span class="panel-title" data-key="sectionText">Text Layers</span>
                 <div class="control-group">
                     <label data-key="lblTitle">HEADLINE</label>
-                    <input type="text" id="titleText" value="THE TRUTH ABOUT..." oninput="updateText('title')">
+                    <input type="text" id="titleText" oninput="updateText('title')" onfocus="checkClear(this, 'title')">
                     <div class="style-row">
                         <select id="titleFont" onchange="draw()">
                             <option value="'Archivo Black', sans-serif">Archivo Black</option>
@@ -230,7 +234,7 @@
                 <hr style="border-color:var(--border-color); opacity:0.5; margin:10px 0;">
                 <div class="control-group">
                     <label data-key="lblDesc">SUBTITLE</label>
-                    <input type="text" id="descText" value="Details here..." oninput="updateText('desc')">
+                    <input type="text" id="descText" oninput="updateText('desc')" onfocus="checkClear(this, 'desc')">
                     <div class="style-row">
                         <select id="descFont" onchange="draw()">
                             <option value="'Roboto', sans-serif">Roboto</option>
@@ -291,44 +295,55 @@
         let currentFormat = '16:9';
         let isLightMode = false;
 
+        // VALORES POR DEFECTO PARA DETECCIÓN DE LIMPIEZA
+        const defaultTexts = {
+            title: "THE TRUTH ABOUT...",
+            desc: "Details here..."
+        };
+
         let texts = {
-            title: { text: "THE TRUTH ABOUT...", x: 0, y: 0, size: 90, width:0, height:0, italic: false },
-            desc:  { text: "Details here...", x: 0, y: 0, size: 50, width:0, height:0, italic: false }
+            title: { text: defaultTexts.title, x: 0, y: 0, size: 90, width:0, height:0, italic: false },
+            desc:  { text: defaultTexts.desc, x: 0, y: 0, size: 50, width:0, height:0, italic: false }
         };
         let images = []; 
         let selection = { type: null, id: null, action: null, lastX: 0, lastY: 0, isDragging: false };
 
-        // --- INIT & PERSISTENCE ---
         window.onload = () => {
             setLang('de');
             
-            // Intenta cargar estado guardado
             if(localStorage.getItem('maxflow_state')) {
                 loadState();
             } else {
-                setFormat('16:9'); // Default
+                setFormat('16:9');
+                // Inicializar valores en inputs
+                document.getElementById('titleText').value = texts.title.text;
+                document.getElementById('descText').value = texts.desc.text;
             }
         };
 
+        // --- FUNCION NUEVA: LIMPIAR INPUT AL FOCO ---
+        function checkClear(input, key) {
+            // Si el texto actual es igual al texto por defecto, bórralo
+            if (input.value === defaultTexts[key]) {
+                input.value = "";
+                updateText(key); // Actualiza el canvas (se borrará visualmente, dando feedback)
+            }
+        }
+
         function saveState() {
-            // Guardamos solo los datos esenciales. 
-            // Las imágenes se guardan como DataURL (src), lo que puede llenar el localStorage si son enormes.
             try {
                 const state = {
                     currentFormat,
                     texts,
-                    // Mapeamos imágenes para guardar solo lo necesario
                     images: images.map(img => ({
-                        src: img.img.src, // DataURL
+                        src: img.img.src,
                         width: img.width, height: img.height,
                         x: img.x, y: img.y, scale: img.scale,
                         isTemplate: img.isTemplate
                     }))
                 };
                 localStorage.setItem('maxflow_state', JSON.stringify(state));
-            } catch (e) {
-                console.warn("Storage full or error saving state", e);
-            }
+            } catch (e) { console.warn("Storage full", e); }
         }
 
         function loadState() {
@@ -339,17 +354,14 @@
                 currentFormat = saved.currentFormat;
                 texts = saved.texts;
                 
-                // Restaurar UI de textos
                 document.getElementById('titleText').value = texts.title.text;
                 document.getElementById('descText').value = texts.desc.text;
                 
-                // Restaurar botones de formato
                 document.getElementById('btn169').className = `format-btn ${currentFormat==='16:9'?'active':''}`;
                 document.getElementById('btn916').className = `format-btn ${currentFormat==='9:16'?'active':''}`;
                 canvas.width = currentFormat === '16:9' ? 1280 : 720;
                 canvas.height = currentFormat === '16:9' ? 720 : 1280;
 
-                // Restaurar Imágenes (Asíncrono)
                 images = [];
                 let loadedCount = 0;
                 if(saved.images.length === 0) { draw(); return; }
@@ -357,7 +369,6 @@
                 saved.images.forEach(savedImg => {
                     const imgObj = new Image();
                     imgObj.onload = () => {
-                        // Reconstruir objeto imagen
                         images.push({
                             img: imgObj,
                             width: savedImg.width, height: savedImg.height,
@@ -375,23 +386,27 @@
 
             } catch(e) {
                 console.error("Error loading state", e);
-                setFormat('16:9'); // Fallback
+                setFormat('16:9');
             }
         }
 
         function hardReset() {
-            if(confirm("Delete all layers and clear memory?")) {
+            if(confirm("Delete all layers?")) {
                 localStorage.removeItem('maxflow_state');
                 images = [];
                 selection = { type: null };
-                // Reset positions
+                // Restore defaults
+                texts.title.text = defaultTexts.title;
+                texts.desc.text = defaultTexts.desc;
+                document.getElementById('titleText').value = defaultTexts.title;
+                document.getElementById('descText').value = defaultTexts.desc;
+                
                 setFormat(currentFormat); 
                 updateLayerList();
                 draw();
             }
         }
 
-        // --- CORE FUNCTIONS ---
         function toggleTheme() {
             isLightMode = !isLightMode;
             document.body.className = isLightMode ? 'light-theme' : '';
@@ -412,16 +427,14 @@
                 document.getElementById('btn916').classList.add('active');
             }
             
-            // Centrado Inicial (Solo si no viene de loadState, o para resetear)
             texts.title.x = canvas.width / 2; texts.title.y = canvas.height * 0.3;
             texts.desc.x = canvas.width / 2; texts.desc.y = canvas.height * 0.75;
             images.forEach(img => { img.x = canvas.width/2; img.y = canvas.height/2; });
             
-            saveState(); // Guardar cambio
+            saveState();
             draw();
         }
 
-        // --- TEMPLATES ---
         const templateURLs = { 'T1': 'template1.png', 'T2': 'template2.png', 'T3': 'template3.png', 'T4': 'template4.png' };
 
         function handleTemplateSelect(select) { if(select.value) loadTemplate(select.value); select.value = ""; }
@@ -558,7 +571,7 @@
         function end() { 
             if(selection.isDragging) {
                 selection.isDragging = false;
-                saveState(); // Guardar al terminar de arrastrar
+                saveState();
             }
         }
 
@@ -605,7 +618,7 @@
         function genGrok() { const idea = document.getElementById('grokIdea').value; const prompt = `Create a YouTube thumbnail background. Style: Hyper-realistic. Subject: ${idea}. High contrast, 8k. Aspect Ratio ${currentFormat === '16:9' ? '16:9' : '9:16'}. No text.`; navigator.clipboard.writeText(prompt).then(() => { window.open('https://grok.com', '_blank'); }); }
         
         function downloadImage() { 
-            saveState(); // Guardar antes de descargar
+            saveState();
             const a = document.createElement('a'); 
             a.download = `maxflow_thumbnail_${currentFormat.replace(':','-')}.png`; 
             a.href = canvas.toDataURL('image/png'); a.click(); 
