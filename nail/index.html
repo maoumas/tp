@@ -12,75 +12,50 @@
 
     <style>
         :root {
-            /* MODO OSCURO (Default) */
             --bg-app: #000000;
             --panel-bg: #111111;
             --text-main: #e0e0e0;
             --text-muted: #888888;
             --border-color: #333333;
             --input-bg: #222222;
-            
             --accent-color: #E62117;
-            --accent-blue: #3498db;
             --success-color: #28a745;
             --link-color: #FFD700;
-            
-            --header-height: 60px;
         }
 
         body.light-theme {
-            --bg-app: #f0f2f5;
-            --panel-bg: #ffffff;
-            --text-main: #1a1a1a;
-            --text-muted: #555555;
-            --border-color: #cccccc;
-            --input-bg: #e4e6eb;
-            --link-color: #d35400;
+            --bg-app: #f0f2f5; --panel-bg: #ffffff; --text-main: #1a1a1a;
+            --text-muted: #555555; --border-color: #cccccc; --input-bg: #e4e6eb; --link-color: #d35400;
         }
 
         * { box-sizing: border-box; transition: background-color 0.3s, color 0.3s; }
-
-        /* FIX ZOOM: Evita comportamientos táctiles extraños en todo el documento */
-        html, body {
-            touch-action: manipulation; 
-            overscroll-behavior: none;
-        }
+        
+        /* Prevenir Zoom en doble tap */
+        html, body { touch-action: manipulation; overscroll-behavior: none; }
 
         body {
             font-family: 'Roboto', sans-serif;
             background-color: var(--bg-app);
             color: var(--text-main);
             margin: 0; display: flex; flex-direction: column;
-            height: 100dvh; /* Altura dinámica real para móviles */
-            overflow: hidden;
+            height: 100dvh; overflow: hidden;
         }
 
-        /* --- HEADER --- */
+        /* HEADER */
         .header-actions {
-            width: 100%; 
-            padding: 10px 15px;
-            /* Espacio seguro para el Notch del celular */
+            width: 100%; padding: 10px 15px;
             padding-top: calc(10px + env(safe-area-inset-top)); 
             display: flex; justify-content: space-between; align-items: center;
             background: var(--panel-bg); border-bottom: 1px solid var(--border-color);
-            flex-shrink: 0; z-index: 1000; 
-            min-height: calc(60px + env(safe-area-inset-top)); /* Altura mínima garantizada */
+            flex-shrink: 0; z-index: 1000; min-height: calc(60px + env(safe-area-inset-top));
         }
         .header-title h1 { margin: 0; font-size: 1.1rem; font-family: 'Archivo Black'; text-transform: uppercase; color: var(--text-main); line-height: 1; }
-        
         .top-right { display: flex; gap: 12px; align-items: center; }
-        
-        /* Botones: Touch Action Manipulation para EVITAR ZOOM */
-        button, .btn, .btn-theme, .format-btn, .layer-btn, .tmpl-btn, .download-btn, select, input {
-            touch-action: manipulation; 
-        }
-
         .btn-theme {
             background: transparent; border: 1px solid var(--border-color);
             color: var(--text-main); width: 34px; height: 34px; border-radius: 50%;
             cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem;
         }
-        
         .lang-group { display: flex; gap: 8px; align-items: center; }
         .lang-btn {
             background: transparent; border: 2px solid transparent; cursor: pointer; font-size: 1.2rem; line-height: 1;
@@ -88,16 +63,15 @@
         }
         .lang-btn:hover, .lang-btn.active { opacity: 1; filter: grayscale(0%); transform: scale(1.1); }
 
-        /* --- LAYOUT --- */
+        /* LAYOUT */
         .workbench-container { display: flex; flex: 1; overflow: hidden; width: 100%; }
 
-        /* PREVIEW PANE */
+        /* PREVIEW */
         .preview-pane {
             flex: 2; background: #050505; 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             position: relative; border-right: 1px solid var(--border-color); padding: 10px;
         }
-
         .canvas-toolbar {
             display: flex; gap: 8px; align-items: center;
             background: rgba(20,20,20,0.9); padding: 5px 10px; 
@@ -109,13 +83,11 @@
             display: flex; align-items: center; justify-content: center; transition: 0.2s;
         }
         .format-btn.active { color: white; background: var(--accent-color); border-color: var(--accent-color); }
-        
         .tmpl-select {
             background: #222; color: #fff; border: 1px solid #444;
             padding: 0 10px; height: 35px; border-radius: 4px; font-size: 0.8rem;
             outline: none; cursor: pointer; max-width: 120px;
         }
-
         .canvas-wrapper {
             position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.6);
             border: 1px solid #333; max-width: 100%; max-height: 100%;
@@ -123,39 +95,31 @@
         }
         #canvas { display: block; max-width: 100%; max-height: 75vh; object-fit: contain; cursor: crosshair; }
 
-        /* CONTROLS PANE */
+        /* CONTROLS */
         .controls-pane {
             flex: 1; min-width: 320px; max-width: 400px;
             background: var(--bg-app); overflow-y: auto;
             padding: 15px; display: flex; flex-direction: column; gap: 15px;
             padding-bottom: calc(20px + env(safe-area-inset-bottom));
         }
-
         .download-btn {
             width: 100%; padding: 12px;
             background: var(--success-color); color: white; font-family: 'Archivo Black';
             font-size: 1rem; text-transform: uppercase; border: none; border-radius: 6px;
             cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
-        .download-btn:hover { filter: brightness(1.1); transform: translateY(-1px); }
-
-        .panel { 
-            background: var(--panel-bg); padding: 12px; 
-            border-radius: 8px; border: 1px solid var(--border-color); 
-        }
+        .panel { background: var(--panel-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
         .panel-title { 
             font-size: 0.75rem; font-weight: bold; color: var(--accent-color); 
             text-transform: uppercase; margin-bottom: 10px; display: block; 
             border-bottom: 1px solid var(--border-color); padding-bottom: 5px;
         }
-
         .control-group { margin-bottom: 12px; }
         label { display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; }
         input[type="text"], select {
             width: 100%; background: var(--input-bg); border: 1px solid var(--border-color);
             color: var(--text-main); padding: 8px; border-radius: 4px; font-size: 0.9rem;
         }
-
         .style-row { display: flex; gap: 5px; align-items: center; margin-top: 5px; }
         input[type="color"] { border: none; width: 35px; height: 35px; padding: 0; background: none; cursor: pointer; }
         .checkbox-btn {
@@ -164,18 +128,14 @@
             cursor: pointer; font-weight: bold; border-radius: 4px; font-family: serif; font-size: 1.1rem;
         }
         .checkbox-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
-
-        /* CAPAS */
+        
         .layer-actions { display: flex; gap: 5px; margin-top: 8px; }
         .layer-btn {
             flex: 1; background: var(--input-bg); border: 1px solid var(--border-color);
             color: var(--text-main); padding: 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;
             display: flex; align-items: center; justify-content: center; gap: 5px;
         }
-        .layer-btn:hover { background: var(--border-color); }
         .btn-delete { color: #e74c3c; border-color: rgba(231,76,60,0.3); }
-        .btn-delete:hover { background: rgba(231,76,60,0.1); border-color: #e74c3c; }
-
         .layer-list { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
         .layer-badge {
             padding: 4px 8px; background: var(--input-bg); border-radius: 4px; font-size: 0.7rem; cursor: pointer; 
@@ -183,7 +143,6 @@
         }
         .layer-badge.active { border-color: var(--accent-color); color: var(--text-main); background: var(--border-color); }
 
-        /* FOOTER */
         .site-footer-inner {
             margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color);
             text-align: center; padding-bottom: 10px;
@@ -196,7 +155,6 @@
         .footer-copy { color: var(--text-muted); font-size: 0.75rem; }
         .icon-gold { color: var(--link-color); }
 
-        /* RESPONSIVE MÓVIL */
         @media (max-width: 900px) {
             .workbench-container { flex-direction: column; overflow-y: auto; }
             .preview-pane { 
@@ -217,7 +175,7 @@
             <h1 data-key="mainTitle">MaxFlow <span style="color:var(--accent-color)">v1</span></h1>
         </div>
         <div class="top-right">
-            <button class="btn-theme" onclick="toggleTheme()" id="btnTheme" title="Light/Dark Mode">
+            <button class="btn-theme" onclick="toggleTheme()" id="btnTheme">
                 <i class="fa-solid fa-sun" style="color:gold"></i>
             </button>
             <div class="lang-group">
@@ -242,7 +200,7 @@
                     <option value="T3">Template 3</option>
                     <option value="T4">Template 4</option>
                 </select>
-                <button class="format-btn" onclick="resetImages()" style="font-size:0.8rem; width:auto; padding:0 10px;" title="Reset Canvas">CLR</button>
+                <button class="format-btn" onclick="hardReset()" style="font-size:0.8rem; width:auto; padding:0 10px;" title="Borrar Todo">CLR</button>
             </div>
 
             <div class="canvas-wrapper">
@@ -264,8 +222,8 @@
                             <option value="'Anton', sans-serif">Anton</option>
                             <option value="'Bangers', cursive">Bangers</option>
                         </select>
-                        <input type="color" id="titleColor" value="#FFFFFF" oninput="draw()" title="Text Color">
-                        <input type="color" id="titleBg" value="#CC0000" oninput="draw()" title="Background Color">
+                        <input type="color" id="titleColor" value="#FFFFFF" oninput="draw()">
+                        <input type="color" id="titleBg" value="#CC0000" oninput="draw()">
                         <div class="checkbox-btn" id="btnItalicTitle" onclick="toggleItalic('title')">I</div>
                     </div>
                 </div>
@@ -290,16 +248,16 @@
                 <div id="layerList" class="layer-list"></div>
                 <div class="layer-actions">
                     <button class="layer-btn" onclick="document.getElementById('imgUpload').click()" data-key="btnAddImg"><i class="fa-solid fa-plus"></i></button>
-                    <button class="layer-btn" onclick="moveLayer(-1)" title="Send Back"><i class="fa-solid fa-arrow-down"></i></button>
-                    <button class="layer-btn" onclick="moveLayer(1)" title="Bring Front"><i class="fa-solid fa-arrow-up"></i></button>
-                    <button class="layer-btn btn-delete" onclick="deleteActiveLayer()" title="Delete"><i class="fa-solid fa-trash"></i></button>
+                    <button class="layer-btn" onclick="moveLayer(-1)"><i class="fa-solid fa-arrow-down"></i></button>
+                    <button class="layer-btn" onclick="moveLayer(1)"><i class="fa-solid fa-arrow-up"></i></button>
+                    <button class="layer-btn btn-delete" onclick="deleteActiveLayer()"><i class="fa-solid fa-trash"></i></button>
                 </div>
                 <input type="file" id="imgUpload" multiple accept="image/*" style="display:none" onchange="handleImages(this)">
             </div>
 
             <div class="panel">
                 <span class="panel-title"><i class="fa-solid fa-robot"></i> Grok AI Prompt</span>
-                <input type="text" id="grokIdea" placeholder="Idea (e.g. Neon City)..." style="margin-bottom:8px;">
+                <input type="text" id="grokIdea" placeholder="Idea..." style="margin-bottom:8px;">
                 <button class="layer-btn" style="width:100%; background:var(--border-color); font-weight:bold;" onclick="genGrok()">
                     Generate & Copy & Open <i class="fa-solid fa-arrow-up-right-from-square"></i>
                 </button>
@@ -322,14 +280,12 @@
     </div>
 
     <script>
-        // --- BRANDING & LOCALIZATION ---
         const translations = {
             es: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v1</span>', btnDownload: 'DESCARGAR IMAGEN', sectionText: 'Capas de Texto', lblTitle: 'TÍTULO', lblDesc: 'SUBTÍTULO', sectionBg: 'Capas', btnAddImg: '+ Subir' },
             de: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v1</span>', btnDownload: 'BILD HERUNTERLADEN', sectionText: 'Texte', lblTitle: 'TITEL', lblDesc: 'UNTERTITEL', sectionBg: 'Ebenen', btnAddImg: '+ Hochladen' },
             en: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v1</span>', btnDownload: 'DOWNLOAD IMAGE', sectionText: 'Text Layers', lblTitle: 'HEADLINE', lblDesc: 'SUBTITLE', sectionBg: 'Layers', btnAddImg: '+ Upload' }
         };
 
-        // --- CORE STATE ---
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         let currentFormat = '16:9';
@@ -339,33 +295,107 @@
             title: { text: "THE TRUTH ABOUT...", x: 0, y: 0, size: 90, width:0, height:0, italic: false },
             desc:  { text: "Details here...", x: 0, y: 0, size: 50, width:0, height:0, italic: false }
         };
-        
-        let images = []; // Array de capas de imagen
+        let images = []; 
         let selection = { type: null, id: null, action: null, lastX: 0, lastY: 0, isDragging: false };
 
-        // --- INIT ---
+        // --- INIT & PERSISTENCE ---
         window.onload = () => {
-            setLang('de'); // Default Deutsch
-            // Primero aseguramos el formato
-            setFormat('16:9');
+            setLang('de');
             
-            // LUEGO FORZAMOS EL CENTRADO INICIAL DEL TEXTO (CORRECCIÓN)
-            texts.title.x = 1280 / 2;
-            texts.title.y = 720 * 0.3; // Un poco arriba
-            texts.desc.x = 1280 / 2;
-            texts.desc.y = 720 * 0.75; // Un poco abajo
-            
-            document.getElementById('titleText').value = texts.title.text;
-            document.getElementById('descText').value = texts.desc.text;
-            
-            draw();
+            // Intenta cargar estado guardado
+            if(localStorage.getItem('maxflow_state')) {
+                loadState();
+            } else {
+                setFormat('16:9'); // Default
+            }
         };
 
-        // --- UI FUNCTIONS ---
+        function saveState() {
+            // Guardamos solo los datos esenciales. 
+            // Las imágenes se guardan como DataURL (src), lo que puede llenar el localStorage si son enormes.
+            try {
+                const state = {
+                    currentFormat,
+                    texts,
+                    // Mapeamos imágenes para guardar solo lo necesario
+                    images: images.map(img => ({
+                        src: img.img.src, // DataURL
+                        width: img.width, height: img.height,
+                        x: img.x, y: img.y, scale: img.scale,
+                        isTemplate: img.isTemplate
+                    }))
+                };
+                localStorage.setItem('maxflow_state', JSON.stringify(state));
+            } catch (e) {
+                console.warn("Storage full or error saving state", e);
+            }
+        }
+
+        function loadState() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('maxflow_state'));
+                if(!saved) return;
+
+                currentFormat = saved.currentFormat;
+                texts = saved.texts;
+                
+                // Restaurar UI de textos
+                document.getElementById('titleText').value = texts.title.text;
+                document.getElementById('descText').value = texts.desc.text;
+                
+                // Restaurar botones de formato
+                document.getElementById('btn169').className = `format-btn ${currentFormat==='16:9'?'active':''}`;
+                document.getElementById('btn916').className = `format-btn ${currentFormat==='9:16'?'active':''}`;
+                canvas.width = currentFormat === '16:9' ? 1280 : 720;
+                canvas.height = currentFormat === '16:9' ? 720 : 1280;
+
+                // Restaurar Imágenes (Asíncrono)
+                images = [];
+                let loadedCount = 0;
+                if(saved.images.length === 0) { draw(); return; }
+
+                saved.images.forEach(savedImg => {
+                    const imgObj = new Image();
+                    imgObj.onload = () => {
+                        // Reconstruir objeto imagen
+                        images.push({
+                            img: imgObj,
+                            width: savedImg.width, height: savedImg.height,
+                            x: savedImg.x, y: savedImg.y, scale: savedImg.scale,
+                            isTemplate: savedImg.isTemplate
+                        });
+                        loadedCount++;
+                        if(loadedCount === saved.images.length) {
+                            updateLayerList();
+                            draw();
+                        }
+                    };
+                    imgObj.src = savedImg.src;
+                });
+
+            } catch(e) {
+                console.error("Error loading state", e);
+                setFormat('16:9'); // Fallback
+            }
+        }
+
+        function hardReset() {
+            if(confirm("Delete all layers and clear memory?")) {
+                localStorage.removeItem('maxflow_state');
+                images = [];
+                selection = { type: null };
+                // Reset positions
+                setFormat(currentFormat); 
+                updateLayerList();
+                draw();
+            }
+        }
+
+        // --- CORE FUNCTIONS ---
         function toggleTheme() {
             isLightMode = !isLightMode;
             document.body.className = isLightMode ? 'light-theme' : '';
-            document.getElementById('btnTheme').innerHTML = isLightMode ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun" style="color:gold;"></i>';
+            document.getElementById('btnTheme').innerHTML = isLightMode ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun" style="color:gold"></i>';
             draw();
         }
 
@@ -381,79 +411,62 @@
                 canvas.width = 720; canvas.height = 1280;
                 document.getElementById('btn916').classList.add('active');
             }
-            // Recenter elements on Format Change
+            
+            // Centrado Inicial (Solo si no viene de loadState, o para resetear)
             texts.title.x = canvas.width / 2; texts.title.y = canvas.height * 0.3;
             texts.desc.x = canvas.width / 2; texts.desc.y = canvas.height * 0.75;
             images.forEach(img => { img.x = canvas.width/2; img.y = canvas.height/2; });
+            
+            saveState(); // Guardar cambio
             draw();
         }
 
-        // --- TEMPLATES (Archivos Locales) ---
-        // Asegúrate de que estos archivos existan en la carpeta
-        const templateURLs = {
-            'T1': 'template1.png', 
-            'T2': 'template2.png',
-            'T3': 'template3.png',
-            'T4': 'template4.png'
-        };
+        // --- TEMPLATES ---
+        const templateURLs = { 'T1': 'template1.png', 'T2': 'template2.png', 'T3': 'template3.png', 'T4': 'template4.png' };
 
         function handleTemplateSelect(select) { if(select.value) loadTemplate(select.value); select.value = ""; }
 
         function loadTemplate(key) {
             let url = templateURLs[key];
             const img = new Image(); img.crossOrigin = "Anonymous";
-            
-            img.onerror = () => { 
-                console.warn("Template local no encontrado."); 
-                // Placeholder por si falla local
-                img.src = `https://placehold.co/1280x720/111/E62117/png?text=${key}+Missing`;
-            };
-
+            img.onerror = () => { img.src = `https://placehold.co/1280x720/111/E62117/png?text=${key}+Missing`; };
             img.onload = () => {
                 const scale = Math.max(canvas.width/img.width, canvas.height/img.height);
                 images.push({ img: img, width: img.width, height: img.height, x: canvas.width/2, y: canvas.height/2, scale: scale, isTemplate: true });
                 selection = { type: 'image', id: images.length-1, action: null }; 
-                updateLayerList(); draw();
+                updateLayerList(); draw(); saveState();
             };
             img.src = url;
         }
 
-        // --- LAYER LOGIC ---
         function moveLayer(direction) {
             if (selection.type !== 'image' || selection.id === null) return;
             const idx = selection.id; const newIdx = idx + direction;
             if (newIdx < 0 || newIdx >= images.length) return;
             const temp = images[idx]; images[idx] = images[newIdx]; images[newIdx] = temp;
-            selection.id = newIdx; updateLayerList(); draw();
+            selection.id = newIdx; updateLayerList(); draw(); saveState();
         }
 
         function deleteActiveLayer() {
             if (selection.type !== 'image' || selection.id === null) return;
             images.splice(selection.id, 1);
             selection = { type: null, id: null, action: null };
-            updateLayerList(); draw();
+            updateLayerList(); draw(); saveState();
         }
 
-        // --- RENDER ENGINE (DRAW) ---
         function draw() {
             ctx.fillStyle = isLightMode ? '#fff' : '#111';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Images
             images.forEach((imgObj, idx) => {
                 ctx.save(); ctx.translate(imgObj.x, imgObj.y); ctx.scale(imgObj.scale, imgObj.scale);
                 ctx.drawImage(imgObj.img, -imgObj.width/2, -imgObj.height/2);
-                
                 if (selection.type === 'image' && selection.id === idx) {
                     ctx.strokeStyle = '#28a745'; ctx.lineWidth = 4/imgObj.scale;
                     ctx.strokeRect(-imgObj.width/2, -imgObj.height/2, imgObj.width, imgObj.height);
-                    ctx.fillStyle = '#28a745';
-                    ctx.fillRect((imgObj.width/2) - 20/imgObj.scale, (imgObj.height/2) - 20/imgObj.scale, 40/imgObj.scale, 40/imgObj.scale);
+                    ctx.fillStyle = '#28a745'; ctx.fillRect((imgObj.width/2) - 20/imgObj.scale, (imgObj.height/2) - 20/imgObj.scale, 40/imgObj.scale, 40/imgObj.scale);
                 }
                 ctx.restore();
             });
-
-            // Texts
             drawTextLayer('title'); drawTextLayer('desc');
         }
 
@@ -463,16 +476,12 @@
             const color = document.getElementById(key + 'Color').value;
             const bgColor = document.getElementById(key + 'Bg').value;
             const style = t.italic ? 'italic bold' : 'bold';
-
             ctx.font = `${style} ${t.size}px ${fontName}`;
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-
             const lines = wrapText(ctx, t.text, canvas.width * 0.9);
             const lh = t.size * 1.2; const totalH = lines.length * lh;
-            
             let maxW = 0; lines.forEach(l => { const m=ctx.measureText(l); if(m.width>maxW)maxW=m.width; });
             t.width = maxW + 40; t.height = totalH + 20;
-
             let curY = t.y - (totalH/2) + (lh/2);
             lines.forEach(l => {
                 if (bgColor !== 'transparent') {
@@ -482,13 +491,10 @@
                 ctx.fillStyle = color; ctx.shadowColor = "rgba(0,0,0,0.8)"; ctx.shadowBlur = 8;
                 ctx.fillText(l, t.x, curY); ctx.shadowBlur = 0; curY += lh;
             });
-
             if (selection.type === 'text' && selection.id === key) {
                 ctx.save(); ctx.strokeStyle = '#E62117'; ctx.lineWidth = 2; ctx.setLineDash([8, 6]);
                 ctx.strokeRect(t.x - t.width/2, t.y - t.height/2, t.width, t.height);
-                ctx.fillStyle = '#28a745'; ctx.setLineDash([]); 
-                ctx.beginPath(); ctx.arc(t.x + t.width/2, t.y + t.height/2, 12, 0, Math.PI*2); ctx.fill(); 
-                ctx.restore();
+                ctx.fillStyle = '#28a745'; ctx.setLineDash([]); ctx.beginPath(); ctx.arc(t.x + t.width/2, t.y + t.height/2, 12, 0, Math.PI*2); ctx.fill(); ctx.restore();
             }
         }
 
@@ -501,7 +507,6 @@
             lines.push(cur); return lines;
         }
 
-        // --- INTERACTION ---
         function getCoords(e) {
             const rect = canvas.getBoundingClientRect();
             const sx = canvas.width / rect.width; const sy = canvas.height / rect.height;
@@ -535,10 +540,8 @@
         window.addEventListener('mouseup', end); window.addEventListener('touchend', end);
 
         function start(e) { 
-            // Fix Zoom: previene gestos nativos de doble tap o zoom
             if(e.touches && e.touches.length > 1) e.preventDefault(); 
             e.preventDefault(); 
-            
             const c = getCoords(e); const hit = hitTest(c.x, c.y); 
             if(hit) selection = { ...hit, lastX:c.x, lastY:c.y, isDragging:true }; 
             else selection = { type:null, id:null, action:null }; 
@@ -552,16 +555,57 @@
             else if(selection.type === 'image') { const img = images[selection.id]; if(selection.action==='move') { img.x+=dx; img.y+=dy; } else { img.scale = Math.max(0.1, img.scale + (dx/500)); } } 
             selection.lastX = c.x; selection.lastY = c.y; draw(); 
         }
-        function end() { selection.isDragging = false; }
+        function end() { 
+            if(selection.isDragging) {
+                selection.isDragging = false;
+                saveState(); // Guardar al terminar de arrastrar
+            }
+        }
 
-        function updateText(key) { texts[key].text = document.getElementById(key+'Text').value.toUpperCase(); draw(); }
-        function toggleItalic(key) { texts[key].italic = !texts[key].italic; document.getElementById('btnItalic'+(key==='title'?'Title':'Desc')).classList.toggle('active'); draw(); }
-        function handleImages(inp) { Array.from(inp.files).forEach(f => { const r = new FileReader(); r.onload = e => { const img = new Image(); img.onload = () => { const s = Math.max(canvas.width/img.width, canvas.height/img.height); images.push({img:img, width:img.width, height:img.height, x:canvas.width/2, y:canvas.height/2, scale:s}); selection = { type:'image', id:images.length-1, action:null }; updateLayerList(); draw(); }; img.src = e.target.result; }; r.readAsDataURL(f); }); inp.value = ''; }
-        function updateLayerList() { const el = document.getElementById('layerList'); el.innerHTML = ''; images.forEach((_,i) => { const badge = document.createElement('div'); const active = selection.type==='image' && selection.id===i; badge.className = `layer-badge ${active ? 'active' : ''}`; badge.innerText = `Img ${i+1}`; badge.onclick = () => { selection={type:'image', id:i, action:null}; draw(); updateLayerList(); }; el.appendChild(badge); }); }
-        function resetImages() { images = []; selection={type:null}; updateLayerList(); draw(); }
+        function updateText(key) { 
+            texts[key].text = document.getElementById(key+'Text').value.toUpperCase(); 
+            draw(); saveState(); 
+        }
+        function toggleItalic(key) { 
+            texts[key].italic = !texts[key].italic; 
+            document.getElementById('btnItalic'+(key==='title'?'Title':'Desc')).classList.toggle('active'); 
+            draw(); saveState();
+        }
+        
+        function handleImages(inp) { 
+            Array.from(inp.files).forEach(f => { 
+                const r = new FileReader(); 
+                r.onload = e => { 
+                    const img = new Image(); 
+                    img.onload = () => { 
+                        const s = Math.max(canvas.width/img.width, canvas.height/img.height); 
+                        images.push({img:img, width:img.width, height:img.height, x:canvas.width/2, y:canvas.height/2, scale:s}); 
+                        selection = { type:'image', id:images.length-1, action:null }; 
+                        updateLayerList(); draw(); saveState();
+                    }; 
+                    img.src = e.target.result; 
+                }; 
+                r.readAsDataURL(f); 
+            }); 
+            inp.value = ''; 
+        }
+
+        function updateLayerList() { 
+            const el = document.getElementById('layerList'); el.innerHTML = ''; 
+            images.forEach((img,i) => { 
+                const badge = document.createElement('div'); 
+                const active = selection.type==='image' && selection.id===i; 
+                badge.className = `layer-badge ${active ? 'active' : ''}`; 
+                badge.innerText = img.isTemplate ? `Tmpl ${i+1}` : `Img ${i+1}`; 
+                badge.onclick = () => { selection={type:'image', id:i, action:null}; draw(); updateLayerList(); }; 
+                el.appendChild(badge); 
+            }); 
+        }
+
         function genGrok() { const idea = document.getElementById('grokIdea').value; const prompt = `Create a YouTube thumbnail background. Style: Hyper-realistic. Subject: ${idea}. High contrast, 8k. Aspect Ratio ${currentFormat === '16:9' ? '16:9' : '9:16'}. No text.`; navigator.clipboard.writeText(prompt).then(() => { window.open('https://grok.com', '_blank'); }); }
         
         function downloadImage() { 
+            saveState(); // Guardar antes de descargar
             const a = document.createElement('a'); 
             a.download = `maxflow_thumbnail_${currentFormat.replace(':','-')}.png`; 
             a.href = canvas.toDataURL('image/png'); a.click(); 
@@ -570,7 +614,7 @@
         function setLang(l) { 
             document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active')); 
             const btns = document.querySelectorAll('.lang-btn'); 
-            let found=false; for(let b of btns) if(b.getAttribute('onclick').includes(`'${l}'`)) { b.classList.add('active'); found=true; } 
+            for(let b of btns) if(b.getAttribute('onclick').includes(`'${l}'`)) { b.classList.add('active'); } 
             const t = translations[l]; 
             if(t) document.querySelectorAll('[data-key]').forEach(e => e.innerHTML = t[e.getAttribute('data-key')]); 
         }
