@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MaxFlow v1 - Thumbnail Pro</title>
+    <title>MaxFlow v28 - Pro Tools</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Bangers&family=Bebas+Neue&family=Oswald:wght@700&family=Roboto:ital,wght@0,700;1,700&family=Montserrat:wght@800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -12,7 +12,6 @@
 
     <style>
         :root {
-            /* MODO OSCURO (Default) */
             --bg-app: #000000;
             --panel-bg: #111111;
             --text-main: #e0e0e0;
@@ -22,6 +21,7 @@
             --accent-color: #E62117;
             --success-color: #28a745;
             --link-color: #FFD700;
+            --lock-color: #ff4757; /* Color para estado bloqueado */
         }
 
         body.light-theme {
@@ -30,7 +30,6 @@
         }
 
         * { box-sizing: border-box; transition: background-color 0.3s, color 0.3s; }
-        
         html, body { touch-action: manipulation; overscroll-behavior: none; }
 
         body {
@@ -124,14 +123,16 @@
         }
         .style-row { display: flex; gap: 5px; align-items: center; margin-top: 5px; }
         input[type="color"] { border: none; width: 35px; height: 35px; padding: 0; background: none; cursor: pointer; touch-action: manipulation;}
-        .checkbox-btn {
+        
+        .icon-btn {
             width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;
             background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main);
-            cursor: pointer; font-weight: bold; border-radius: 4px; font-family: serif; font-size: 1.1rem;
+            cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 1rem;
             touch-action: manipulation;
         }
-        .checkbox-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
-        
+        .icon-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+        .icon-btn.no-bg { color: #e74c3c; border-color: #e74c3c; }
+
         .layer-actions { display: flex; gap: 5px; margin-top: 8px; }
         .layer-btn {
             flex: 1; background: var(--input-bg); border: 1px solid var(--border-color);
@@ -139,12 +140,19 @@
             display: flex; align-items: center; justify-content: center; gap: 5px; touch-action: manipulation;
         }
         .btn-delete { color: #e74c3c; border-color: rgba(231,76,60,0.3); }
+        
+        /* Botón Lock específico */
+        .btn-lock { color: var(--text-muted); }
+        .btn-lock.locked { color: var(--lock-color); border-color: var(--lock-color); background: rgba(255, 71, 87, 0.1); }
+
         .layer-list { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
         .layer-badge {
             padding: 4px 8px; background: var(--input-bg); border-radius: 4px; font-size: 0.7rem; cursor: pointer; 
             border: 1px solid var(--border-color); color: var(--text-muted); touch-action: manipulation;
+            display: flex; align-items: center; gap: 4px;
         }
         .layer-badge.active { border-color: var(--accent-color); color: var(--text-main); background: var(--border-color); }
+        .layer-badge.is-locked { border-color: var(--lock-color) !important; color: var(--lock-color) !important; }
 
         .site-footer-inner {
             margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color);
@@ -175,7 +183,7 @@
 
     <header class="header-actions">
         <div class="header-title">
-            <h1 data-key="mainTitle">MaxFlow <span style="color:var(--accent-color)">v1</span></h1>
+            <h1 data-key="mainTitle">MaxFlow <span style="color:var(--accent-color)">v28</span></h1>
         </div>
         <div class="top-right">
             <button class="btn-theme" onclick="toggleTheme()" id="btnTheme">
@@ -212,7 +220,7 @@
         </div>
 
         <div class="controls-pane">
-            <button class="download-btn" onclick="downloadImage()" data-key="btnDownload" id="btnDownloadAction">DOWNLOAD IMAGE</button>
+            <button class="download-btn" onclick="downloadImage()" data-key="btnDownload">DOWNLOAD / SHARE</button>
 
             <div class="panel">
                 <span class="panel-title" data-key="sectionText">Text Layers</span>
@@ -225,9 +233,10 @@
                             <option value="'Anton', sans-serif">Anton</option>
                             <option value="'Bangers', cursive">Bangers</option>
                         </select>
-                        <input type="color" id="titleColor" value="#FFFFFF" oninput="draw()">
-                        <input type="color" id="titleBg" value="#CC0000" oninput="draw()">
-                        <div class="checkbox-btn" id="btnItalicTitle" onclick="toggleItalic('title')">I</div>
+                        <input type="color" id="titleColor" value="#FFFFFF" oninput="draw()" title="Text Color">
+                        <input type="color" id="titleBg" value="#CC0000" oninput="draw()" title="BG Color">
+                        <button class="icon-btn no-bg" onclick="toggleTransparent('title')" title="No Background">🚫</button>
+                        <div class="icon-btn" id="btnItalicTitle" onclick="toggleItalic('title')">I</div>
                     </div>
                 </div>
                 <hr style="border-color:var(--border-color); opacity:0.5; margin:10px 0;">
@@ -241,7 +250,8 @@
                         </select>
                         <input type="color" id="descColor" value="#FFFFFF" oninput="draw()">
                         <input type="color" id="descBg" value="#000000" oninput="draw()">
-                        <div class="checkbox-btn" id="btnItalicDesc" onclick="toggleItalic('desc')">I</div>
+                        <button class="icon-btn no-bg" onclick="toggleTransparent('desc')" title="No Background">🚫</button>
+                        <div class="icon-btn" id="btnItalicDesc" onclick="toggleItalic('desc')">I</div>
                     </div>
                 </div>
             </div>
@@ -251,6 +261,8 @@
                 <div id="layerList" class="layer-list"></div>
                 <div class="layer-actions">
                     <button class="layer-btn" onclick="document.getElementById('imgUpload').click()" data-key="btnAddImg"><i class="fa-solid fa-plus"></i></button>
+                    <button class="layer-btn btn-lock" id="btnLock" onclick="toggleLock()" title="Lock Layer"><i class="fa-solid fa-lock"></i></button>
+                    
                     <button class="layer-btn" onclick="moveLayer(-1)"><i class="fa-solid fa-arrow-down"></i></button>
                     <button class="layer-btn" onclick="moveLayer(1)"><i class="fa-solid fa-arrow-up"></i></button>
                     <button class="layer-btn btn-delete" onclick="deleteActiveLayer()"><i class="fa-solid fa-trash"></i></button>
@@ -284,9 +296,9 @@
 
     <script>
         const translations = {
-            es: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v1</span>', btnDownload: 'DESCARGAR / COMPARTIR', sectionText: 'Capas de Texto', lblTitle: 'TÍTULO', lblDesc: 'SUBTÍTULO', sectionBg: 'Capas', btnAddImg: '+ Subir' },
-            de: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v1</span>', btnDownload: 'BILD SPEICHERN / TEILEN', sectionText: 'Texte', lblTitle: 'TITEL', lblDesc: 'UNTERTITEL', sectionBg: 'Ebenen', btnAddImg: '+ Hochladen' },
-            en: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v1</span>', btnDownload: 'DOWNLOAD / SHARE', sectionText: 'Text Layers', lblTitle: 'HEADLINE', lblDesc: 'SUBTITLE', sectionBg: 'Layers', btnAddImg: '+ Upload' }
+            es: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v28</span>', btnDownload: 'DESCARGAR / COMPARTIR', sectionText: 'Capas de Texto', lblTitle: 'TÍTULO', lblDesc: 'SUBTÍTULO', sectionBg: 'Capas', btnAddImg: '+ Subir' },
+            de: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v28</span>', btnDownload: 'BILD SPEICHERN / TEILEN', sectionText: 'Texte', lblTitle: 'TITEL', lblDesc: 'UNTERTITEL', sectionBg: 'Ebenen', btnAddImg: '+ Hochladen' },
+            en: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v28</span>', btnDownload: 'DOWNLOAD / SHARE', sectionText: 'Text Layers', lblTitle: 'HEADLINE', lblDesc: 'SUBTITLE', sectionBg: 'Layers', btnAddImg: '+ Upload' }
         };
 
         const canvas = document.getElementById('canvas');
@@ -294,15 +306,15 @@
         let currentFormat = '16:9';
         let isLightMode = false;
 
-        const defaultTexts = {
-            title: "THE TRUTH ABOUT...",
-            desc: "Details here..."
-        };
+        const defaultTexts = { title: "THE TRUTH ABOUT...", desc: "Details here..." };
 
+        // Structure Textos (Añadido: transparentBg)
         let texts = {
-            title: { text: defaultTexts.title, x: 0, y: 0, size: 90, width:0, height:0, italic: false },
-            desc:  { text: defaultTexts.desc, x: 0, y: 0, size: 50, width:0, height:0, italic: false }
+            title: { text: defaultTexts.title, x: 0, y: 0, size: 90, italic: false, transparentBg: false },
+            desc:  { text: defaultTexts.desc, x: 0, y: 0, size: 50, italic: false, transparentBg: false }
         };
+        
+        // Structure Images (Añadido: locked)
         let images = []; 
         let selection = { type: null, id: null, action: null, lastX: 0, lastY: 0, isDragging: false };
 
@@ -324,6 +336,21 @@
             }
         }
 
+        // --- NEW FEATURES LOGIC ---
+        function toggleTransparent(key) {
+            texts[key].transparentBg = !texts[key].transparentBg;
+            draw(); saveState();
+        }
+
+        function toggleLock() {
+            if(selection.type !== 'image' || selection.id === null) return;
+            // Toggle Lock State
+            images[selection.id].locked = !images[selection.id].locked;
+            updateLayerList(); // Update UI icons
+            draw(); saveState();
+        }
+
+        // --- STATE MANAGEMENT ---
         function saveState() {
             try {
                 const state = {
@@ -333,7 +360,8 @@
                         src: img.img.src,
                         width: img.width, height: img.height,
                         x: img.x, y: img.y, scale: img.scale,
-                        isTemplate: img.isTemplate
+                        isTemplate: img.isTemplate,
+                        locked: img.locked || false // Save lock state
                     }))
                 };
                 localStorage.setItem('maxflow_state', JSON.stringify(state));
@@ -346,7 +374,7 @@
                 if(!saved) return;
 
                 currentFormat = saved.currentFormat;
-                texts = saved.texts;
+                texts = saved.texts || texts;
                 
                 document.getElementById('titleText').value = texts.title.text;
                 document.getElementById('descText').value = texts.desc.text;
@@ -367,7 +395,8 @@
                             img: imgObj,
                             width: savedImg.width, height: savedImg.height,
                             x: savedImg.x, y: savedImg.y, scale: savedImg.scale,
-                            isTemplate: savedImg.isTemplate
+                            isTemplate: savedImg.isTemplate,
+                            locked: savedImg.locked || false
                         });
                         loadedCount++;
                         if(loadedCount === saved.images.length) {
@@ -378,9 +407,7 @@
                     imgObj.src = savedImg.src;
                 });
 
-            } catch(e) {
-                setFormat('16:9');
-            }
+            } catch(e) { setFormat('16:9'); }
         }
 
         function hardReset() {
@@ -390,6 +417,8 @@
                 selection = { type: null };
                 texts.title.text = defaultTexts.title;
                 texts.desc.text = defaultTexts.desc;
+                texts.title.transparentBg = false; 
+                texts.desc.transparentBg = false;
                 document.getElementById('titleText').value = defaultTexts.title;
                 document.getElementById('descText').value = defaultTexts.desc;
                 setFormat(currentFormat); 
@@ -417,17 +446,13 @@
                 canvas.width = 720; canvas.height = 1280;
                 document.getElementById('btn916').classList.add('active');
             }
-            
             texts.title.x = canvas.width / 2; texts.title.y = canvas.height * 0.3;
             texts.desc.x = canvas.width / 2; texts.desc.y = canvas.height * 0.75;
             images.forEach(img => { img.x = canvas.width/2; img.y = canvas.height/2; });
-            
-            saveState();
-            draw();
+            saveState(); draw();
         }
 
         const templateURLs = { 'T1': 'template1.png', 'T2': 'template2.png', 'T3': 'template3.png', 'T4': 'template4.png' };
-
         function handleTemplateSelect(select) { if(select.value) loadTemplate(select.value); select.value = ""; }
 
         function loadTemplate(key) {
@@ -436,7 +461,7 @@
             img.onerror = () => { img.src = `https://placehold.co/1280x720/111/E62117/png?text=${key}+Missing`; };
             img.onload = () => {
                 const scale = Math.max(canvas.width/img.width, canvas.height/img.height);
-                images.push({ img: img, width: img.width, height: img.height, x: canvas.width/2, y: canvas.height/2, scale: scale, isTemplate: true });
+                images.push({ img: img, width: img.width, height: img.height, x: canvas.width/2, y: canvas.height/2, scale: scale, isTemplate: true, locked: false });
                 selection = { type: 'image', id: images.length-1, action: null }; 
                 updateLayerList(); draw(); saveState();
             };
@@ -461,16 +486,28 @@
         function draw() {
             ctx.fillStyle = isLightMode ? '#fff' : '#111';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Images
             images.forEach((imgObj, idx) => {
                 ctx.save(); ctx.translate(imgObj.x, imgObj.y); ctx.scale(imgObj.scale, imgObj.scale);
                 ctx.drawImage(imgObj.img, -imgObj.width/2, -imgObj.height/2);
+                
+                // Selección: Verde si normal, Rojo si locked
                 if (selection.type === 'image' && selection.id === idx) {
-                    ctx.strokeStyle = '#28a745'; ctx.lineWidth = 4/imgObj.scale;
+                    const color = imgObj.locked ? '#ff4757' : '#28a745';
+                    ctx.strokeStyle = color; ctx.lineWidth = 4/imgObj.scale;
                     ctx.strokeRect(-imgObj.width/2, -imgObj.height/2, imgObj.width, imgObj.height);
-                    ctx.fillStyle = '#28a745'; ctx.fillRect((imgObj.width/2) - 20/imgObj.scale, (imgObj.height/2) - 20/imgObj.scale, 40/imgObj.scale, 40/imgObj.scale);
+                    
+                    // Solo dibujar handle de resize si NO está bloqueado
+                    if(!imgObj.locked) {
+                        ctx.fillStyle = color;
+                        ctx.fillRect((imgObj.width/2) - 20/imgObj.scale, (imgObj.height/2) - 20/imgObj.scale, 40/imgObj.scale, 40/imgObj.scale);
+                    }
                 }
                 ctx.restore();
             });
+
+            // Texts
             drawTextLayer('title'); drawTextLayer('desc');
         }
 
@@ -480,21 +517,39 @@
             const color = document.getElementById(key + 'Color').value;
             const bgColor = document.getElementById(key + 'Bg').value;
             const style = t.italic ? 'italic bold' : 'bold';
+
             ctx.font = `${style} ${t.size}px ${fontName}`;
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            
+            // CONFIGURAR BORDE NEGRO
+            ctx.lineWidth = t.size * 0.08; // Grosor proporcional
+            ctx.strokeStyle = 'black';
+            ctx.lineJoin = 'round';
+
             const lines = wrapText(ctx, t.text, canvas.width * 0.9);
             const lh = t.size * 1.2; const totalH = lines.length * lh;
             let maxW = 0; lines.forEach(l => { const m=ctx.measureText(l); if(m.width>maxW)maxW=m.width; });
-            t.width = maxW + 40; t.height = totalH + 20;
+            t.width = maxW + 40; t.height = totalH + 20; // Hitbox
+
             let curY = t.y - (totalH/2) + (lh/2);
             lines.forEach(l => {
-                if (bgColor !== 'transparent') {
+                // Background (Solo si no es transparente)
+                if (!t.transparentBg && bgColor !== 'transparent') {
                     const w = ctx.measureText(l).width + 30;
                     ctx.fillStyle = bgColor; ctx.fillRect(t.x - w/2, curY - lh/2, w, lh);
                 }
-                ctx.fillStyle = color; ctx.shadowColor = "rgba(0,0,0,0.8)"; ctx.shadowBlur = 8;
-                ctx.fillText(l, t.x, curY); ctx.shadowBlur = 0; curY += lh;
+                
+                // Stroke (Siempre primero)
+                ctx.strokeText(l, t.x, curY);
+                
+                // Fill (Texto encima)
+                ctx.fillStyle = color; 
+                // Sombra sutil solo si hay fondo, si no, el stroke ya separa
+                if(!t.transparentBg) { ctx.shadowColor = "rgba(0,0,0,0.5)"; ctx.shadowBlur = 5; }
+                ctx.fillText(l, t.x, curY); 
+                ctx.shadowBlur = 0; curY += lh;
             });
+
             if (selection.type === 'text' && selection.id === key) {
                 ctx.save(); ctx.strokeStyle = '#E62117'; ctx.lineWidth = 2; ctx.setLineDash([8, 6]);
                 ctx.strokeRect(t.x - t.width/2, t.y - t.height/2, t.width, t.height);
@@ -520,6 +575,7 @@
         }
 
         function hitTest(x,y) {
+            // 1. Textos
             if(selection.type === 'text') {
                 const t = texts[selection.id];
                 if(Math.abs(x - (t.x+t.width/2)) < 35 && Math.abs(y - (t.y+t.height/2)) < 35) return {type:'text', id:selection.id, action:'resize'};
@@ -528,10 +584,13 @@
                 const t = texts[k];
                 if(x > t.x-t.width/2 && x < t.x+t.width/2 && y > t.y-t.height/2 && y < t.y+t.height/2) return {type:'text', id:k, action:'move'};
             }
+            // 2. Imágenes
             for(let i=images.length-1; i>=0; i--) {
                 const img = images[i];
                 const lx = (x-img.x)/img.scale; const ly = (y-img.y)/img.scale;
-                if(selection.type==='image' && selection.id===i) {
+                
+                // Si está locked, permitimos seleccionar pero NO redimensionar
+                if(selection.type==='image' && selection.id===i && !img.locked) {
                     if(Math.abs(lx - img.width/2) < 40 && Math.abs(ly - img.height/2) < 40) return {type:'image', id:i, action:'resize'};
                 }
                 if(Math.abs(lx) < img.width/2 && Math.abs(ly) < img.height/2) return {type:'image', id:i, action:'move'};
@@ -547,60 +606,60 @@
             if(e.touches && e.touches.length > 1) e.preventDefault(); 
             e.preventDefault(); 
             const c = getCoords(e); const hit = hitTest(c.x, c.y); 
-            if(hit) selection = { ...hit, lastX:c.x, lastY:c.y, isDragging:true }; 
-            else selection = { type:null, id:null, action:null }; 
+            if(hit) {
+                // Verificar si está bloqueado antes de iniciar arrastre
+                if(hit.type === 'image' && images[hit.id].locked) {
+                    selection = { type:'image', id:hit.id, action:null, isDragging:false }; // Solo seleccionar
+                } else {
+                    selection = { ...hit, lastX:c.x, lastY:c.y, isDragging:true }; 
+                }
+            } else {
+                selection = { type:null, id:null, action:null }; 
+            }
             updateLayerList(); draw(); 
         }
+
         function move(e) { 
             if(!selection.isDragging) return; 
             if(e.type==='touchmove') e.preventDefault(); 
             const c = getCoords(e); const dx = c.x - selection.lastX; const dy = c.y - selection.lastY; 
+            
             if(selection.type === 'text') { const t = texts[selection.id]; if(selection.action==='move') { t.x+=dx; t.y+=dy; } else { t.size = Math.max(10, t.size + dy/2); } } 
-            else if(selection.type === 'image') { const img = images[selection.id]; if(selection.action==='move') { img.x+=dx; img.y+=dy; } else { img.scale = Math.max(0.1, img.scale + (dx/500)); } } 
+            else if(selection.type === 'image') { 
+                const img = images[selection.id]; 
+                // Doble check de seguridad por si acaso
+                if(!img.locked) {
+                    if(selection.action==='move') { img.x+=dx; img.y+=dy; } else { img.scale = Math.max(0.1, img.scale + (dx/500)); } 
+                }
+            } 
             selection.lastX = c.x; selection.lastY = c.y; draw(); 
         }
-        function end() { 
-            if(selection.isDragging) {
-                selection.isDragging = false;
-                saveState();
-            }
-        }
+        function end() { if(selection.isDragging) { selection.isDragging = false; saveState(); } }
 
-        function updateText(key) { 
-            texts[key].text = document.getElementById(key+'Text').value.toUpperCase(); 
-            draw(); saveState(); 
-        }
-        function toggleItalic(key) { 
-            texts[key].italic = !texts[key].italic; 
-            document.getElementById('btnItalic'+(key==='title'?'Title':'Desc')).classList.toggle('active'); 
-            draw(); saveState();
-        }
+        function updateText(key) { texts[key].text = document.getElementById(key+'Text').value.toUpperCase(); draw(); saveState(); }
+        function toggleItalic(key) { texts[key].italic = !texts[key].italic; document.getElementById('btnItalic'+(key==='title'?'Title':'Desc')).classList.toggle('active'); draw(); saveState(); }
         
-        function handleImages(inp) { 
-            Array.from(inp.files).forEach(f => { 
-                const r = new FileReader(); 
-                r.onload = e => { 
-                    const img = new Image(); 
-                    img.onload = () => { 
-                        const s = Math.max(canvas.width/img.width, canvas.height/img.height); 
-                        images.push({img:img, width:img.width, height:img.height, x:canvas.width/2, y:canvas.height/2, scale:s}); 
-                        selection = { type:'image', id:images.length-1, action:null }; 
-                        updateLayerList(); draw(); saveState();
-                    }; 
-                    img.src = e.target.result; 
-                }; 
-                r.readAsDataURL(f); 
-            }); 
-            inp.value = ''; 
-        }
+        function handleImages(inp) { Array.from(inp.files).forEach(f => { const r = new FileReader(); r.onload = e => { const img = new Image(); img.onload = () => { const s = Math.max(canvas.width/img.width, canvas.height/img.height); images.push({img:img, width:img.width, height:img.height, x:canvas.width/2, y:canvas.height/2, scale:s}); selection = { type:'image', id:images.length-1, action:null }; updateLayerList(); draw(); saveState(); }; img.src = e.target.result; }; r.readAsDataURL(f); }); inp.value = ''; }
 
         function updateLayerList() { 
             const el = document.getElementById('layerList'); el.innerHTML = ''; 
+            const btnLock = document.getElementById('btnLock');
+            
+            // Actualizar estado del botón lock si hay imagen seleccionada
+            if(selection.type === 'image' && selection.id !== null) {
+                const isLocked = images[selection.id].locked;
+                btnLock.className = `layer-btn btn-lock ${isLocked ? 'locked' : ''}`;
+                btnLock.innerHTML = isLocked ? '<i class="fa-solid fa-lock"></i>' : '<i class="fa-solid fa-lock-open"></i>';
+            } else {
+                btnLock.className = `layer-btn btn-lock`;
+                btnLock.innerHTML = '<i class="fa-solid fa-lock"></i>';
+            }
+
             images.forEach((img,i) => { 
                 const badge = document.createElement('div'); 
                 const active = selection.type==='image' && selection.id===i; 
-                badge.className = `layer-badge ${active ? 'active' : ''}`; 
-                badge.innerText = img.isTemplate ? `Tmpl ${i+1}` : `Img ${i+1}`; 
+                badge.className = `layer-badge ${active ? 'active' : ''} ${img.locked ? 'is-locked' : ''}`; 
+                badge.innerHTML = (img.isTemplate ? `Tmpl ${i+1}` : `Img ${i+1}`) + (img.locked ? ' <i class="fa-solid fa-lock" style="font-size:0.6rem"></i>' : ''); 
                 badge.onclick = () => { selection={type:'image', id:i, action:null}; draw(); updateLayerList(); }; 
                 el.appendChild(badge); 
             }); 
@@ -608,37 +667,20 @@
 
         function genGrok() { const idea = document.getElementById('grokIdea').value; const prompt = `Create a YouTube thumbnail background. Style: Hyper-realistic. Subject: ${idea}. High contrast, 8k. Aspect Ratio ${currentFormat === '16:9' ? '16:9' : '9:16'}. No text.`; navigator.clipboard.writeText(prompt).then(() => { window.open('https://grok.com', '_blank'); }); }
         
-        // --- NATIVE SHARE / DOWNLOAD LOGIC (V27) ---
         async function downloadImage() {
-            saveState(); // Guardar antes de actuar
-            
+            saveState();
             const filename = `maxflow_thumbnail_${currentFormat.replace(':','-')}.png`;
-            
-            // 1. Intentar API Nativa de Compartir (Móvil)
             if (navigator.share && navigator.canShare) {
                 try {
-                    // Convertir Canvas a Blob
                     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                     const file = new File([blob], filename, { type: 'image/png' });
-                    
                     if (navigator.canShare({ files: [file] })) {
-                        await navigator.share({
-                            files: [file],
-                            title: 'MaxFlow Thumbnail',
-                            text: 'Thumbnail created with MaxFlow'
-                        });
-                        return; // Si funcionó, terminamos aquí
+                        await navigator.share({ files: [file], title: 'MaxFlow Thumbnail' });
+                        return;
                     }
-                } catch (err) {
-                    console.log("Share cancelado o fallido, usando descarga normal.");
-                }
+                } catch (err) { console.log("Share failed", err); }
             }
-
-            // 2. Fallback: Descarga Clásica (PC / Navegadores viejos)
-            const a = document.createElement('a'); 
-            a.download = filename; 
-            a.href = canvas.toDataURL('image/png'); 
-            a.click(); 
+            const a = document.createElement('a'); a.download = filename; a.href = canvas.toDataURL('image/png'); a.click(); 
         }
 
         function setLang(l) { 
