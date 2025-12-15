@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MaxFlow v30 - Pro Tools</title>
+    <title>MaxFlow v31 - Touch Pro</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Bangers&family=Bebas+Neue&family=Oswald:wght@700&family=Roboto:ital,wght@0,700;1,700&family=Montserrat:wght@800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -22,7 +22,6 @@
             --success-color: #28a745;
             --link-color: #FFD700;
             --lock-color: #ff4757;
-            --rotate-color: #3498db;
         }
 
         body.light-theme {
@@ -31,7 +30,9 @@
         }
 
         * { box-sizing: border-box; transition: background-color 0.3s, color 0.3s; }
-        html, body { touch-action: manipulation; overscroll-behavior: none; }
+        
+        /* IMPRESCINDIBLE PARA GESTOS: Desactiva zoom nativo del navegador */
+        html, body { touch-action: none; overscroll-behavior: none; }
 
         body {
             font-family: 'Roboto', sans-serif;
@@ -55,11 +56,13 @@
             background: transparent; border: 1px solid var(--border-color);
             color: var(--text-main); width: 34px; height: 34px; border-radius: 50%;
             cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem;
+            touch-action: manipulation;
         }
         .lang-group { display: flex; gap: 8px; align-items: center; }
         .lang-btn {
             background: transparent; border: 2px solid transparent; cursor: pointer; font-size: 1.2rem; line-height: 1;
             padding: 2px; border-radius: 50%; opacity: 0.5; transition: 0.2s; filter: grayscale(100%);
+            touch-action: manipulation;
         }
         .lang-btn:hover, .lang-btn.active { opacity: 1; filter: grayscale(0%); transform: scale(1.1); }
 
@@ -81,19 +84,20 @@
             background: transparent; border: 1px solid #444; color: #aaa; 
             cursor: pointer; font-size: 1rem; width: 35px; height: 35px; border-radius: 4px;
             display: flex; align-items: center; justify-content: center; transition: 0.2s;
+            touch-action: manipulation;
         }
         .format-btn.active { color: white; background: var(--accent-color); border-color: var(--accent-color); }
         .tmpl-select {
             background: #222; color: #fff; border: 1px solid #444;
             padding: 0 10px; height: 35px; border-radius: 4px; font-size: 0.8rem;
-            outline: none; cursor: pointer; max-width: 120px;
+            outline: none; cursor: pointer; max-width: 120px; touch-action: manipulation;
         }
         .canvas-wrapper {
             position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.6);
             border: 1px solid #333; max-width: 100%; max-height: 100%;
             display: flex; align-items: center; justify-content: center;
         }
-        #canvas { display: block; max-width: 100%; max-height: 75vh; object-fit: contain; cursor: crosshair; }
+        #canvas { display: block; max-width: 100%; max-height: 75vh; object-fit: contain; cursor: crosshair; touch-action: none; }
 
         /* CONTROLS */
         .controls-pane {
@@ -101,12 +105,14 @@
             background: var(--bg-app); overflow-y: auto;
             padding: 15px; display: flex; flex-direction: column; gap: 15px;
             padding-bottom: calc(20px + env(safe-area-inset-bottom));
+            touch-action: pan-y; /* Permitir scroll vertical en controles */
         }
         .download-btn {
             width: 100%; padding: 12px;
             background: var(--success-color); color: white; font-family: 'Archivo Black';
             font-size: 1rem; text-transform: uppercase; border: none; border-radius: 6px;
             cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            touch-action: manipulation;
         }
         .panel { background: var(--panel-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
         .panel-title { 
@@ -152,7 +158,6 @@
         .layer-badge.active { border-color: var(--accent-color); color: var(--text-main); background: var(--border-color); }
         .layer-badge.is-locked { border-color: var(--lock-color) !important; color: var(--lock-color) !important; opacity: 0.7; }
 
-        /* FOOTER (Actualizado con enlace al Manual) */
         .site-footer-inner {
             margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color);
             text-align: center; padding-bottom: 10px;
@@ -185,7 +190,7 @@
 
     <header class="header-actions">
         <div class="header-title">
-            <h1 data-key="mainTitle">MaxFlow <span style="color:var(--accent-color)">v30</span></h1>
+            <h1 data-key="mainTitle">MaxFlow <span style="color:var(--accent-color)">v31</span></h1>
         </div>
         <div class="top-right">
             <button class="btn-theme" onclick="toggleTheme()" id="btnTheme">
@@ -264,7 +269,6 @@
                 <div class="layer-actions">
                     <button class="layer-btn" onclick="document.getElementById('imgUpload').click()" data-key="btnAddImg"><i class="fa-solid fa-plus"></i></button>
                     <button class="layer-btn btn-lock" id="btnLock" onclick="toggleLock()" title="Lock Layer"><i class="fa-solid fa-lock"></i></button>
-                    
                     <button class="layer-btn" onclick="moveLayer(-1)"><i class="fa-solid fa-arrow-down"></i></button>
                     <button class="layer-btn" onclick="moveLayer(1)"><i class="fa-solid fa-arrow-up"></i></button>
                     <button class="layer-btn btn-delete" onclick="deleteActiveLayer()"><i class="fa-solid fa-trash"></i></button>
@@ -302,9 +306,9 @@
 
     <script>
         const translations = {
-            es: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v30</span>', btnDownload: 'DESCARGAR / COMPARTIR', sectionText: 'Capas de Texto', lblTitle: 'TÍTULO', lblDesc: 'SUBTÍTULO', sectionBg: 'Capas', btnAddImg: '+ Subir' },
-            de: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v30</span>', btnDownload: 'BILD SPEICHERN / TEILEN', sectionText: 'Texte', lblTitle: 'TITEL', lblDesc: 'UNTERTITEL', sectionBg: 'Ebenen', btnAddImg: '+ Hochladen' },
-            en: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v30</span>', btnDownload: 'DOWNLOAD / SHARE', sectionText: 'Text Layers', lblTitle: 'HEADLINE', lblDesc: 'SUBTITLE', sectionBg: 'Layers', btnAddImg: '+ Upload' }
+            es: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v31</span>', btnDownload: 'DESCARGAR / COMPARTIR', sectionText: 'Capas de Texto', lblTitle: 'TÍTULO', lblDesc: 'SUBTÍTULO', sectionBg: 'Capas', btnAddImg: '+ Subir' },
+            de: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v31</span>', btnDownload: 'BILD SPEICHERN / TEILEN', sectionText: 'Texte', lblTitle: 'TITEL', lblDesc: 'UNTERTITEL', sectionBg: 'Ebenen', btnAddImg: '+ Hochladen' },
+            en: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v31</span>', btnDownload: 'DOWNLOAD / SHARE', sectionText: 'Text Layers', lblTitle: 'HEADLINE', lblDesc: 'SUBTITLE', sectionBg: 'Layers', btnAddImg: '+ Upload' }
         };
 
         const canvas = document.getElementById('canvas');
@@ -320,7 +324,7 @@
         };
         
         let images = []; 
-        let selection = { type: null, id: null, action: null, lastX: 0, lastY: 0, isDragging: false };
+        let selection = { type: null, id: null, action: null, lastX: 0, lastY: 0, isDragging: false, isPinching: false, lastDist: 0 };
 
         window.onload = () => {
             setLang('de');
@@ -348,7 +352,7 @@
         function toggleLock() {
             if(selection.type !== 'image' || selection.id === null) return;
             images[selection.id].locked = !images[selection.id].locked;
-            selection = { type: null, id: null, action: null }; // Deselect to allow click-through
+            selection = { type: null, id: null, action: null }; 
             updateLayerList(); draw(); saveState();
         }
 
@@ -546,12 +550,15 @@
                 ctx.strokeStyle = '#E62117'; ctx.lineWidth = 2; ctx.setLineDash([8, 6]);
                 ctx.strokeRect(-t.width/2, -t.height/2, t.width, t.height);
                 ctx.setLineDash([]); 
+                
+                // Handles más grandes (20px radius)
                 ctx.fillStyle = '#28a745'; ctx.beginPath(); 
-                ctx.arc(t.width/2, t.height/2, 12, 0, Math.PI*2); ctx.fill();
+                ctx.arc(t.width/2, t.height/2, 20, 0, Math.PI*2); ctx.fill(); // Resize Handle
+
                 ctx.strokeStyle = '#3498db'; ctx.lineWidth = 2;
-                ctx.beginPath(); ctx.moveTo(0, -t.height/2); ctx.lineTo(0, -t.height/2 - 30); ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, -t.height/2); ctx.lineTo(0, -t.height/2 - 40); ctx.stroke();
                 ctx.fillStyle = '#3498db'; ctx.beginPath(); 
-                ctx.arc(0, -t.height/2 - 30, 8, 0, Math.PI*2); ctx.fill();
+                ctx.arc(0, -t.height/2 - 40, 15, 0, Math.PI*2); ctx.fill(); // Rotate Handle
             }
             ctx.restore();
         }
@@ -565,48 +572,77 @@
             lines.push(cur); return lines;
         }
 
+        // --- NEW TOUCH ENGINE (V31) ---
         function getCoords(e) {
             const rect = canvas.getBoundingClientRect();
             const sx = canvas.width / rect.width; const sy = canvas.height / rect.height;
+            // Si es touch, usar el primer dedo
             let cx = e.clientX, cy = e.clientY;
-            if(e.touches && e.touches.length) { cx=e.touches[0].clientX; cy=e.touches[0].clientY; }
+            if(e.touches && e.touches.length > 0) { cx=e.touches[0].clientX; cy=e.touches[0].clientY; }
             return { x:(cx-rect.left)*sx, y:(cy-rect.top)*sy };
         }
 
+        function getDist(t1, t2) {
+            return Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+        }
+
         function hitTest(x,y) {
+            const HIT_RADIUS = 60; // Radio aumentado para dedos
+
+            // 1. Textos
             if(selection.type === 'text') {
                 const t = texts[selection.id];
                 const rad = t.rotation;
-                const hDist = (t.height/2) + 30;
+                const hDist = (t.height/2) + 40;
                 const hX = t.x + Math.sin(rad) * hDist;
                 const hY = t.y - Math.cos(rad) * hDist;
-                if (Math.abs(x - hX) < 40 && Math.abs(y - hY) < 40) return {type:'text', id:selection.id, action:'rotate'};
+                // Hit en Rotación
+                if (Math.abs(x - hX) < HIT_RADIUS && Math.abs(y - hY) < HIT_RADIUS) return {type:'text', id:selection.id, action:'rotate'};
             }
             for (let k of ['title','desc']) {
                 const t = texts[k];
                 const dist = Math.sqrt(Math.pow(x-t.x, 2) + Math.pow(y-t.y, 2));
-                if (dist < Math.min(t.width, t.height)/1.5 + 40) return {type:'text', id:k, action:'move'};
+                // Hit en Cuerpo
+                if (dist < Math.min(t.width, t.height)/1.2 + HIT_RADIUS) return {type:'text', id:k, action:'move'};
             }
+            // 2. Imágenes
             for (let i=images.length-1; i>=0; i--) {
                 const img = images[i];
                 if (img.locked) continue; 
                 const lx = (x-img.x)/img.scale; const ly = (y-img.y)/img.scale;
                 if(selection.type==='image' && selection.id===i) {
-                    if(Math.abs(lx - img.width/2) < 40 && Math.abs(ly - img.height/2) < 40) return {type:'image', id:i, action:'resize'};
+                    if(Math.abs(lx - img.width/2) < (40/img.scale + HIT_RADIUS) && Math.abs(ly - img.height/2) < (40/img.scale + HIT_RADIUS)) return {type:'image', id:i, action:'resize'};
                 }
                 if(Math.abs(lx) < img.width/2 && Math.abs(ly) < img.height/2) return {type:'image', id:i, action:'move'};
             }
             return null;
         }
 
-        canvas.addEventListener('mousedown', start); canvas.addEventListener('touchstart', start, {passive:false});
-        window.addEventListener('mousemove', move); window.addEventListener('touchmove', move, {passive:false});
-        window.addEventListener('mouseup', end); window.addEventListener('touchend', end);
+        // TOUCH EVENTS
+        canvas.addEventListener('touchstart', handleStart, {passive:false});
+        canvas.addEventListener('touchmove', handleMove, {passive:false});
+        canvas.addEventListener('touchend', handleEnd);
+        
+        // MOUSE EVENTS (Legacy support)
+        canvas.addEventListener('mousedown', handleStart);
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('mouseup', handleEnd);
 
-        function start(e) { 
-            if(e.touches && e.touches.length > 1) e.preventDefault(); 
+        function handleStart(e) {
+            if(e.type === 'touchstart' && e.touches.length > 1) {
+                // PINCH START
+                e.preventDefault();
+                selection.isPinching = true;
+                selection.lastDist = getDist(e.touches[0], e.touches[1]);
+                return;
+            }
+            
+            if(e.target !== canvas && e.type.startsWith('mouse')) return;
             e.preventDefault(); 
-            const c = getCoords(e); const hit = hitTest(c.x, c.y); 
+            
+            const c = getCoords(e); 
+            const hit = hitTest(c.x, c.y); 
+            
             if(hit) {
                 if(hit.type === 'image' && images[hit.id].locked) { selection = { type:'image', id:hit.id, action:null, isDragging:false }; }
                 else { selection = { ...hit, lastX:c.x, lastY:c.y, isDragging:true }; }
@@ -614,22 +650,52 @@
             updateLayerList(); draw(); 
         }
 
-        function move(e) { 
+        function handleMove(e) {
+            // PINCH MOVE (RESIZE)
+            if (selection.isPinching && e.touches && e.touches.length === 2) {
+                e.preventDefault();
+                const dist = getDist(e.touches[0], e.touches[1]);
+                const delta = dist - selection.lastDist;
+                
+                // Aplicar escala si hay selección activa
+                if (selection.type === 'text') {
+                    texts[selection.id].size = Math.max(20, texts[selection.id].size + delta * 0.5);
+                } else if (selection.type === 'image' && selection.id !== null) {
+                    if(!images[selection.id].locked) {
+                        images[selection.id].scale = Math.max(0.1, images[selection.id].scale + (delta * 0.005));
+                    }
+                }
+                selection.lastDist = dist;
+                draw();
+                return;
+            }
+
             if(!selection.isDragging) return; 
-            if(e.type==='touchmove') e.preventDefault(); 
+            e.preventDefault(); 
+            
             const c = getCoords(e); const dx = c.x - selection.lastX; const dy = c.y - selection.lastY; 
+            
             if(selection.type === 'text') { 
                 const t = texts[selection.id]; 
                 if (selection.action === 'rotate') { t.rotation = Math.atan2(c.y - t.y, c.x - t.x) + Math.PI/2; }
                 else if(selection.action==='move') { t.x+=dx; t.y+=dy; } 
-                else { t.size = Math.max(10, t.size + dy/2); } 
+                // Resize con handle (mouse o un dedo en esquina)
+                // else { t.size = Math.max(10, t.size + dy/2); } 
             } else if(selection.type === 'image') { 
                 const img = images[selection.id]; 
-                if(!img.locked) { if(selection.action==='move') { img.x+=dx; img.y+=dy; } else { img.scale = Math.max(0.1, img.scale + (dx/500)); } }
+                if(!img.locked) { 
+                    if(selection.action==='move') { img.x+=dx; img.y+=dy; } 
+                    else if(selection.action==='resize') { img.scale = Math.max(0.1, img.scale + (dx/500)); } 
+                }
             } 
             selection.lastX = c.x; selection.lastY = c.y; draw(); 
         }
-        function end() { if(selection.isDragging) { selection.isDragging = false; saveState(); } }
+
+        function handleEnd() { 
+            selection.isDragging = false; 
+            selection.isPinching = false;
+            saveState(); 
+        }
 
         function updateText(key) { texts[key].text = document.getElementById(key+'Text').value.toUpperCase(); draw(); saveState(); }
         function toggleItalic(key) { texts[key].italic = !texts[key].italic; document.getElementById('btnItalic'+(key==='title'?'Title':'Desc')).classList.toggle('active'); draw(); saveState(); }
