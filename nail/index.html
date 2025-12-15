@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>MaxFlow v28 - Pro Tools</title>
+    <title>MaxFlow v30 - Pro Tools</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Bangers&family=Bebas+Neue&family=Oswald:wght@700&family=Roboto:ital,wght@0,700;1,700&family=Montserrat:wght@800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -21,7 +21,8 @@
             --accent-color: #E62117;
             --success-color: #28a745;
             --link-color: #FFD700;
-            --lock-color: #ff4757; /* Color para estado bloqueado */
+            --lock-color: #ff4757;
+            --rotate-color: #3498db;
         }
 
         body.light-theme {
@@ -140,9 +141,6 @@
             display: flex; align-items: center; justify-content: center; gap: 5px; touch-action: manipulation;
         }
         .btn-delete { color: #e74c3c; border-color: rgba(231,76,60,0.3); }
-        
-        /* Botón Lock específico */
-        .btn-lock { color: var(--text-muted); }
         .btn-lock.locked { color: var(--lock-color); border-color: var(--lock-color); background: rgba(255, 71, 87, 0.1); }
 
         .layer-list { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
@@ -152,13 +150,17 @@
             display: flex; align-items: center; gap: 4px;
         }
         .layer-badge.active { border-color: var(--accent-color); color: var(--text-main); background: var(--border-color); }
-        .layer-badge.is-locked { border-color: var(--lock-color) !important; color: var(--lock-color) !important; }
+        .layer-badge.is-locked { border-color: var(--lock-color) !important; color: var(--lock-color) !important; opacity: 0.7; }
 
+        /* FOOTER (Actualizado con enlace al Manual) */
         .site-footer-inner {
             margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color);
             text-align: center; padding-bottom: 10px;
         }
-        .footer-links { display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 8px; }
+        .footer-links { 
+            display: flex; justify-content: center; align-items: center; gap: 15px; margin-bottom: 8px; 
+            flex-wrap: wrap;
+        }
         .footer-links a {
             color: var(--link-color) !important; text-decoration: none !important;
             font-weight: bold; display: inline-flex; align-items: center; gap: 5px; font-size: 0.85rem;
@@ -183,7 +185,7 @@
 
     <header class="header-actions">
         <div class="header-title">
-            <h1 data-key="mainTitle">MaxFlow <span style="color:var(--accent-color)">v28</span></h1>
+            <h1 data-key="mainTitle">MaxFlow <span style="color:var(--accent-color)">v30</span></h1>
         </div>
         <div class="top-right">
             <button class="btn-theme" onclick="toggleTheme()" id="btnTheme">
@@ -211,7 +213,7 @@
                     <option value="T3">Template 3</option>
                     <option value="T4">Template 4</option>
                 </select>
-                <button class="format-btn" onclick="hardReset()" style="font-size:0.8rem; width:auto; padding:0 10px;" title="Borrar Todo">CLR</button>
+                <button class="format-btn" onclick="hardReset()" style="font-size:0.8rem; width:auto; padding:0 10px;" title="Reset">CLR</button>
             </div>
 
             <div class="canvas-wrapper">
@@ -233,8 +235,8 @@
                             <option value="'Anton', sans-serif">Anton</option>
                             <option value="'Bangers', cursive">Bangers</option>
                         </select>
-                        <input type="color" id="titleColor" value="#FFFFFF" oninput="draw()" title="Text Color">
-                        <input type="color" id="titleBg" value="#CC0000" oninput="draw()" title="BG Color">
+                        <input type="color" id="titleColor" value="#FFFFFF" oninput="draw()">
+                        <input type="color" id="titleBg" value="#CC0000" oninput="draw()">
                         <button class="icon-btn no-bg" onclick="toggleTransparent('title')" title="No Background">🚫</button>
                         <div class="icon-btn" id="btnItalicTitle" onclick="toggleItalic('title')">I</div>
                     </div>
@@ -287,6 +289,10 @@
                     <a href="https://tpascal.com" target="_blank">
                         <i class="fa-solid fa-globe icon-gold"></i> tpascal.com
                     </a>
+                    <span style="color:var(--border-color)">|</span>
+                    <a href="https://tpascal.com/nail/manual" target="_blank">
+                        <i class="fa-solid fa-book icon-gold"></i> Manual
+                    </a>
                 </div>
                 <p class="footer-copy">&copy; 2025 Mauricio Umana. Alle Rechte vorbehalten.</p>
             </div>
@@ -296,9 +302,9 @@
 
     <script>
         const translations = {
-            es: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v28</span>', btnDownload: 'DESCARGAR / COMPARTIR', sectionText: 'Capas de Texto', lblTitle: 'TÍTULO', lblDesc: 'SUBTÍTULO', sectionBg: 'Capas', btnAddImg: '+ Subir' },
-            de: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v28</span>', btnDownload: 'BILD SPEICHERN / TEILEN', sectionText: 'Texte', lblTitle: 'TITEL', lblDesc: 'UNTERTITEL', sectionBg: 'Ebenen', btnAddImg: '+ Hochladen' },
-            en: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v28</span>', btnDownload: 'DOWNLOAD / SHARE', sectionText: 'Text Layers', lblTitle: 'HEADLINE', lblDesc: 'SUBTITLE', sectionBg: 'Layers', btnAddImg: '+ Upload' }
+            es: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v30</span>', btnDownload: 'DESCARGAR / COMPARTIR', sectionText: 'Capas de Texto', lblTitle: 'TÍTULO', lblDesc: 'SUBTÍTULO', sectionBg: 'Capas', btnAddImg: '+ Subir' },
+            de: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v30</span>', btnDownload: 'BILD SPEICHERN / TEILEN', sectionText: 'Texte', lblTitle: 'TITEL', lblDesc: 'UNTERTITEL', sectionBg: 'Ebenen', btnAddImg: '+ Hochladen' },
+            en: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v30</span>', btnDownload: 'DOWNLOAD / SHARE', sectionText: 'Text Layers', lblTitle: 'HEADLINE', lblDesc: 'SUBTITLE', sectionBg: 'Layers', btnAddImg: '+ Upload' }
         };
 
         const canvas = document.getElementById('canvas');
@@ -308,13 +314,11 @@
 
         const defaultTexts = { title: "THE TRUTH ABOUT...", desc: "Details here..." };
 
-        // Structure Textos (Añadido: transparentBg)
         let texts = {
-            title: { text: defaultTexts.title, x: 0, y: 0, size: 90, italic: false, transparentBg: false },
-            desc:  { text: defaultTexts.desc, x: 0, y: 0, size: 50, italic: false, transparentBg: false }
+            title: { text: defaultTexts.title, x: 0, y: 0, size: 90, italic: false, transparentBg: false, rotation: 0 },
+            desc:  { text: defaultTexts.desc, x: 0, y: 0, size: 50, italic: false, transparentBg: false, rotation: 0 }
         };
         
-        // Structure Images (Añadido: locked)
         let images = []; 
         let selection = { type: null, id: null, action: null, lastX: 0, lastY: 0, isDragging: false };
 
@@ -336,7 +340,6 @@
             }
         }
 
-        // --- NEW FEATURES LOGIC ---
         function toggleTransparent(key) {
             texts[key].transparentBg = !texts[key].transparentBg;
             draw(); saveState();
@@ -344,13 +347,11 @@
 
         function toggleLock() {
             if(selection.type !== 'image' || selection.id === null) return;
-            // Toggle Lock State
             images[selection.id].locked = !images[selection.id].locked;
-            updateLayerList(); // Update UI icons
-            draw(); saveState();
+            selection = { type: null, id: null, action: null }; // Deselect to allow click-through
+            updateLayerList(); draw(); saveState();
         }
 
-        // --- STATE MANAGEMENT ---
         function saveState() {
             try {
                 const state = {
@@ -361,7 +362,7 @@
                         width: img.width, height: img.height,
                         x: img.x, y: img.y, scale: img.scale,
                         isTemplate: img.isTemplate,
-                        locked: img.locked || false // Save lock state
+                        locked: img.locked || false
                     }))
                 };
                 localStorage.setItem('maxflow_state', JSON.stringify(state));
@@ -375,7 +376,9 @@
 
                 currentFormat = saved.currentFormat;
                 texts = saved.texts || texts;
-                
+                if(texts.title.rotation === undefined) texts.title.rotation = 0;
+                if(texts.desc.rotation === undefined) texts.desc.rotation = 0;
+
                 document.getElementById('titleText').value = texts.title.text;
                 document.getElementById('descText').value = texts.desc.text;
                 
@@ -411,19 +414,15 @@
         }
 
         function hardReset() {
-            if(confirm("Delete all layers?")) {
+            if(confirm("Delete all?")) {
                 localStorage.removeItem('maxflow_state');
-                images = [];
-                selection = { type: null };
-                texts.title.text = defaultTexts.title;
-                texts.desc.text = defaultTexts.desc;
-                texts.title.transparentBg = false; 
-                texts.desc.transparentBg = false;
+                images = []; selection = { type: null };
+                texts.title.text = defaultTexts.title; texts.title.rotation = 0;
+                texts.desc.text = defaultTexts.desc; texts.desc.rotation = 0;
+                texts.title.transparentBg = false; texts.desc.transparentBg = false;
                 document.getElementById('titleText').value = defaultTexts.title;
                 document.getElementById('descText').value = defaultTexts.desc;
-                setFormat(currentFormat); 
-                updateLayerList();
-                draw();
+                setFormat(currentFormat); updateLayerList(); draw();
             }
         }
 
@@ -492,17 +491,11 @@
                 ctx.save(); ctx.translate(imgObj.x, imgObj.y); ctx.scale(imgObj.scale, imgObj.scale);
                 ctx.drawImage(imgObj.img, -imgObj.width/2, -imgObj.height/2);
                 
-                // Selección: Verde si normal, Rojo si locked
-                if (selection.type === 'image' && selection.id === idx) {
-                    const color = imgObj.locked ? '#ff4757' : '#28a745';
-                    ctx.strokeStyle = color; ctx.lineWidth = 4/imgObj.scale;
+                if (selection.type === 'image' && selection.id === idx && !imgObj.locked) {
+                    ctx.strokeStyle = '#28a745'; ctx.lineWidth = 4/imgObj.scale;
                     ctx.strokeRect(-imgObj.width/2, -imgObj.height/2, imgObj.width, imgObj.height);
-                    
-                    // Solo dibujar handle de resize si NO está bloqueado
-                    if(!imgObj.locked) {
-                        ctx.fillStyle = color;
-                        ctx.fillRect((imgObj.width/2) - 20/imgObj.scale, (imgObj.height/2) - 20/imgObj.scale, 40/imgObj.scale, 40/imgObj.scale);
-                    }
+                    ctx.fillStyle = '#28a745';
+                    ctx.fillRect((imgObj.width/2) - 20/imgObj.scale, (imgObj.height/2) - 20/imgObj.scale, 40/imgObj.scale, 40/imgObj.scale);
                 }
                 ctx.restore();
             });
@@ -513,6 +506,11 @@
 
         function drawTextLayer(key) {
             const t = texts[key]; if (!t.text) return;
+            
+            ctx.save();
+            ctx.translate(t.x, t.y); 
+            ctx.rotate(t.rotation);
+
             const fontName = document.getElementById(key + 'Font').value;
             const color = document.getElementById(key + 'Color').value;
             const bgColor = document.getElementById(key + 'Bg').value;
@@ -521,40 +519,41 @@
             ctx.font = `${style} ${t.size}px ${fontName}`;
             ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
             
-            // CONFIGURAR BORDE NEGRO
-            ctx.lineWidth = t.size * 0.08; // Grosor proporcional
-            ctx.strokeStyle = 'black';
+            ctx.lineWidth = t.size * 0.08; 
+            ctx.strokeStyle = 'black'; 
             ctx.lineJoin = 'round';
 
             const lines = wrapText(ctx, t.text, canvas.width * 0.9);
             const lh = t.size * 1.2; const totalH = lines.length * lh;
             let maxW = 0; lines.forEach(l => { const m=ctx.measureText(l); if(m.width>maxW)maxW=m.width; });
-            t.width = maxW + 40; t.height = totalH + 20; // Hitbox
+            t.width = maxW + 40; t.height = totalH + 20;
 
-            let curY = t.y - (totalH/2) + (lh/2);
+            let curY = -(totalH/2) + (lh/2); 
+            
             lines.forEach(l => {
-                // Background (Solo si no es transparente)
                 if (!t.transparentBg && bgColor !== 'transparent') {
                     const w = ctx.measureText(l).width + 30;
-                    ctx.fillStyle = bgColor; ctx.fillRect(t.x - w/2, curY - lh/2, w, lh);
+                    ctx.fillStyle = bgColor; ctx.fillRect(-w/2, curY - lh/2, w, lh);
                 }
-                
-                // Stroke (Siempre primero)
-                ctx.strokeText(l, t.x, curY);
-                
-                // Fill (Texto encima)
+                ctx.strokeText(l, 0, curY);
                 ctx.fillStyle = color; 
-                // Sombra sutil solo si hay fondo, si no, el stroke ya separa
                 if(!t.transparentBg) { ctx.shadowColor = "rgba(0,0,0,0.5)"; ctx.shadowBlur = 5; }
-                ctx.fillText(l, t.x, curY); 
+                ctx.fillText(l, 0, curY); 
                 ctx.shadowBlur = 0; curY += lh;
             });
 
             if (selection.type === 'text' && selection.id === key) {
-                ctx.save(); ctx.strokeStyle = '#E62117'; ctx.lineWidth = 2; ctx.setLineDash([8, 6]);
-                ctx.strokeRect(t.x - t.width/2, t.y - t.height/2, t.width, t.height);
-                ctx.fillStyle = '#28a745'; ctx.setLineDash([]); ctx.beginPath(); ctx.arc(t.x + t.width/2, t.y + t.height/2, 12, 0, Math.PI*2); ctx.fill(); ctx.restore();
+                ctx.strokeStyle = '#E62117'; ctx.lineWidth = 2; ctx.setLineDash([8, 6]);
+                ctx.strokeRect(-t.width/2, -t.height/2, t.width, t.height);
+                ctx.setLineDash([]); 
+                ctx.fillStyle = '#28a745'; ctx.beginPath(); 
+                ctx.arc(t.width/2, t.height/2, 12, 0, Math.PI*2); ctx.fill();
+                ctx.strokeStyle = '#3498db'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.moveTo(0, -t.height/2); ctx.lineTo(0, -t.height/2 - 30); ctx.stroke();
+                ctx.fillStyle = '#3498db'; ctx.beginPath(); 
+                ctx.arc(0, -t.height/2 - 30, 8, 0, Math.PI*2); ctx.fill();
             }
+            ctx.restore();
         }
 
         function wrapText(ctx, text, maxW) {
@@ -575,22 +574,24 @@
         }
 
         function hitTest(x,y) {
-            // 1. Textos
             if(selection.type === 'text') {
                 const t = texts[selection.id];
-                if(Math.abs(x - (t.x+t.width/2)) < 35 && Math.abs(y - (t.y+t.height/2)) < 35) return {type:'text', id:selection.id, action:'resize'};
+                const rad = t.rotation;
+                const hDist = (t.height/2) + 30;
+                const hX = t.x + Math.sin(rad) * hDist;
+                const hY = t.y - Math.cos(rad) * hDist;
+                if (Math.abs(x - hX) < 40 && Math.abs(y - hY) < 40) return {type:'text', id:selection.id, action:'rotate'};
             }
-            for(let k of ['title','desc']) {
+            for (let k of ['title','desc']) {
                 const t = texts[k];
-                if(x > t.x-t.width/2 && x < t.x+t.width/2 && y > t.y-t.height/2 && y < t.y+t.height/2) return {type:'text', id:k, action:'move'};
+                const dist = Math.sqrt(Math.pow(x-t.x, 2) + Math.pow(y-t.y, 2));
+                if (dist < Math.min(t.width, t.height)/1.5 + 40) return {type:'text', id:k, action:'move'};
             }
-            // 2. Imágenes
-            for(let i=images.length-1; i>=0; i--) {
+            for (let i=images.length-1; i>=0; i--) {
                 const img = images[i];
+                if (img.locked) continue; 
                 const lx = (x-img.x)/img.scale; const ly = (y-img.y)/img.scale;
-                
-                // Si está locked, permitimos seleccionar pero NO redimensionar
-                if(selection.type==='image' && selection.id===i && !img.locked) {
+                if(selection.type==='image' && selection.id===i) {
                     if(Math.abs(lx - img.width/2) < 40 && Math.abs(ly - img.height/2) < 40) return {type:'image', id:i, action:'resize'};
                 }
                 if(Math.abs(lx) < img.width/2 && Math.abs(ly) < img.height/2) return {type:'image', id:i, action:'move'};
@@ -607,15 +608,9 @@
             e.preventDefault(); 
             const c = getCoords(e); const hit = hitTest(c.x, c.y); 
             if(hit) {
-                // Verificar si está bloqueado antes de iniciar arrastre
-                if(hit.type === 'image' && images[hit.id].locked) {
-                    selection = { type:'image', id:hit.id, action:null, isDragging:false }; // Solo seleccionar
-                } else {
-                    selection = { ...hit, lastX:c.x, lastY:c.y, isDragging:true }; 
-                }
-            } else {
-                selection = { type:null, id:null, action:null }; 
-            }
+                if(hit.type === 'image' && images[hit.id].locked) { selection = { type:'image', id:hit.id, action:null, isDragging:false }; }
+                else { selection = { ...hit, lastX:c.x, lastY:c.y, isDragging:true }; }
+            } else { selection = { type:null, id:null, action:null }; }
             updateLayerList(); draw(); 
         }
 
@@ -623,14 +618,14 @@
             if(!selection.isDragging) return; 
             if(e.type==='touchmove') e.preventDefault(); 
             const c = getCoords(e); const dx = c.x - selection.lastX; const dy = c.y - selection.lastY; 
-            
-            if(selection.type === 'text') { const t = texts[selection.id]; if(selection.action==='move') { t.x+=dx; t.y+=dy; } else { t.size = Math.max(10, t.size + dy/2); } } 
-            else if(selection.type === 'image') { 
+            if(selection.type === 'text') { 
+                const t = texts[selection.id]; 
+                if (selection.action === 'rotate') { t.rotation = Math.atan2(c.y - t.y, c.x - t.x) + Math.PI/2; }
+                else if(selection.action==='move') { t.x+=dx; t.y+=dy; } 
+                else { t.size = Math.max(10, t.size + dy/2); } 
+            } else if(selection.type === 'image') { 
                 const img = images[selection.id]; 
-                // Doble check de seguridad por si acaso
-                if(!img.locked) {
-                    if(selection.action==='move') { img.x+=dx; img.y+=dy; } else { img.scale = Math.max(0.1, img.scale + (dx/500)); } 
-                }
+                if(!img.locked) { if(selection.action==='move') { img.x+=dx; img.y+=dy; } else { img.scale = Math.max(0.1, img.scale + (dx/500)); } }
             } 
             selection.lastX = c.x; selection.lastY = c.y; draw(); 
         }
@@ -638,23 +633,16 @@
 
         function updateText(key) { texts[key].text = document.getElementById(key+'Text').value.toUpperCase(); draw(); saveState(); }
         function toggleItalic(key) { texts[key].italic = !texts[key].italic; document.getElementById('btnItalic'+(key==='title'?'Title':'Desc')).classList.toggle('active'); draw(); saveState(); }
-        
-        function handleImages(inp) { Array.from(inp.files).forEach(f => { const r = new FileReader(); r.onload = e => { const img = new Image(); img.onload = () => { const s = Math.max(canvas.width/img.width, canvas.height/img.height); images.push({img:img, width:img.width, height:img.height, x:canvas.width/2, y:canvas.height/2, scale:s}); selection = { type:'image', id:images.length-1, action:null }; updateLayerList(); draw(); saveState(); }; img.src = e.target.result; }; r.readAsDataURL(f); }); inp.value = ''; }
+        function handleImages(inp) { Array.from(inp.files).forEach(f => { const r = new FileReader(); r.onload = e => { const img = new Image(); img.onload = () => { const s = Math.max(canvas.width/img.width, canvas.height/img.height); images.push({img:img, width:img.width, height:img.height, x:canvas.width/2, y:canvas.height/2, scale:s, locked:false}); selection = { type:'image', id:images.length-1, action:null }; updateLayerList(); draw(); saveState(); }; img.src = e.target.result; }; r.readAsDataURL(f); }); inp.value = ''; }
 
         function updateLayerList() { 
             const el = document.getElementById('layerList'); el.innerHTML = ''; 
             const btnLock = document.getElementById('btnLock');
-            
-            // Actualizar estado del botón lock si hay imagen seleccionada
             if(selection.type === 'image' && selection.id !== null) {
                 const isLocked = images[selection.id].locked;
                 btnLock.className = `layer-btn btn-lock ${isLocked ? 'locked' : ''}`;
                 btnLock.innerHTML = isLocked ? '<i class="fa-solid fa-lock"></i>' : '<i class="fa-solid fa-lock-open"></i>';
-            } else {
-                btnLock.className = `layer-btn btn-lock`;
-                btnLock.innerHTML = '<i class="fa-solid fa-lock"></i>';
-            }
-
+            } else { btnLock.className = `layer-btn btn-lock`; btnLock.innerHTML = '<i class="fa-solid fa-lock"></i>'; }
             images.forEach((img,i) => { 
                 const badge = document.createElement('div'); 
                 const active = selection.type==='image' && selection.id===i; 
@@ -674,10 +662,7 @@
                 try {
                     const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
                     const file = new File([blob], filename, { type: 'image/png' });
-                    if (navigator.canShare({ files: [file] })) {
-                        await navigator.share({ files: [file], title: 'MaxFlow Thumbnail' });
-                        return;
-                    }
+                    if (navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'MaxFlow Thumbnail' }); return; }
                 } catch (err) { console.log("Share failed", err); }
             }
             const a = document.createElement('a'); a.download = filename; a.href = canvas.toDataURL('image/png'); a.click(); 
