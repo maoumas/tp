@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MaxFlow v28 - Pro Tools</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Black&family=Bangers&family=Bebas+Neue&family=Oswald:wght@700&family=Roboto:ital,wght@0,700;1,700&family=Montserrat:wght@800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>Ⓜ️</text></svg>">
+
+    <style>
+        :root {
+            --bg-app: #000000;
+            --panel-bg: #111111;
+            --text-main: #e0e0e0;
+            --text-muted: #888888;
+            --border-color: #333333;
+            --input-bg: #222222;
+            --accent-color: #E62117;
+            --success-color: #28a745;
+            --link-color: #FFD700;
+            --lock-color: #ff4757; /* Color para estado bloqueado */
+        }
+
+        body.light-theme {
+            --bg-app: #f0f2f5; --panel-bg: #ffffff; --text-main: #1a1a1a;
+            --text-muted: #555555; --border-color: #cccccc; --input-bg: #e4e6eb; --link-color: #d35400;
+        }
+
+        * { box-sizing: border-box; transition: background-color 0.3s, color 0.3s; }
+        html, body { touch-action: manipulation; overscroll-behavior: none; }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            margin: 0; display: flex; flex-direction: column;
+            height: 100dvh; overflow: hidden;
+        }
+
+        /* HEADER */
+        .header-actions {
+            width: 100%; padding: 10px 15px;
+            padding-top: calc(10px + env(safe-area-inset-top)); 
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--panel-bg); border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0; z-index: 1000; min-height: calc(60px + env(safe-area-inset-top));
+        }
+        .header-title h1 { margin: 0; font-size: 1.1rem; font-family: 'Archivo Black'; text-transform: uppercase; color: var(--text-main); line-height: 1; }
+        .top-right { display: flex; gap: 12px; align-items: center; }
+        .btn-theme {
+            background: transparent; border: 1px solid var(--border-color);
+            color: var(--text-main); width: 34px; height: 34px; border-radius: 50%;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem;
+        }
+        .lang-group { display: flex; gap: 8px; align-items: center; }
+        .lang-btn {
+            background: transparent; border: 2px solid transparent; cursor: pointer; font-size: 1.2rem; line-height: 1;
+            padding: 2px; border-radius: 50%; opacity: 0.5; transition: 0.2s; filter: grayscale(100%);
+        }
+        .lang-btn:hover, .lang-btn.active { opacity: 1; filter: grayscale(0%); transform: scale(1.1); }
+
+        /* LAYOUT */
+        .workbench-container { display: flex; flex: 1; overflow: hidden; width: 100%; }
+
+        /* PREVIEW */
+        .preview-pane {
+            flex: 2; background: #050505; 
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            position: relative; border-right: 1px solid var(--border-color); padding: 10px;
+        }
+        .canvas-toolbar {
+            display: flex; gap: 8px; align-items: center;
+            background: rgba(20,20,20,0.9); padding: 5px 10px; 
+            border-radius: 8px; border: 1px solid #444; margin-bottom: 10px; z-index: 20;
+        }
+        .format-btn {
+            background: transparent; border: 1px solid #444; color: #aaa; 
+            cursor: pointer; font-size: 1rem; width: 35px; height: 35px; border-radius: 4px;
+            display: flex; align-items: center; justify-content: center; transition: 0.2s;
+        }
+        .format-btn.active { color: white; background: var(--accent-color); border-color: var(--accent-color); }
+        .tmpl-select {
+            background: #222; color: #fff; border: 1px solid #444;
+            padding: 0 10px; height: 35px; border-radius: 4px; font-size: 0.8rem;
+            outline: none; cursor: pointer; max-width: 120px;
+        }
+        .canvas-wrapper {
+            position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.6);
+            border: 1px solid #333; max-width: 100%; max-height: 100%;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #canvas { display: block; max-width: 100%; max-height: 75vh; object-fit: contain; cursor: crosshair; }
+
+        /* CONTROLS */
+        .controls-pane {
+            flex: 1; min-width: 320px; max-width: 400px;
+            background: var(--bg-app); overflow-y: auto;
+            padding: 15px; display: flex; flex-direction: column; gap: 15px;
+            padding-bottom: calc(20px + env(safe-area-inset-bottom));
+        }
+        .download-btn {
+            width: 100%; padding: 12px;
+            background: var(--success-color); color: white; font-family: 'Archivo Black';
+            font-size: 1rem; text-transform: uppercase; border: none; border-radius: 6px;
+            cursor: pointer; letter-spacing: 1px; box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .panel { background: var(--panel-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .panel-title { 
+            font-size: 0.75rem; font-weight: bold; color: var(--accent-color); 
+            text-transform: uppercase; margin-bottom: 10px; display: block; 
+            border-bottom: 1px solid var(--border-color); padding-bottom: 5px;
+        }
+        .control-group { margin-bottom: 12px; }
+        label { display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: bold; margin-bottom: 4px; }
+        
+        input[type="text"], select {
+            width: 100%; background: var(--input-bg); border: 1px solid var(--border-color);
+            color: var(--text-main); padding: 8px; border-radius: 4px; font-size: 0.9rem;
+            touch-action: manipulation;
+        }
+        .style-row { display: flex; gap: 5px; align-items: center; margin-top: 5px; }
+        input[type="color"] { border: none; width: 35px; height: 35px; padding: 0; background: none; cursor: pointer; touch-action: manipulation;}
+        
+        .icon-btn {
+            width: 35px; height: 35px; display: flex; align-items: center; justify-content: center;
+            background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main);
+            cursor: pointer; font-weight: bold; border-radius: 4px; font-size: 1rem;
+            touch-action: manipulation;
+        }
+        .icon-btn.active { background: var(--accent-color); color: white; border-color: var(--accent-color); }
+        .icon-btn.no-bg { color: #e74c3c; border-color: #e74c3c; }
+
+        .layer-actions { display: flex; gap: 5px; margin-top: 8px; }
+        .layer-btn {
+            flex: 1; background: var(--input-bg); border: 1px solid var(--border-color);
+            color: var(--text-main); padding: 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;
+            display: flex; align-items: center; justify-content: center; gap: 5px; touch-action: manipulation;
+        }
+        .btn-delete { color: #e74c3c; border-color: rgba(231,76,60,0.3); }
+        
+        /* Botón Lock específico */
+        .btn-lock { color: var(--text-muted); }
+        .btn-lock.locked { color: var(--lock-color); border-color: var(--lock-color); background: rgba(255, 71, 87, 0.1); }
+
+        .layer-list { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+        .layer-badge {
+            padding: 4px 8px; background: var(--input-bg); border-radius: 4px; font-size: 0.7rem; cursor: pointer; 
+            border: 1px solid var(--border-color); color: var(--text-muted); touch-action: manipulation;
+            display: flex; align-items: center; gap: 4px;
+        }
+        .layer-badge.active { border-color: var(--accent-color); color: var(--text-main); background: var(--border-color); }
+        .layer-badge.is-locked { border-color: var(--lock-color) !important; color: var(--lock-color) !important; }
+
+        .site-footer-inner {
+            margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-color);
+            text-align: center; padding-bottom: 10px;
+        }
+        .footer-links { display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 8px; }
+        .footer-links a {
+            color: var(--link-color) !important; text-decoration: none !important;
+            font-weight: bold; display: inline-flex; align-items: center; gap: 5px; font-size: 0.85rem;
+        }
+        .footer-copy { color: var(--text-muted); font-size: 0.75rem; }
+        .icon-gold { color: var(--link-color); }
+
+        @media (max-width: 900px) {
+            .workbench-container { flex-direction: column; overflow-y: auto; }
+            .preview-pane { 
+                flex: none; height: auto; min-height: 40vh; max-height: 45vh; 
+                border-right: none; border-bottom: 1px solid var(--border-color); padding: 10px 5px;
+            }
+            .canvas-wrapper { max-height: 100%; }
+            #canvas { max-height: 35vh; }
+            .controls-pane { flex: 1; overflow-y: auto; }
+            body { overflow: hidden; }
+        }
+    </style>
+</head>
+<body class="">
+
+    <header class="header-actions">
+        <div class="header-title">
+            <h1 data-key="mainTitle">MaxFlow <span style="color:var(--accent-color)">v28</span></h1>
+        </div>
+        <div class="top-right">
+            <button class="btn-theme" onclick="toggleTheme()" id="btnTheme">
+                <i class="fa-solid fa-sun" style="color:gold"></i>
+            </button>
+            <div class="lang-group">
+                <button class="lang-btn" onclick="setLang('es')" title="Español">🇪🇸</button>
+                <button class="lang-btn" onclick="setLang('en')" title="English">🇺🇸</button>
+                <button class="lang-btn active" onclick="setLang('de')" title="Deutsch">🇩🇪</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="workbench-container">
+        
+        <div class="preview-pane">
+            <div class="canvas-toolbar">
+                <button class="format-btn active" id="btn169" onclick="setFormat('16:9')" title="16:9 Landscape"><i class="fa-solid fa-desktop"></i></button>
+                <button class="format-btn" id="btn916" onclick="setFormat('9:16')" title="9:16 Vertical"><i class="fa-solid fa-mobile-screen"></i></button>
+                
+                <select id="templateSelect" class="tmpl-select" onchange="handleTemplateSelect(this)">
+                    <option value="">Templates</option>
+                    <option value="T1">Template 1</option>
+                    <option value="T2">Template 2</option>
+                    <option value="T3">Template 3</option>
+                    <option value="T4">Template 4</option>
+                </select>
+                <button class="format-btn" onclick="hardReset()" style="font-size:0.8rem; width:auto; padding:0 10px;" title="Borrar Todo">CLR</button>
+            </div>
+
+            <div class="canvas-wrapper">
+                <canvas id="canvas" width="1280" height="720"></canvas>
+            </div>
+        </div>
+
+        <div class="controls-pane">
+            <button class="download-btn" onclick="downloadImage()" data-key="btnDownload">DOWNLOAD / SHARE</button>
+
+            <div class="panel">
+                <span class="panel-title" data-key="sectionText">Text Layers</span>
+                <div class="control-group">
+                    <label data-key="lblTitle">HEADLINE</label>
+                    <input type="text" id="titleText" oninput="updateText('title')" onfocus="checkClear(this, 'title')">
+                    <div class="style-row">
+                        <select id="titleFont" onchange="draw()">
+                            <option value="'Archivo Black', sans-serif">Archivo Black</option>
+                            <option value="'Anton', sans-serif">Anton</option>
+                            <option value="'Bangers', cursive">Bangers</option>
+                        </select>
+                        <input type="color" id="titleColor" value="#FFFFFF" oninput="draw()" title="Text Color">
+                        <input type="color" id="titleBg" value="#CC0000" oninput="draw()" title="BG Color">
+                        <button class="icon-btn no-bg" onclick="toggleTransparent('title')" title="No Background">🚫</button>
+                        <div class="icon-btn" id="btnItalicTitle" onclick="toggleItalic('title')">I</div>
+                    </div>
+                </div>
+                <hr style="border-color:var(--border-color); opacity:0.5; margin:10px 0;">
+                <div class="control-group">
+                    <label data-key="lblDesc">SUBTITLE</label>
+                    <input type="text" id="descText" oninput="updateText('desc')" onfocus="checkClear(this, 'desc')">
+                    <div class="style-row">
+                        <select id="descFont" onchange="draw()">
+                            <option value="'Roboto', sans-serif">Roboto</option>
+                            <option value="'Anton', sans-serif">Anton</option>
+                        </select>
+                        <input type="color" id="descColor" value="#FFFFFF" oninput="draw()">
+                        <input type="color" id="descBg" value="#000000" oninput="draw()">
+                        <button class="icon-btn no-bg" onclick="toggleTransparent('desc')" title="No Background">🚫</button>
+                        <div class="icon-btn" id="btnItalicDesc" onclick="toggleItalic('desc')">I</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <span class="panel-title" data-key="sectionBg">Images / Layers</span>
+                <div id="layerList" class="layer-list"></div>
+                <div class="layer-actions">
+                    <button class="layer-btn" onclick="document.getElementById('imgUpload').click()" data-key="btnAddImg"><i class="fa-solid fa-plus"></i></button>
+                    <button class="layer-btn btn-lock" id="btnLock" onclick="toggleLock()" title="Lock Layer"><i class="fa-solid fa-lock"></i></button>
+                    
+                    <button class="layer-btn" onclick="moveLayer(-1)"><i class="fa-solid fa-arrow-down"></i></button>
+                    <button class="layer-btn" onclick="moveLayer(1)"><i class="fa-solid fa-arrow-up"></i></button>
+                    <button class="layer-btn btn-delete" onclick="deleteActiveLayer()"><i class="fa-solid fa-trash"></i></button>
+                </div>
+                <input type="file" id="imgUpload" multiple accept="image/*" style="display:none" onchange="handleImages(this)">
+            </div>
+
+            <div class="panel">
+                <span class="panel-title"><i class="fa-solid fa-robot"></i> Grok AI Prompt</span>
+                <input type="text" id="grokIdea" placeholder="Idea..." style="margin-bottom:8px;">
+                <button class="layer-btn" style="width:100%; background:var(--border-color); font-weight:bold;" onclick="genGrok()">
+                    Generate & Copy & Open <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                </button>
+            </div>
+
+            <div class="site-footer-inner">
+                <div class="footer-links">
+                    <a href="https://www.youtube.com/@TranslatedPressDE/videos" target="_blank">
+                        <i class="fa-brands fa-youtube icon-gold"></i> YouTube
+                    </a>
+                    <span style="color:var(--border-color)">|</span>
+                    <a href="https://tpascal.com" target="_blank">
+                        <i class="fa-solid fa-globe icon-gold"></i> tpascal.com
+                    </a>
+                </div>
+                <p class="footer-copy">&copy; 2025 Mauricio Umana. Alle Rechte vorbehalten.</p>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const translations = {
+            es: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v28</span>', btnDownload: 'DESCARGAR / COMPARTIR', sectionText: 'Capas de Texto', lblTitle: 'TÍTULO', lblDesc: 'SUBTÍTULO', sectionBg: 'Capas', btnAddImg: '+ Subir' },
+            de: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v28</span>', btnDownload: 'BILD SPEICHERN / TEILEN', sectionText: 'Texte', lblTitle: 'TITEL', lblDesc: 'UNTERTITEL', sectionBg: 'Ebenen', btnAddImg: '+ Hochladen' },
+            en: { mainTitle: 'MaxFlow <span style="color:var(--accent-color)">v28</span>', btnDownload: 'DOWNLOAD / SHARE', sectionText: 'Text Layers', lblTitle: 'HEADLINE', lblDesc: 'SUBTITLE', sectionBg: 'Layers', btnAddImg: '+ Upload' }
+        };
+
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let currentFormat = '16:9';
+        let isLightMode = false;
+
+        const defaultTexts = { title: "THE TRUTH ABOUT...", desc: "Details here..." };
+
+        // Structure Textos (Añadido: transparentBg)
+        let texts = {
+            title: { text: defaultTexts.title, x: 0, y: 0, size: 90, italic: false, transparentBg: false },
+            desc:  { text: defaultTexts.desc, x: 0, y: 0, size: 50, italic: false, transparentBg: false }
+        };
+        
+        // Structure Images (Añadido: locked)
+        let images = []; 
+        let selection = { type: null, id: null, action: null, lastX: 0, lastY: 0, isDragging: false };
+
+        window.onload = () => {
+            setLang('de');
+            if(localStorage.getItem('maxflow_state')) {
+                loadState();
+            } else {
+                setFormat('16:9');
+                document.getElementById('titleText').value = texts.title.text;
+                document.getElementById('descText').value = texts.desc.text;
+            }
+        };
+
+        function checkClear(input, key) {
+            if (input.value === defaultTexts[key]) {
+                input.value = "";
+                updateText(key);
+            }
+        }
+
+        // --- NEW FEATURES LOGIC ---
+        function toggleTransparent(key) {
+            texts[key].transparentBg = !texts[key].transparentBg;
+            draw(); saveState();
+        }
+
+        function toggleLock() {
+            if(selection.type !== 'image' || selection.id === null) return;
+            // Toggle Lock State
+            images[selection.id].locked = !images[selection.id].locked;
+            updateLayerList(); // Update UI icons
+            draw(); saveState();
+        }
+
+        // --- STATE MANAGEMENT ---
+        function saveState() {
+            try {
+                const state = {
+                    currentFormat,
+                    texts,
+                    images: images.map(img => ({
+                        src: img.img.src,
+                        width: img.width, height: img.height,
+                        x: img.x, y: img.y, scale: img.scale,
+                        isTemplate: img.isTemplate,
+                        locked: img.locked || false // Save lock state
+                    }))
+                };
+                localStorage.setItem('maxflow_state', JSON.stringify(state));
+            } catch (e) { console.warn("Storage full", e); }
+        }
+
+        function loadState() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('maxflow_state'));
+                if(!saved) return;
+
+                currentFormat = saved.currentFormat;
+                texts = saved.texts || texts;
+                
+                document.getElementById('titleText').value = texts.title.text;
+                document.getElementById('descText').value = texts.desc.text;
+                
+                document.getElementById('btn169').className = `format-btn ${currentFormat==='16:9'?'active':''}`;
+                document.getElementById('btn916').className = `format-btn ${currentFormat==='9:16'?'active':''}`;
+                canvas.width = currentFormat === '16:9' ? 1280 : 720;
+                canvas.height = currentFormat === '16:9' ? 720 : 1280;
+
+                images = [];
+                let loadedCount = 0;
+                if(saved.images.length === 0) { draw(); return; }
+
+                saved.images.forEach(savedImg => {
+                    const imgObj = new Image();
+                    imgObj.onload = () => {
+                        images.push({
+                            img: imgObj,
+                            width: savedImg.width, height: savedImg.height,
+                            x: savedImg.x, y: savedImg.y, scale: savedImg.scale,
+                            isTemplate: savedImg.isTemplate,
+                            locked: savedImg.locked || false
+                        });
+                        loadedCount++;
+                        if(loadedCount === saved.images.length) {
+                            updateLayerList();
+                            draw();
+                        }
+                    };
+                    imgObj.src = savedImg.src;
+                });
+
+            } catch(e) { setFormat('16:9'); }
+        }
+
+        function hardReset() {
+            if(confirm("Delete all layers?")) {
+                localStorage.removeItem('maxflow_state');
+                images = [];
+                selection = { type: null };
+                texts.title.text = defaultTexts.title;
+                texts.desc.text = defaultTexts.desc;
+                texts.title.transparentBg = false; 
+                texts.desc.transparentBg = false;
+                document.getElementById('titleText').value = defaultTexts.title;
+                document.getElementById('descText').value = defaultTexts.desc;
+                setFormat(currentFormat); 
+                updateLayerList();
+                draw();
+            }
+        }
+
+        function toggleTheme() {
+            isLightMode = !isLightMode;
+            document.body.className = isLightMode ? 'light-theme' : '';
+            document.getElementById('btnTheme').innerHTML = isLightMode ? '<i class="fa-solid fa-moon"></i>' : '<i class="fa-solid fa-sun" style="color:gold"></i>';
+            draw();
+        }
+
+        function setFormat(fmt) {
+            currentFormat = fmt;
+            document.getElementById('btn169').classList.remove('active');
+            document.getElementById('btn916').classList.remove('active');
+            
+            if(fmt === '16:9') {
+                canvas.width = 1280; canvas.height = 720;
+                document.getElementById('btn169').classList.add('active');
+            } else {
+                canvas.width = 720; canvas.height = 1280;
+                document.getElementById('btn916').classList.add('active');
+            }
+            texts.title.x = canvas.width / 2; texts.title.y = canvas.height * 0.3;
+            texts.desc.x = canvas.width / 2; texts.desc.y = canvas.height * 0.75;
+            images.forEach(img => { img.x = canvas.width/2; img.y = canvas.height/2; });
+            saveState(); draw();
+        }
+
+        const templateURLs = { 'T1': 'template1.png', 'T2': 'template2.png', 'T3': 'template3.png', 'T4': 'template4.png' };
+        function handleTemplateSelect(select) { if(select.value) loadTemplate(select.value); select.value = ""; }
+
+        function loadTemplate(key) {
+            let url = templateURLs[key];
+            const img = new Image(); img.crossOrigin = "Anonymous";
+            img.onerror = () => { img.src = `https://placehold.co/1280x720/111/E62117/png?text=${key}+Missing`; };
+            img.onload = () => {
+                const scale = Math.max(canvas.width/img.width, canvas.height/img.height);
+                images.push({ img: img, width: img.width, height: img.height, x: canvas.width/2, y: canvas.height/2, scale: scale, isTemplate: true, locked: false });
+                selection = { type: 'image', id: images.length-1, action: null }; 
+                updateLayerList(); draw(); saveState();
+            };
+            img.src = url;
+        }
+
+        function moveLayer(direction) {
+            if (selection.type !== 'image' || selection.id === null) return;
+            const idx = selection.id; const newIdx = idx + direction;
+            if (newIdx < 0 || newIdx >= images.length) return;
+            const temp = images[idx]; images[idx] = images[newIdx]; images[newIdx] = temp;
+            selection.id = newIdx; updateLayerList(); draw(); saveState();
+        }
+
+        function deleteActiveLayer() {
+            if (selection.type !== 'image' || selection.id === null) return;
+            images.splice(selection.id, 1);
+            selection = { type: null, id: null, action: null };
+            updateLayerList(); draw(); saveState();
+        }
+
+        function draw() {
+            ctx.fillStyle = isLightMode ? '#fff' : '#111';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Images
+            images.forEach((imgObj, idx) => {
+                ctx.save(); ctx.translate(imgObj.x, imgObj.y); ctx.scale(imgObj.scale, imgObj.scale);
+                ctx.drawImage(imgObj.img, -imgObj.width/2, -imgObj.height/2);
+                
+                // Selección: Verde si normal, Rojo si locked
+                if (selection.type === 'image' && selection.id === idx) {
+                    const color = imgObj.locked ? '#ff4757' : '#28a745';
+                    ctx.strokeStyle = color; ctx.lineWidth = 4/imgObj.scale;
+                    ctx.strokeRect(-imgObj.width/2, -imgObj.height/2, imgObj.width, imgObj.height);
+                    
+                    // Solo dibujar handle de resize si NO está bloqueado
+                    if(!imgObj.locked) {
+                        ctx.fillStyle = color;
+                        ctx.fillRect((imgObj.width/2) - 20/imgObj.scale, (imgObj.height/2) - 20/imgObj.scale, 40/imgObj.scale, 40/imgObj.scale);
+                    }
+                }
+                ctx.restore();
+            });
+
+            // Texts
+            drawTextLayer('title'); drawTextLayer('desc');
+        }
+
+        function drawTextLayer(key) {
+            const t = texts[key]; if (!t.text) return;
+            const fontName = document.getElementById(key + 'Font').value;
+            const color = document.getElementById(key + 'Color').value;
+            const bgColor = document.getElementById(key + 'Bg').value;
+            const style = t.italic ? 'italic bold' : 'bold';
+
+            ctx.font = `${style} ${t.size}px ${fontName}`;
+            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+            
+            // CONFIGURAR BORDE NEGRO
+            ctx.lineWidth = t.size * 0.08; // Grosor proporcional
+            ctx.strokeStyle = 'black';
+            ctx.lineJoin = 'round';
+
+            const lines = wrapText(ctx, t.text, canvas.width * 0.9);
+            const lh = t.size * 1.2; const totalH = lines.length * lh;
+            let maxW = 0; lines.forEach(l => { const m=ctx.measureText(l); if(m.width>maxW)maxW=m.width; });
+            t.width = maxW + 40; t.height = totalH + 20; // Hitbox
+
+            let curY = t.y - (totalH/2) + (lh/2);
+            lines.forEach(l => {
+                // Background (Solo si no es transparente)
+                if (!t.transparentBg && bgColor !== 'transparent') {
+                    const w = ctx.measureText(l).width + 30;
+                    ctx.fillStyle = bgColor; ctx.fillRect(t.x - w/2, curY - lh/2, w, lh);
+                }
+                
+                // Stroke (Siempre primero)
+                ctx.strokeText(l, t.x, curY);
+                
+                // Fill (Texto encima)
+                ctx.fillStyle = color; 
+                // Sombra sutil solo si hay fondo, si no, el stroke ya separa
+                if(!t.transparentBg) { ctx.shadowColor = "rgba(0,0,0,0.5)"; ctx.shadowBlur = 5; }
+                ctx.fillText(l, t.x, curY); 
+                ctx.shadowBlur = 0; curY += lh;
+            });
+
+            if (selection.type === 'text' && selection.id === key) {
+                ctx.save(); ctx.strokeStyle = '#E62117'; ctx.lineWidth = 2; ctx.setLineDash([8, 6]);
+                ctx.strokeRect(t.x - t.width/2, t.y - t.height/2, t.width, t.height);
+                ctx.fillStyle = '#28a745'; ctx.setLineDash([]); ctx.beginPath(); ctx.arc(t.x + t.width/2, t.y + t.height/2, 12, 0, Math.PI*2); ctx.fill(); ctx.restore();
+            }
+        }
+
+        function wrapText(ctx, text, maxW) {
+            const words = text.split(' '); let lines=[], cur=words[0];
+            for(let i=1; i<words.length; i++) {
+                if(ctx.measureText(cur + " " + words[i]).width < maxW) cur += " " + words[i];
+                else { lines.push(cur); cur = words[i]; }
+            }
+            lines.push(cur); return lines;
+        }
+
+        function getCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            const sx = canvas.width / rect.width; const sy = canvas.height / rect.height;
+            let cx = e.clientX, cy = e.clientY;
+            if(e.touches && e.touches.length) { cx=e.touches[0].clientX; cy=e.touches[0].clientY; }
+            return { x:(cx-rect.left)*sx, y:(cy-rect.top)*sy };
+        }
+
+        function hitTest(x,y) {
+            // 1. Textos
+            if(selection.type === 'text') {
+                const t = texts[selection.id];
+                if(Math.abs(x - (t.x+t.width/2)) < 35 && Math.abs(y - (t.y+t.height/2)) < 35) return {type:'text', id:selection.id, action:'resize'};
+            }
+            for(let k of ['title','desc']) {
+                const t = texts[k];
+                if(x > t.x-t.width/2 && x < t.x+t.width/2 && y > t.y-t.height/2 && y < t.y+t.height/2) return {type:'text', id:k, action:'move'};
+            }
+            // 2. Imágenes
+            for(let i=images.length-1; i>=0; i--) {
+                const img = images[i];
+                const lx = (x-img.x)/img.scale; const ly = (y-img.y)/img.scale;
+                
+                // Si está locked, permitimos seleccionar pero NO redimensionar
+                if(selection.type==='image' && selection.id===i && !img.locked) {
+                    if(Math.abs(lx - img.width/2) < 40 && Math.abs(ly - img.height/2) < 40) return {type:'image', id:i, action:'resize'};
+                }
+                if(Math.abs(lx) < img.width/2 && Math.abs(ly) < img.height/2) return {type:'image', id:i, action:'move'};
+            }
+            return null;
+        }
+
+        canvas.addEventListener('mousedown', start); canvas.addEventListener('touchstart', start, {passive:false});
+        window.addEventListener('mousemove', move); window.addEventListener('touchmove', move, {passive:false});
+        window.addEventListener('mouseup', end); window.addEventListener('touchend', end);
+
+        function start(e) { 
+            if(e.touches && e.touches.length > 1) e.preventDefault(); 
+            e.preventDefault(); 
+            const c = getCoords(e); const hit = hitTest(c.x, c.y); 
+            if(hit) {
+                // Verificar si está bloqueado antes de iniciar arrastre
+                if(hit.type === 'image' && images[hit.id].locked) {
+                    selection = { type:'image', id:hit.id, action:null, isDragging:false }; // Solo seleccionar
+                } else {
+                    selection = { ...hit, lastX:c.x, lastY:c.y, isDragging:true }; 
+                }
+            } else {
+                selection = { type:null, id:null, action:null }; 
+            }
+            updateLayerList(); draw(); 
+        }
+
+        function move(e) { 
+            if(!selection.isDragging) return; 
+            if(e.type==='touchmove') e.preventDefault(); 
+            const c = getCoords(e); const dx = c.x - selection.lastX; const dy = c.y - selection.lastY; 
+            
+            if(selection.type === 'text') { const t = texts[selection.id]; if(selection.action==='move') { t.x+=dx; t.y+=dy; } else { t.size = Math.max(10, t.size + dy/2); } } 
+            else if(selection.type === 'image') { 
+                const img = images[selection.id]; 
+                // Doble check de seguridad por si acaso
+                if(!img.locked) {
+                    if(selection.action==='move') { img.x+=dx; img.y+=dy; } else { img.scale = Math.max(0.1, img.scale + (dx/500)); } 
+                }
+            } 
+            selection.lastX = c.x; selection.lastY = c.y; draw(); 
+        }
+        function end() { if(selection.isDragging) { selection.isDragging = false; saveState(); } }
+
+        function updateText(key) { texts[key].text = document.getElementById(key+'Text').value.toUpperCase(); draw(); saveState(); }
+        function toggleItalic(key) { texts[key].italic = !texts[key].italic; document.getElementById('btnItalic'+(key==='title'?'Title':'Desc')).classList.toggle('active'); draw(); saveState(); }
+        
+        function handleImages(inp) { Array.from(inp.files).forEach(f => { const r = new FileReader(); r.onload = e => { const img = new Image(); img.onload = () => { const s = Math.max(canvas.width/img.width, canvas.height/img.height); images.push({img:img, width:img.width, height:img.height, x:canvas.width/2, y:canvas.height/2, scale:s}); selection = { type:'image', id:images.length-1, action:null }; updateLayerList(); draw(); saveState(); }; img.src = e.target.result; }; r.readAsDataURL(f); }); inp.value = ''; }
+
+        function updateLayerList() { 
+            const el = document.getElementById('layerList'); el.innerHTML = ''; 
+            const btnLock = document.getElementById('btnLock');
+            
+            // Actualizar estado del botón lock si hay imagen seleccionada
+            if(selection.type === 'image' && selection.id !== null) {
+                const isLocked = images[selection.id].locked;
+                btnLock.className = `layer-btn btn-lock ${isLocked ? 'locked' : ''}`;
+                btnLock.innerHTML = isLocked ? '<i class="fa-solid fa-lock"></i>' : '<i class="fa-solid fa-lock-open"></i>';
+            } else {
+                btnLock.className = `layer-btn btn-lock`;
+                btnLock.innerHTML = '<i class="fa-solid fa-lock"></i>';
+            }
+
+            images.forEach((img,i) => { 
+                const badge = document.createElement('div'); 
+                const active = selection.type==='image' && selection.id===i; 
+                badge.className = `layer-badge ${active ? 'active' : ''} ${img.locked ? 'is-locked' : ''}`; 
+                badge.innerHTML = (img.isTemplate ? `Tmpl ${i+1}` : `Img ${i+1}`) + (img.locked ? ' <i class="fa-solid fa-lock" style="font-size:0.6rem"></i>' : ''); 
+                badge.onclick = () => { selection={type:'image', id:i, action:null}; draw(); updateLayerList(); }; 
+                el.appendChild(badge); 
+            }); 
+        }
+
+        function genGrok() { const idea = document.getElementById('grokIdea').value; const prompt = `Create a YouTube thumbnail background. Style: Hyper-realistic. Subject: ${idea}. High contrast, 8k. Aspect Ratio ${currentFormat === '16:9' ? '16:9' : '9:16'}. No text.`; navigator.clipboard.writeText(prompt).then(() => { window.open('https://grok.com', '_blank'); }); }
+        
+        async function downloadImage() {
+            saveState();
+            const filename = `maxflow_thumbnail_${currentFormat.replace(':','-')}.png`;
+            if (navigator.share && navigator.canShare) {
+                try {
+                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/png'));
+                    const file = new File([blob], filename, { type: 'image/png' });
+                    if (navigator.canShare({ files: [file] })) {
+                        await navigator.share({ files: [file], title: 'MaxFlow Thumbnail' });
+                        return;
+                    }
+                } catch (err) { console.log("Share failed", err); }
+            }
+            const a = document.createElement('a'); a.download = filename; a.href = canvas.toDataURL('image/png'); a.click(); 
+        }
+
+        function setLang(l) { 
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active')); 
+            const btns = document.querySelectorAll('.lang-btn'); 
+            for(let b of btns) if(b.getAttribute('onclick').includes(`'${l}'`)) { b.classList.add('active'); } 
+            const t = translations[l]; 
+            if(t) document.querySelectorAll('[data-key]').forEach(e => e.innerHTML = t[e.getAttribute('data-key')]); 
+        }
+    </script>
+</body>
+</html>
