@@ -24,13 +24,13 @@ The application runs entirely in your browser and stores all data locally.
 
 ## 🖥️ Interface Overview
 
-![MaxFlow Interface Overview](img/img1.jpg)
+![MaxFlow Interface Overview](img/img1.png)
 
 ---
 
 ## 🚀 Quick Start
 
-![Canvas and Format Selector](img/img2.jpg)
+![Canvas and Format Selector](img/img2.png)
 
 1. **Select Aspect Ratio**  
    Choose:
@@ -53,7 +53,7 @@ The application runs entirely in your browser and stores all data locally.
 
 ### 🖱️ Direct Canvas Manipulation
 
-![Element Manipulation](img/img3.jpg)
+![Element Manipulation](img/img3.png)
 
 - **Move:** Drag any selected element
 - **Resize:** Use the green handle (bottom-right)
@@ -63,7 +63,7 @@ The application runs entirely in your browser and stores all data locally.
 
 ### 🗂️ Layer Management
 
-![Layer Panel](img/img4.jpg)
+![Layer Panel](img/img4.png)
 
 The Layers panel allows precise control:
 
@@ -77,7 +77,7 @@ Locked elements remain selectable from the layer list.
 
 ### ✍️ Text Styling
 
-![Text Styling Options](img/img5.jpg)
+![Text Styling Options](img/img5.png)
 
 - High-impact fonts (e.g. *Archivo Black*, *Bangers*)
 - Text color selection
@@ -89,7 +89,7 @@ Locked elements remain selectable from the layer list.
 
 ## 🤖 AI Prompt Generator (Grok)
 
-![AI Prompt Generator](img/img6.jpg)
+![AI Prompt Generator](img/img6.png)
 
 MaxFlow includes an AI prompt assistant for background creation.
 
