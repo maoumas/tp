@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Teleprompter Live</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { background-color: black; color: white; font-family: 'Inter', sans-serif; margin:0; overflow-x:hidden; cursor: pointer; }
+        #script-container { padding: 20px; padding-top: 20vh; padding-bottom: 60vh; max-width: 800px; margin: 0 auto; line-height: 1.5; opacity: 1; }
+        .speaker-text { font-size: 2.8rem; font-weight: 600; color: #ffffff; margin-bottom: 1.5rem; }
+        .instruction { font-size: 1.5rem; color: #FCD34D; font-style: italic; background: #333; padding: 10px; border-left: 4px solid #F59E0B; margin-bottom: 2rem; }
+        .timestamp { font-size: 2rem; font-weight: 800; color: #60A5FA; border-top: 1px solid #444; padding-top: 2rem; margin-top: 3rem; text-transform: uppercase; }
+        #controls { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111; border-top: 1px solid #333; padding: 10px; padding-bottom: env(safe-area-inset-bottom, 10px); display: flex; align-items: center; gap: 8px; z-index: 9999; justify-content: center; overflow-x: auto; cursor: default; }
+        @media (max-width: 600px) {
+            #controls { justify-content: flex-start; padding-left: 10px; padding-right: 10px; }
+            .btn-main, #save-btn, #reset-btn { height: 38px !important; min-width: 38px !important; padding: 0 10px !important; }
+            #play-pause-btn { min-width: auto !important; padding: 0 15px !important; font-size: 0.8rem; }
+            .stepper-btn { width: 34px !important; height: 34px !important; }
+            .value-display { font-size: 0.8rem; min-width: 20px; }
+            .speaker-text { font-size: 2rem; }
+        }
+        .btn-main { height: 48px; padding: 0 20px; border-radius: 8px; font-weight: 700; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition:0.2s; }
+        #play-pause-btn { background-color: #10B981; min-width: 100px; } 
+        #play-pause-btn.paused { background-color: #EF4444; } 
+        #reset-btn { background-color: #374151; }
+        #save-btn { background-color: #7C3AED; }
+        .control-group { display: flex; align-items: center; gap: 2px; background: #222; padding: 3px; border-radius: 8px; border: 1px solid #444; flex-shrink: 0; }
+        .stepper-btn { width: 44px; height: 44px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; color: white; background: transparent; }
+        .theme-speed .stepper-btn { background: #1E40AF; }
+        .theme-font .stepper-btn { background: #92400E; }
+        .value-display { font-family: monospace; font-weight: bold; min-width: 30px; text-align: center; }
+        .svg-icon { width: 20px; height: 20px; fill: currentColor; }
+    </style>
+</head>
+<body>
+  <div id="script-container"></div>
+  <div id="controls">
+    <button id="play-pause-btn" class="btn-main">START</button>
+    <button id="reset-btn" class="btn-main" title="Inicio"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+    <div class="control-group theme-speed"><button class="stepper-btn" id="s-">-</button><div class="value-display" id="s-val">3</div><button class="stepper-btn" id="s+">+</button></div>
+    <div class="control-group theme-font"><button class="stepper-btn" id="f-">-</button><div class="value-display" id="f-val">3</div><button class="stepper-btn" id="f+">+</button></div>
+    <button id="save-btn" class="btn-main" title="Guardar"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg></button>
+  </div>
+  <script>
+    const data = JSON.parse('[{"type":"text","content":"Hier ist das ausführliche Teleprompter-Skript für Ihr Programm bei **@translatedpressde**. Es ist in einem einfachen, klaren Deutsch verfasst, das perfekt auf Ihre Zielgruppe zugeschnitten ist – direkt, informativ und mit einer ordentlichen Portion Sarkasmus."},{"type":"instruction","content":"**"},{"type":"instruction","content":"*TITEL: Das Märchenbuch der Bidens: Von Laptops, Millionen und dem gnädigen Papa**"},{"type":"instruction","content":"*(Intro – Herzlich und mit einem Schmunzeln)**"},{"type":"text","content":"Hallo zusammen und ein herzliches Willkommen an alle treuen Zuschauer hier bei **Translated Press DE**! Machen Sie es sich bequem, holen Sie sich vielleicht einen Tee oder einen Kaffee, denn heute haben wir eine Geschichte für Sie, die selbst die klügsten Köpfe in Hollywood nicht besser hätten erfinden können. Wir sprechen heute über Hunter Biden, den Sohn des US-Präsidenten, und die schier unendliche Kette von Skandalen, die ihn umgibt."},{"type":"text","content":"Wissen Sie, was das Beste an dieser Geschichte ist? Dass man am Ende gar nicht mehr weiß, ob man lachen oder weinen soll. Wir haben hier alles: verlorene Computer, Millionen von Dollar aus der Ukraine und China, einen Vater, der plötzlich seine Meinung ändert, und einen Informanten, der jetzt selbst hinter Gittern sitzt. Also, bleiben Sie dran, es wird spannend!"},{"type":"instruction","content":"*(Teil 1: Der Informant, der im Gefängnis landete)**"},{"type":"text","content":"Fangen wir mal mit der großen „Bestechungs-Saga“ an, die die Republikaner so richtig in Schwung gebracht hat. Da gab es diesen Mann, **Alexander Smirnov**, ein langjähriger FBI-Informant. Er behauptete steif und fest, dass Joe und Hunter Biden jeweils fünf Millionen Dollar Schmiergeld von der ukrainischen Gasfirma Burisma kassiert hätten. Ein Riesenskandal, oder?"},{"type":"text","content":"Tja, meine lieben Zuschauer, jetzt kommt die Wendung: Herr Smirnov hat vor Gericht zugegeben, dass er das alles nur erfunden hat. Er hat gelogen, dass sich die Balken biegen. Er wollte Joe Biden als Präsidentschaftskandidaten schaden und hat sich diese Geschichte wohl beim Kaffeetrinken mit russischen Geheimdienstlern ausgedacht. Jetzt sitzt der gute Mann im Gefängnis und wartet auf sein Urteil – bis zu sechs Jahre könnte er bekommen. So schnell kann es gehen: Vom „Kronzeugen“ zum Zellengenossen. Aber keine Sorge, das war erst das Aufwärmen für heute."},{"type":"instruction","content":"*(Teil 2: Das Rätsel um den „Laptop aus der Hölle“)**"},{"type":"text","content":"Kommen wir zu meinem absoluten Lieblingsthema: Der berühmte Laptop. Hunter Biden saß neulich in einem fünfstündigen Interview und hat uns allen die Welt erklärt. Und was sagt er jetzt? **„Es gab nie einen Laptop!“**"},{"type":"text","content":"Hören Sie genau hin: Er behauptet, das Ganze sei nur ein „zusammengebasteltes Durcheinander“ aus gestohlenen Daten vom Dark Web. Dass IT-Experten und sogar ehemalige Geheimdienstler sagen, das Ding sei zu einhundert Prozent echt – völlig egal! Hunter erinnert sich einfach nicht daran, dass er den Laptop jemals in einer Werkstatt abgegeben hat. Und das, obwohl der Laden nur drei Meilen von seinem Elternhaus entfernt ist."},{"type":"text","content":"Vielleicht hat er ihn auch einfach im Crack-Rausch vergessen? Er gibt ja offen zu, dass er zu dieser Zeit alle 15 Minuten Crack geraucht hat. Wer von uns vergisst da nicht mal kurz, wo er seinen Computer mit den intimsten Fotos und dubiosen Geschäftsmails gelassen hat? Ein ganz normales Missgeschick, wie wenn man seinen Hausschlüssel verliert, nur eben mit ein bisschen mehr Sprengstoff für das Weiße Haus."},{"type":"instruction","content":"*(Teil 3: Burisma und die „Biden-Verbrecherfamilie“)**"},{"type":"text","content":"Dann ist da noch die Sache mit **Burisma**, dieser Gasfirma in der Ukraine. Hunter saß dort im Vorstand und hat dafür richtig abkassiert – wir reden von Millionenbeträgen. Jahrelang hieß es: „Alles ganz sauber, alles legal.“ Heute sagt er ganz bescheiden: **„Ja, es war ein Fehler.“**"},{"type":"text","content":"Aber wissen Sie, warum er es einen Fehler nennt? Nicht etwa, weil er keine Ahnung von Erdgas hatte oder weil er den Job nur wegen seines Vaters bekommen hat. Nein, er sagt, es war ein Fehler, weil es seinen politischen Feinden die Tür geöffnet hat, seine Familie die **„Biden-Verbrecherfamilie“** zu nennen. Er sieht sich also eher als Opfer der Umstände."},{"type":"text","content":"Und während er sich als Opfer stilisiert, hat er laut eigenen Angaben **Schulden in Höhe von 15 bis 20 Millionen Dollar**. Aber keine Angst, der Mann ist kreativ! Er verkauft jetzt Kunstwerke – moderne Malerei. Für Hunderttausende Dollar pro Stück! Ein Schelm, wer Böses dabei denkt, dass so ein netter Käufer damit vielleicht ganz diskret alte Rechnungen begleicht. Wer würde nicht gerne eine halbe Million für ein Bild bezahlen, das der Sohn des Präsidenten gemalt hat?"},{"type":"instruction","content":"*(Teil 4: Steuern, Waffen und der „exklusive Lebensstil“)**"},{"type":"text","content":"Jetzt wird es ein bisschen ernster, aber nicht weniger verrückt. Hunter wurde wegen Steuerhinterziehung und illegalem Waffenbesitz angeklagt. Er hatte **1,4 Millionen Dollar Steuern** nicht bezahlt. Aber hey, schauen wir uns mal an, wofür er das Geld stattdessen ausgegeben hat."},{"type":"text","content":"Die Quellen sagen uns: Er gab Millionen für Drogen, Luxusautos, teure Hotels und – wie soll ich es sagen – „Damenbegleitung“ aus. Allein für Kleidung und Accessoires gingen fast 400.000 Dollar drauf. Prioritäten muss man haben! Vor Gericht hat er sich schließlich schuldig bekannt. Er hat zugegeben, gelogen zu haben, als er eine Waffe kaufte, obwohl er schwer drogensüchtig war. In jedem normalen Fall würde das bedeuten: Ab hinter Gitter. Aber wir reden hier nicht von irgendeinem Bürger. Wir reden vom Sohn des mächtigsten Mannes der Welt."},{"type":"instruction","content":"*(Teil 5: Das ultimative Weihnachtsgeschenk – Die Begnadigung)**"},{"type":"text","content":"Und dann kam der Dezember. Erinnern Sie sich, wie Joe Biden monatelang versprochen hat: „Ich werde meinen Sohn nicht begnadigen.“ Er hat es immer und immer wieder betont. Er wollte die Unabhängigkeit der Justiz wahren. Aber was interessiert mich mein Geschwätz von gestern?"},{"type":"text","content":"Kurz vor Weihnachten gab es die **vollständige und bedingungslose Begnadigung**. Alles, was Hunter zwischen 2014 und 2024 so getrieben hat – oder getrieben haben könnte –, ist offiziell vom Tisch. Joe Biden sagt jetzt, die Politik habe den Prozess „infiziert“. Es sei ein „Justizirrtum“ gewesen."},{"type":"text","content":"Das muss man sich mal auf der Zunge zergehen lassen: Erst wird er von einer Jury verurteilt, dann bekennt er sich in einem anderen Fall selbst schuldig, und am Ende sagt der Papa: „Das war alles unfair.“ Das ist wahre Nächstenliebe, oder? Hunter darf nun als freier Mann ins neue Jahr starten, ohne lästige Gerichtstermine oder die Gefahr, jemals eine Gefängniszelle von innen zu sehen. Ein echtes Weihnachtswunder!"},{"type":"instruction","content":"*(Teil 6: Kritik, Doppelmoral und die Epstein-Akten)**"},{"type":"text","content":"Natürlich ist der Aufschrei riesig. Kritiker sagen, das untergräbt das Vertrauen in das gesamte Rechtssystem der USA. Donald Trump nennt es einen „Missbrauch der Justiz“. Aber Hunter Biden schlägt zurück. Er sagt, er will sein Leben jetzt der Hilfe für andere Süchtige widmen. Ein schöner Vorsatz! Während normale Bürger für ihre Fehler jahrelang bezahlen, fängt Hunter einfach bei Null an."},{"type":"text","content":"Und dann hat er noch ein ganz heißes Thema angefasst: Die **Epstein-Akten**. Hunter fragt sich öffentlich, warum die Namen in diesen Akten immer noch unter Verschluss gehalten werden. Er deutet an, dass Donald Trump und Jeffrey Epstein früher „wie Pech und Schwefel“ zusammenhingen. Er behauptet sogar, dass Leute wie Steve Bannon die Geschichte mit seinem Laptop nur erfunden haben, um von den wirklichen Dreck am Stecken anderer abzulenken. Es ist ein echtes Ablenkungsmanöver auf höchstem Niveau. Jeder zeigt auf jeden, und am Ende schauen wir, die Zuschauer, in die Röhre."},{"type":"instruction","content":"*(Abschluss – Mit einem Augenzwinkern und Appell)**"},{"type":"text","content":"Was lernen wir aus dieser ganzen Geschichte? Erstens: Es hilft ungemein, wenn der Vater der Präsident ist. Und zweitens: In der Politik geht es oft weniger um Gerechtigkeit als um das richtige Drehbuch."},{"type":"text","content":"Ob das nun eine heldenhafte Tat eines liebenden Vaters war oder einfach nur purer Eliten-Privileg – das überlasse ich Ihnen. Was meinen Sie dazu? Ist das noch Demokratie oder schon eine Familiensaga wie bei den Sopranos? Schreiben Sie es mir unbedingt in die Kommentare! Ich lese Ihre Nachrichten immer sehr gerne."},{"type":"text","content":"Wenn Ihnen dieser tiefe Einblick in das Sumpfgebiet von Washington gefallen hat, dann lassen Sie uns ein **„Gefällt mir“** da. Das hilft unserem Kanal sehr. Und wenn Sie noch kein Abonnent sind, dann klicken Sie auf den Abo-Knopf und die kleine Glocke, damit Sie keine dieser unglaublichen Geschichten mehr verpassen."},{"type":"text","content":"Wir von **Translated Press DE** bleiben für Sie am Ball – sachlich, informativ und immer mit dem nötigen Schuss Humor."},{"type":"text","content":"Vielen Dank fürs Zuschauen, bleiben Sie gesund und bis zum nächsten Mal!"},{"type":"instruction","content":"**"},{"type":"instruction","content":"*Analogie zur Verdeutlichung:**"},{"type":"text","content":"Stellen Sie sich vor, Ihr Sohn baut mit dem Auto einen Unfall, wird beim Lügen erwischt und hat jahrelang seine Rechnungen nicht bezahlt. Aber zum Glück sind Sie der Bürgermeister und sagen einfach: „Ach, die Polizei mag meinen Sohn einfach nicht, wir vergessen die Sache jetzt.“ Genau so fühlen sich gerade viele Menschen in Amerika. Ein schönes Gefühl, wenn man zur richtigen Familie gehört, nicht wahr?"}]');
+    const cont = document.getElementById('script-container');
+    data.forEach(i => {
+        let el = document.createElement(i.type==='title'?'h2':i.type==='instruction'?'p':'div');
+        el.className = i.type==='title'?'timestamp':i.type==='instruction'?'instruction':'speaker-text';
+        el.innerText = i.content; cont.appendChild(el);
+    });
+    let state = { speed:3, font:3, playing:false };
+    let anim;
+    function update() {
+        document.getElementById('s-val').innerText = state.speed;
+        document.getElementById('f-val').innerText = state.font;
+        const fs = 20 + (state.font * 4);
+        document.querySelectorAll('.speaker-text').forEach(e => e.style.fontSize = fs+'px');
+    }
+    function loop() {
+        if(!state.playing) return;
+        window.scrollBy(0, state.speed * 0.4);
+        anim = requestAnimationFrame(loop);
+    }
+    function togglePlay() {
+        state.playing = !state.playing;
+        const btn = document.getElementById('play-pause-btn');
+        btn.innerText = state.playing ? "PAUSE" : "START";
+        btn.classList.toggle('paused', state.playing);
+        if(state.playing) loop(); else cancelAnimationFrame(anim);
+    }
+    document.getElementById('play-pause-btn').onclick = (e) => { e.stopPropagation(); togglePlay(); };
+    document.getElementById('reset-btn').onclick = (e) => { e.stopPropagation(); window.scrollTo(0,0); state.playing=false; cancelAnimationFrame(anim); const btn = document.getElementById('play-pause-btn'); btn.innerText="START"; btn.classList.remove('paused'); };
+    document.body.onclick = (e) => { if (!e.target.closest('#controls')) togglePlay(); };
+    document.getElementById('controls').onclick = (e) => { e.stopPropagation(); };
+    document.getElementById('s-').onclick = () => { if(state.speed>0) state.speed--; update(); };
+    document.getElementById('s+').onclick = () => { if(state.speed<20) state.speed++; update(); };
+    document.getElementById('f-').onclick = () => { if(state.font>0) state.font--; update(); };
+    document.getElementById('f+').onclick = () => { if(state.font<15) state.font++; update(); };
+    document.getElementById('save-btn').onclick = () => {
+        const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'teleprompter-recording.html';
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+    setTimeout(() => { if(!state.playing) togglePlay(); }, 2000);
+    update();
+  </script>
+</body>
+</html>
