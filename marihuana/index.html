@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Teleprompter Live</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { background-color: black; color: white; font-family: 'Inter', sans-serif; margin:0; overflow-x:hidden; cursor: pointer; }
+        #script-container { padding: 20px; padding-top: 20vh; padding-bottom: 60vh; max-width: 800px; margin: 0 auto; line-height: 1.5; opacity: 1; }
+        .speaker-text { font-size: 2.8rem; font-weight: 600; color: #ffffff; margin-bottom: 1.5rem; }
+        .instruction { font-size: 1.5rem; color: #FCD34D; font-style: italic; background: #333; padding: 10px; border-left: 4px solid #F59E0B; margin-bottom: 2rem; }
+        .timestamp { font-size: 2rem; font-weight: 800; color: #60A5FA; border-top: 1px solid #444; padding-top: 2rem; margin-top: 3rem; text-transform: uppercase; }
+        #controls { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111; border-top: 1px solid #333; padding: 10px; padding-bottom: env(safe-area-inset-bottom, 10px); display: flex; align-items: center; gap: 8px; z-index: 9999; justify-content: center; overflow-x: auto; cursor: default; }
+        @media (max-width: 600px) {
+            #controls { justify-content: flex-start; padding-left: 10px; padding-right: 10px; }
+            .btn-main, #save-btn, #reset-btn { height: 38px !important; min-width: 38px !important; padding: 0 10px !important; }
+            #play-pause-btn { min-width: auto !important; padding: 0 15px !important; font-size: 0.8rem; }
+            .stepper-btn { width: 34px !important; height: 34px !important; }
+            .value-display { font-size: 0.8rem; min-width: 20px; }
+            .speaker-text { font-size: 2rem; }
+        }
+        .btn-main { height: 48px; padding: 0 20px; border-radius: 8px; font-weight: 700; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition:0.2s; }
+        #play-pause-btn { background-color: #10B981; min-width: 100px; } 
+        #play-pause-btn.paused { background-color: #EF4444; } 
+        #reset-btn { background-color: #374151; }
+        #save-btn { background-color: #7C3AED; }
+        .control-group { display: flex; align-items: center; gap: 2px; background: #222; padding: 3px; border-radius: 8px; border: 1px solid #444; flex-shrink: 0; }
+        .stepper-btn { width: 44px; height: 44px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; color: white; background: transparent; }
+        .theme-speed .stepper-btn { background: #1E40AF; }
+        .theme-font .stepper-btn { background: #92400E; }
+        .value-display { font-family: monospace; font-weight: bold; min-width: 30px; text-align: center; }
+        .svg-icon { width: 20px; height: 20px; fill: currentColor; }
+    </style>
+</head>
+<body>
+  <div id="script-container"></div>
+  <div id="controls">
+    <button id="play-pause-btn" class="btn-main">START</button>
+    <button id="reset-btn" class="btn-main" title="Inicio"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+    <div class="control-group theme-speed"><button class="stepper-btn" id="s-">-</button><div class="value-display" id="s-val">3</div><button class="stepper-btn" id="s+">+</button></div>
+    <div class="control-group theme-font"><button class="stepper-btn" id="f-">-</button><div class="value-display" id="f-val">3</div><button class="stepper-btn" id="f+">+</button></div>
+    <button id="save-btn" class="btn-main" title="Guardar"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg></button>
+  </div>
+  <script>
+    const data = JSON.parse('[{"type":"text","content":"Hier ist ein ausführliches Teleprompter-Skript für eine zweistündige Sondersendung auf **@Translatedpressde**. Das Material ist so strukturiert, dass es Raum für tiefe Analysen, Expertenrunden und Zuschauerinteraktion lässt, während der rote Faden informativ und gewohnt scharfzüngig bleibt."},{"type":"instruction","content":"Anmerkung für den Moderator: Pausen für Einspieler oder Diskussionen sind markiert.*"},{"type":"title","content":"Die Große Cannabis-Wende: Trumps „High“-Speed-Verordnung"},{"type":"instruction","content":"Freundlich, direkt in die Kamera, ein leichtes Schmunzeln*"},{"type":"text","content":"Guten Abend, Deutschland! Oder sollten wir sagen: Guten Abend, „neues Amerika“? Heute widmen wir uns einem Thema, das so viel Rauch aufgewirbelt hat, dass man im Weißen Haus kaum noch die Hand vor Augen sieht. Donald Trump hat das Unmögliche getan – oder zumindest das Unwahrscheinliche: Er hat eine Exekutivverordnung unterzeichnet, die Marihuana offiziell herabstuft."},{"type":"instruction","content":"Sarkastisch*"},{"type":"text","content":"Nach über 50 Jahren hat die US-Regierung also endlich gemerkt, dass eine Pflanze vielleicht doch nicht exakt dasselbe ist wie Heroin oder LSD. Ein bahnbrechender Sieg für die Logik – oder ein sehr gut getimter politischer Schachzug. Willkommen zu unserer Sondersendung."},{"type":"title","content":"Der technische Deep Dive: Von Liste eins zu Liste drei"},{"type":"instruction","content":"Professionell, erklärend*"},{"type":"text","content":"Was ist eigentlich passiert? Trump hat das Justizministerium angewiesen, Marihuana von der sogenannten „Liste eins“ in die „Liste drei“ zu verschieben. Um das für uns normale Menschen zu übersetzen: Bisher stand Cannabis auf einer Stufe mit Substanzen, die – laut Gesetz – absolut keinen medizinischen Nutzen haben und brandgefährlich sind."},{"type":"instruction","content":"Ironisch*"},{"type":"text","content":"Jetzt rückt es in die illustre Nachbarschaft von Ketamin, anabolen Steroiden und hustensaft mit Codein. Das nennt man wohl „Aufstieg durch Abstieg“. Der Präsident nennt es schlicht „gesunden Menschenverstand“. Aber Vorsicht: Das bedeutet nicht, dass jetzt jeder im Hyde Park von Washington einen Joint anzünden darf. Auf Bundesebene bleibt der Freizeitspaß illegal. Es geht hier um die Medizin und – wie immer in Amerika – um das ganz große Geld."},{"type":"instruction","content":"Einspieler: Grafik der DEA-Listen einblenden*"},{"type":"title","content":"Die Wissenschaft: Endlich forschen ohne Handschellen"},{"type":"instruction","content":"Informierend*"},{"type":"text","content":"Einer der wichtigsten Punkte dieser Verordnung ist die Forschung. Bisher mussten Wissenschaftler quasi jedes Milligramm Cannabis mit einer Goldwaage vor der DEA rechtfertigen. Wer forscht schon gerne an etwas, das rechtlich so behandelt wird wie Giftgas?"},{"type":"text","content":"Mit der Liste drei fallen diese bürokratischen Mauern. Wir reden hier von potenziellen Durchbrüchen bei der Behandlung von chronischen Schmerzen, Schlafstörungen und sogar Gewichtsverlust. Es geht darum, dass amerikanische Veteranen und Krebspatienten endlich Zugang zu Therapien bekommen, ohne sich wie Schwerverbrecher fühlen zu müssen."},{"type":"title","content":"Die Wirtschaft: Wenn die Steuerfahndung plötzlich lächelt"},{"type":"instruction","content":"Mit Begeisterung und einer Prise Sarkasmus*"},{"type":"text","content":"Kommen wir zu meinem Lieblingsteil: Den Steuern. Es gibt diesen wunderbaren Paragraphen im US-Steuerrecht namens 280E. Dieser verbot es Cannabis-Unternehmen bisher, ganz normale Geschäftsausgaben von der Steuer abzusetzen. Miete? Gehälter? Marketing? Alles musste aus dem Reingewinn nach Steuern bezahlt werden. Das führte zu effektiven Steuersätzen von bis zu 80 Prozent."},{"type":"instruction","content":"Spöttisch*"},{"type":"text","content":"Kein Wunder, dass die Aktienkurse von Firmen wie Tilray und Canopy Growth nach der Ankündigung um 40 bis 50 Prozent nach oben geschossen sind. Die Wall Street riecht den Braten – oder in diesem Fall: das Aroma des Erfolgs. Endlich dürfen diese Firmen ihre Miete absetzen wie jeder andere Burgerladen auch. Ein echtes Weihnachtswunder im Dezember."},{"type":"instruction","content":"Diskussionsrunde: Expertenmeinung zu den Marktreaktionen*"},{"type":"title","content":"Dr. Oz und die Senioren: CBD auf Staatskosten"},{"type":"instruction","content":"Leicht amüsiert*"},{"type":"text","content":"Und es wird noch besser. Trump hat seinen alten Bekannten Dr. Oz ins Spiel gebracht. Dieser soll ein Programm leiten, bei dem Medicare – also die staatliche Krankenversicherung für Senioren – CBD-Produkte erstattet."},{"type":"instruction","content":"Sarkastisch*"},{"type":"text","content":"Stellen Sie sich das vor: Oma bekommt ihre CBD-Gummibärchen gegen das Rheuma bald auf Rezept vom Staat bezahlt. Trump weiß eben, wie man die Wählergruppe der Über-65-Jährigen bei Laune hält. „Geringes Suchtpotenzial“ ist hier das Zauberwort der Woche."},{"type":"title","content":"Die Schattenseite: Kritik und das Epstein-Ablenkungsmanöver"},{"type":"instruction","content":"Ernsthafterer Ton*"},{"type":"text","content":"Natürlich gibt es nicht nur Applaus. Die Hardliner bei den Republikanern – Leute wie Lindsey Graham oder Ted Budd – sind not amused. Sie fürchten um die öffentliche Gesundheit und die Verkehrssicherheit."},{"type":"instruction","content":"Verschwörerischer Unterton*"},{"type":"text","content":"Und dann ist da noch das Internet. In Foren wie Reddit wird heftig spekuliert: Warum jetzt? Warum am selben Tag, an dem neue Dokumente im Epstein-Fall veröffentlicht wurden? Ein Schelm, wer Böses dabei denkt. Ist Cannabis das „M&M im Schlamassel“, wie ein Nutzer schrieb? Eine süße Ablenkung von bitteren Wahrheiten?"},{"type":"title","content":"Das politische Erbe: Wer hat’s erfunden?"},{"type":"instruction","content":"Analytisch*"},{"type":"text","content":"Hier wird es politisch pikant. Die Biden-Administration hat diesen Prozess eigentlich schon 2022 angestoßen. Trump setzt jetzt nur den finalen Haken darunter. Die Demokraten schäumen vor Wut, weil er ihnen das Thema kurz vor den Kongresswahlen 2026 klaut. Und die Liberalen sagen: „Das reicht nicht! Streicht es komplett von der Liste!“"},{"type":"text","content":"Für die Industrie ist es ein Teilsieg. Es ist keine vollständige Legalisierung, aber es ist das Ende der fiskalischen Steinzeit."},{"type":"title","content":"Fazit: Ein historischer Schritt mit Beigeschmack"},{"type":"instruction","content":"Zusammenfassend, professionell*"},{"type":"text","content":"Was bleibt also übrig? Eine historische Entscheidung, die Millionen von Patienten helfen könnte und eine Milliardenindustrie rettet. Gleichzeitig bleibt ein fader Beigeschmack von politischem Kalkül und einer unvollständigen Reform."},{"type":"instruction","content":"Direkt zum Zuschauer*"},{"type":"text","content":"Was meinen Sie? Ist Trump hier der Retter der Patienten oder einfach nur ein cleverer Geschäftsmann, der eine Nebelkerze zündet? Schreiben Sie uns Ihre Meinung in den Chat. Wir gehen jetzt in eine kurze Pause und schauen uns danach die Auswirkungen auf den deutschen Markt an. Bleiben Sie dran bei TranslatedPressDE."},{"type":"instruction","content":"Musik-Outro und Überblendung*"},{"type":"instruction","content":"**"},{"type":"instruction","content":"Analogie zur Festigung (nur für den internen Gebrauch oder als spontaner Einschub):*"},{"type":"text","content":"Stellen Sie sich vor, die Regierung hätte 50 Jahre lang behauptet, ein Fahrrad sei so gefährlich wie ein Kampfjet. Jetzt haben sie endlich zugegeben: Es ist eigentlich nur ein E-Bike. Man braucht immer noch Regeln, aber man muss kein Kampfpilot sein, um damit zum Bäcker zu fahren."}]');
+    const cont = document.getElementById('script-container');
+    data.forEach(i => {
+        let el = document.createElement(i.type==='title'?'h2':i.type==='instruction'?'p':'div');
+        el.className = i.type==='title'?'timestamp':i.type==='instruction'?'instruction':'speaker-text';
+        el.innerText = i.content; cont.appendChild(el);
+    });
+    let state = { speed:3, font:3, playing:false };
+    let anim;
+    function update() {
+        document.getElementById('s-val').innerText = state.speed;
+        document.getElementById('f-val').innerText = state.font;
+        const fs = 20 + (state.font * 4);
+        document.querySelectorAll('.speaker-text').forEach(e => e.style.fontSize = fs+'px');
+    }
+    function loop() {
+        if(!state.playing) return;
+        window.scrollBy(0, state.speed * 0.4);
+        anim = requestAnimationFrame(loop);
+    }
+    function togglePlay() {
+        state.playing = !state.playing;
+        const btn = document.getElementById('play-pause-btn');
+        btn.innerText = state.playing ? "PAUSE" : "START";
+        btn.classList.toggle('paused', state.playing);
+        if(state.playing) loop(); else cancelAnimationFrame(anim);
+    }
+    document.getElementById('play-pause-btn').onclick = (e) => { e.stopPropagation(); togglePlay(); };
+    document.getElementById('reset-btn').onclick = (e) => { e.stopPropagation(); window.scrollTo(0,0); state.playing=false; cancelAnimationFrame(anim); const btn = document.getElementById('play-pause-btn'); btn.innerText="START"; btn.classList.remove('paused'); };
+    document.body.onclick = (e) => { if (!e.target.closest('#controls')) togglePlay(); };
+    document.getElementById('controls').onclick = (e) => { e.stopPropagation(); };
+    document.getElementById('s-').onclick = () => { if(state.speed>0) state.speed--; update(); };
+    document.getElementById('s+').onclick = () => { if(state.speed<20) state.speed++; update(); };
+    document.getElementById('f-').onclick = () => { if(state.font>0) state.font--; update(); };
+    document.getElementById('f+').onclick = () => { if(state.font<15) state.font++; update(); };
+    document.getElementById('save-btn').onclick = () => {
+        const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'teleprompter-recording.html';
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+    setTimeout(() => { if(!state.playing) togglePlay(); }, 2000);
+    update();
+  </script>
+</body>
+</html>
