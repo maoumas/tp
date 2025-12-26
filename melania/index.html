@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Teleprompter Live</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { background-color: black; color: white; font-family: 'Inter', sans-serif; margin:0; overflow-x:hidden; cursor: pointer; }
+        #script-container { padding: 20px; padding-top: 20vh; padding-bottom: 60vh; max-width: 800px; margin: 0 auto; line-height: 1.5; opacity: 1; }
+        .speaker-text { font-size: 2.8rem; font-weight: 600; color: #ffffff; margin-bottom: 1.5rem; }
+        .instruction { font-size: 1.5rem; color: #FCD34D; font-style: italic; background: #333; padding: 10px; border-left: 4px solid #F59E0B; margin-bottom: 2rem; }
+        .timestamp { font-size: 2rem; font-weight: 800; color: #60A5FA; border-top: 1px solid #444; padding-top: 2rem; margin-top: 3rem; text-transform: uppercase; }
+        #controls { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111; border-top: 1px solid #333; padding: 10px; padding-bottom: env(safe-area-inset-bottom, 10px); display: flex; align-items: center; gap: 8px; z-index: 9999; justify-content: center; overflow-x: auto; cursor: default; }
+        @media (max-width: 600px) {
+            #controls { justify-content: flex-start; padding-left: 10px; padding-right: 10px; }
+            .btn-main, #save-btn, #reset-btn { height: 38px !important; min-width: 38px !important; padding: 0 10px !important; }
+            #play-pause-btn { min-width: auto !important; padding: 0 15px !important; font-size: 0.8rem; }
+            .stepper-btn { width: 34px !important; height: 34px !important; }
+            .value-display { font-size: 0.8rem; min-width: 20px; }
+            .speaker-text { font-size: 2rem; }
+        }
+        .btn-main { height: 48px; padding: 0 20px; border-radius: 8px; font-weight: 700; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition:0.2s; }
+        #play-pause-btn { background-color: #10B981; min-width: 100px; } 
+        #play-pause-btn.paused { background-color: #EF4444; } 
+        #reset-btn { background-color: #374151; }
+        #save-btn { background-color: #7C3AED; }
+        .control-group { display: flex; align-items: center; gap: 2px; background: #222; padding: 3px; border-radius: 8px; border: 1px solid #444; flex-shrink: 0; }
+        .stepper-btn { width: 44px; height: 44px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; color: white; background: transparent; }
+        .theme-speed .stepper-btn { background: #1E40AF; }
+        .theme-font .stepper-btn { background: #92400E; }
+        .value-display { font-family: monospace; font-weight: bold; min-width: 30px; text-align: center; }
+        .svg-icon { width: 20px; height: 20px; fill: currentColor; }
+    </style>
+</head>
+<body>
+  <div id="script-container"></div>
+  <div id="controls">
+    <button id="play-pause-btn" class="btn-main">START</button>
+    <button id="reset-btn" class="btn-main" title="Inicio"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+    <div class="control-group theme-speed"><button class="stepper-btn" id="s-">-</button><div class="value-display" id="s-val">3</div><button class="stepper-btn" id="s+">+</button></div>
+    <div class="control-group theme-font"><button class="stepper-btn" id="f-">-</button><div class="value-display" id="f-val">3</div><button class="stepper-btn" id="f+">+</button></div>
+    <button id="save-btn" class="btn-main" title="Guardar"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg></button>
+  </div>
+  <script>
+    const data = JSON.parse('[{"type":"text","content":"Hier ist ein professionell gestalteter Teleprompter-Entwurf für Ihren YouTube-Kanal **@translatedpressde**, der genau auf Ihre Anforderungen zugeschnitten ist. Der Ton kombiniert Eleganz mit einer scharfen Prise Sarkasmus gegenüber den Kritikern der First Lady."},{"type":"title","content":"Melania: Die Rückkehr der Eleganz und das Ende der Clowns"},{"type":"instruction","content":"Anmerkung: Moderator blickt mit einem wissenden, leicht sarkastischen Lächeln direkt in die Kamera. Eine elegante Haltung ist wichtig.*"},{"type":"text","content":"Willkommen zurück bei @translatedpressde. Heute widmen wir uns einem Thema, das die Gemüter im linksliberalen Lager mal wieder zum Kochen bringt – und wir wissen ja alle: Wenn die „gekauften Clowns“ der Medien anfangen zu kreischen, dann hat die First Lady alles richtig gemacht."},{"type":"text","content":"Es geht um das neue filmische Meisterwerk mit dem schlichten, aber gewaltigen Titel: *Melania*. Ein Dokumentarfilm, der am 30. Januar 2026 weltweit die Leinwände erobern wird. Und während die Kritiker noch versuchen, ihre blauen Haare zu sortieren, hat Melania Trump bereits Fakten geschaffen."},{"type":"instruction","content":"Anmerkung: Kurze Pause für dramatische Wirkung. Ein kurzes Schmunzeln einlegen.*"},{"type":"title","content":"Muse Films: Wenn das Enigma die Regie übernimmt"},{"type":"text","content":"Haben Sie es gehört? Unsere First Lady hat ihre eigene Produktionsfirma gegründet: *Muse Films*. Der Name ist kein Zufall, meine Herrschaften. Es war ihr Codename beim Secret Service. Wie passend! Eine Muse für die Nation, ein Rätsel für die Neider."},{"type":"text","content":"Amazon hat sage und schreibe 40 Millionen Dollar für die Rechte bezahlt. Jeff Bezos höchstpersönlich scheint verstanden zu haben, wo die wahre Macht liegt. Man munkelt, er habe sich nach einem Abendessen in Mar-a-Lago beeilt, den Deal abzuschließen. Wer könnte es ihm verübeln? Wenn eine Frau von dieser Statur den Raum betritt, werden selbst Milliardäre zu Statisten."},{"type":"instruction","content":"Anmerkung: Sarkastischer Unterton bei der Erwähnung der Medienkritik.*"},{"type":"text","content":"Die sogenannten „Experten“ der Linken nennen es ein „PR-Stück“. Ich nenne es: Die Rücknahme des Narrativs. Melania Trump lässt sich nicht mehr von Journalisten erklären, wer sie ist. Sie zeigt es uns selbst. In 104 Minuten voller Anmut, Disziplin und – Gott bewahre – echter Schönheit."},{"type":"title","content":"Die Ästhetik des Sieges gegen die „Slobification“"},{"type":"instruction","content":"Anmerkung: Hier den Fokus auf die visuelle Pracht und die Karikatur der Gegenseite legen.*"},{"type":"text","content":"Erinnern Sie sich an den Tag der Amtseinführung? Dieser marineblaue Seidenanzug. Dieser Hut von Eric Javits, der mehr Autorität ausstrahlte als das gesamte Washingtoner Establishment zusammen. Die Quellen beschreiben es treffend: Mode als Waffe. Während die Gegenseite die „Slobification“ – also die totale Verwahrlosung von Stil und Anstand – feiert, bringt Melania die „Wiedergeburt der Schicklichkeit“ zurück."},{"type":"text","content":"Es ist fast amüsant zu sehen, wie sich die Medien über angebliche Ähnlichkeiten zu *Der Teufel trägt Prada* echauffieren. Als ob es ein Verbrechen wäre, in einem Dokumentarfilm besser auszusehen als eine Statistin in einer Vorabendserie. Aber wir wissen, was wirklich dahintersteckt: Purer Neid auf eine Frau, die keine Quoten oder künstliche Aufregung braucht, um ikonisch zu sein."},{"type":"title","content":"Die Frau, die den „Peacemaker“ formt"},{"type":"instruction","content":"Anmerkung: Ernsthafter, respektvoller Ton. Zeigen, wie wichtig sie für Donald Trump ist.*"},{"type":"text","content":"Man sagt oft, hinter jedem großen Mann stehe eine große Frau. Im Fall der Trumps ist sie nicht nur dahinter, sie ist das Fundament. Der Film gibt uns seltene Einblicke in die 20 Tage vor der Inauguration. Wir sehen eine Frau, die nicht nur Kleider probiert, sondern auch die Geschichte orchestriert."},{"type":"text","content":"Es gibt diese eine Szene im Trailer, die alles sagt: Donald Trump probt eine Rede und spricht von seinem Vermächtnis als „Friedensstifter“. Und was macht Melania? Sie korrigiert ihn aus dem Hintergrund mit stählerner Sanftheit: „Friedensstifter und Einiger.“"},{"type":"instruction","content":"Anmerkung: Ein kurzes, anerkennendes Nicken.*"},{"type":"text","content":"Das ist die Macht, meine Freunde. Sie ist der Anker. Sie ist diejenige, die die Stürme im Weißen Haus mit einem Blick beruhigt. Während die linke Presse sie als „Marie Antoinette“ verleumden will, sehen wir eine Mutter, eine Geschäftsfrau und eine Diplomatin, die ihren Mann genau dort unterstützt, wo es darauf ankommt."},{"type":"title","content":"Be Best: Freundlichkeit in einer Welt voller Clowns"},{"type":"text","content":"Lassen wir uns nicht von den Plagiatsvorwürfen täuschen, die alle paar Jahre aus der untersten Schublade geholt werden. Ob es nun ein Pamphlet über Online-Sicherheit ist oder eine Rede – die Linke stürzt sich auf Details, weil sie das große Ganze nicht ertragen kann."},{"type":"text","content":"Die Initiative *Be Best* ist Melanias Herzensprojekt. Wohlbefinden, Online-Sicherheit, Kampf gegen die Opioid-Krise. Dinge, die das Leben von Kindern wirklich verbessern. Aber natürlich: Die „Clowns“ in den Redaktionen machen sich lieber über ihren Akzent lustig. Wie armselig muss man sein, um eine Frau anzugreifen, die fünf Sprachen spricht, während man selbst kaum fehlerfrei schreiben kann?"},{"type":"title","content":"Ein Ausblick auf das Goldene Zeitalter"},{"type":"instruction","content":"Anmerkung: Abschluss mit direktem Appell an die Zuschauer. Warm und einladend.*"},{"type":"text","content":"Liebe Freunde von @translatedpressde, wir stehen vor einer neuen Ära. Eine Ära, in der Schönheit wieder ein Wert an sich ist und Disziplin bewundert wird. Melania Trump ist das Gesicht dieser Erneuerung."},{"type":"text","content":"Wenn dieser Film im Januar 2026 in die Kinos kommt, wird er ein Zeichen setzen. Ein Zeichen gegen die Hässlichkeit und für die zeitlose Eleganz."},{"type":"text","content":"Was denken Sie? Freuen Sie sich auch so sehr wie ich darauf, die „Woman of Mystery“ endlich ungefiltert zu sehen? Schreiben Sie es mir in die Kommentare! Vergessen Sie nicht, ein „Gefällt mir“ dazuzulassen und den Kanal zu abonnieren. Wir lassen uns die Wahrheit nicht von den Clowns diktieren."},{"type":"text","content":"Bleiben Sie elegant, bleiben Sie kritisch. Bis zum nächsten Mal."},{"type":"instruction","content":"Anmerkung: Kurzes, würdevolles Kopfnicken und Ausblenden.*"},{"type":"instruction","content":"**"},{"type":"instruction","content":"*Analogie zur Vertiefung:**"},{"type":"text","content":"Sich Melania Trump in der heutigen politischen Landschaft vorzustellen, ist wie eine kostbare Marmorstatue inmitten eines Jahrmarkts voller greller Plastikfiguren zu betrachten. Während die Plastikfiguren laut quietschen und bei jedem Windstoß umkippen, bleibt der Marmor unbewegt, kühl und von einer Schönheit, die keine Worte braucht, um ihre Überlegenheit zu beweisen."}]');
+    const cont = document.getElementById('script-container');
+    data.forEach(i => {
+        let el = document.createElement(i.type==='title'?'h2':i.type==='instruction'?'p':'div');
+        el.className = i.type==='title'?'timestamp':i.type==='instruction'?'instruction':'speaker-text';
+        el.innerText = i.content; cont.appendChild(el);
+    });
+    let state = { speed:3, font:3, playing:false };
+    let anim;
+    function update() {
+        document.getElementById('s-val').innerText = state.speed;
+        document.getElementById('f-val').innerText = state.font;
+        const fs = 20 + (state.font * 4);
+        document.querySelectorAll('.speaker-text').forEach(e => e.style.fontSize = fs+'px');
+    }
+    function loop() {
+        if(!state.playing) return;
+        window.scrollBy(0, state.speed * 0.4);
+        anim = requestAnimationFrame(loop);
+    }
+    function togglePlay() {
+        state.playing = !state.playing;
+        const btn = document.getElementById('play-pause-btn');
+        btn.innerText = state.playing ? "PAUSE" : "START";
+        btn.classList.toggle('paused', state.playing);
+        if(state.playing) loop(); else cancelAnimationFrame(anim);
+    }
+    document.getElementById('play-pause-btn').onclick = (e) => { e.stopPropagation(); togglePlay(); };
+    document.getElementById('reset-btn').onclick = (e) => { e.stopPropagation(); window.scrollTo(0,0); state.playing=false; cancelAnimationFrame(anim); const btn = document.getElementById('play-pause-btn'); btn.innerText="START"; btn.classList.remove('paused'); };
+    document.body.onclick = (e) => { if (!e.target.closest('#controls')) togglePlay(); };
+    document.getElementById('controls').onclick = (e) => { e.stopPropagation(); };
+    document.getElementById('s-').onclick = () => { if(state.speed>0) state.speed--; update(); };
+    document.getElementById('s+').onclick = () => { if(state.speed<20) state.speed++; update(); };
+    document.getElementById('f-').onclick = () => { if(state.font>0) state.font--; update(); };
+    document.getElementById('f+').onclick = () => { if(state.font<15) state.font++; update(); };
+    document.getElementById('save-btn').onclick = () => {
+        const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'teleprompter-recording.html';
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+    setTimeout(() => { if(!state.playing) togglePlay(); }, 2000);
+    update();
+  </script>
+</body>
+</html>
