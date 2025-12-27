@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Teleprompter Live</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { background-color: black; color: white; font-family: 'Inter', sans-serif; margin:0; overflow-x:hidden; cursor: pointer; }
+        #script-container { padding: 20px; padding-top: 20vh; padding-bottom: 60vh; max-width: 800px; margin: 0 auto; line-height: 1.5; opacity: 1; }
+        .speaker-text { font-size: 2.8rem; font-weight: 600; color: #ffffff; margin-bottom: 1.5rem; }
+        .instruction { font-size: 1.5rem; color: #FCD34D; font-style: italic; background: #333; padding: 10px; border-left: 4px solid #F59E0B; margin-bottom: 2rem; }
+        .timestamp { font-size: 2rem; font-weight: 800; color: #60A5FA; border-top: 1px solid #444; padding-top: 2rem; margin-top: 3rem; text-transform: uppercase; }
+        #controls { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111; border-top: 1px solid #333; padding: 10px; padding-bottom: env(safe-area-inset-bottom, 10px); display: flex; align-items: center; gap: 8px; z-index: 9999; justify-content: center; overflow-x: auto; cursor: default; }
+        @media (max-width: 600px) {
+            #controls { justify-content: flex-start; padding-left: 10px; padding-right: 10px; }
+            .btn-main, #save-btn, #reset-btn { height: 38px !important; min-width: 38px !important; padding: 0 10px !important; }
+            #play-pause-btn { min-width: auto !important; padding: 0 15px !important; font-size: 0.8rem; }
+            .stepper-btn { width: 34px !important; height: 34px !important; }
+            .value-display { font-size: 0.8rem; min-width: 20px; }
+            .speaker-text { font-size: 2rem; }
+        }
+        .btn-main { height: 48px; padding: 0 20px; border-radius: 8px; font-weight: 700; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition:0.2s; }
+        #play-pause-btn { background-color: #10B981; min-width: 100px; } 
+        #play-pause-btn.paused { background-color: #EF4444; } 
+        #reset-btn { background-color: #374151; }
+        #save-btn { background-color: #7C3AED; }
+        .control-group { display: flex; align-items: center; gap: 2px; background: #222; padding: 3px; border-radius: 8px; border: 1px solid #444; flex-shrink: 0; }
+        .stepper-btn { width: 44px; height: 44px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; color: white; background: transparent; }
+        .theme-speed .stepper-btn { background: #1E40AF; }
+        .theme-font .stepper-btn { background: #92400E; }
+        .value-display { font-family: monospace; font-weight: bold; min-width: 30px; text-align: center; }
+        .svg-icon { width: 20px; height: 20px; fill: currentColor; }
+    </style>
+</head>
+<body>
+  <div id="script-container"></div>
+  <div id="controls">
+    <button id="play-pause-btn" class="btn-main">START</button>
+    <button id="reset-btn" class="btn-main" title="Inicio"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+    <div class="control-group theme-speed"><button class="stepper-btn" id="s-">-</button><div class="value-display" id="s-val">3</div><button class="stepper-btn" id="s+">+</button></div>
+    <div class="control-group theme-font"><button class="stepper-btn" id="f-">-</button><div class="value-display" id="f-val">3</div><button class="stepper-btn" id="f+">+</button></div>
+    <button id="save-btn" class="btn-main" title="Guardar"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg></button>
+  </div>
+  <script>
+    const data = JSON.parse('[{"type":"title","content":"Herzlich Willkommen bei TranslatedPressDE"},{"type":"instruction","content":"Kamera 1 - Nahaufnahme. Lächeln und entspannt wirken."},{"type":"text","content":"Guten Abend, meine lieben Zuschauer, und willkommen zu einer neuen Ausgabe hier auf unserem Kanal. Heute nehmen wir uns Zeit. Viel Zeit. Denn was wir heute besprechen müssen, lässt sich nicht in fünf Minuten abhandeln. Es ist eine Geschichte über Fehlentscheidungen, verpasste Chancen und, man muss es leider so deutlich sagen, einen der größten strategischen Fehler in der Geschichte der Bundesrepublik."},{"type":"text","content":"Wir reden heute über das deutsche \\"Energiewunder\\", das sich bei näherem Hinsehen eher als ein energetischer Albtraum entpuppt. Wir sprechen über das Ende der Kernkraft, die seltsamen Wege unserer Politiker und die bittere Realität, die wir heute alle auf unserer Stromrechnung sehen. Lehnen Sie sich zurück, holen Sie sich einen Tee oder vielleicht ein Glas Wein – wir haben heute viel vor."},{"type":"title","content":"Der große Bluff: Manipulation im Ministerium"},{"type":"instruction","content":"Kamera 2 - Etwas ernsterer Ton."},{"type":"text","content":"Wussten Sie, dass die letzten Schritte des Atomausstiegs in Deutschland möglicherweise auf falschen Informationen basierten? Es geht nicht um einen kleinen Rechenfehler, sondern um den Vorwurf der bewussten Umformulierung von Expertenberichten. Ein Untersuchungsausschuss hat zutage gefördert, dass Fachleute im Ministerium eigentlich grünes Licht für eine Laufzeitverlängerung geben wollten. Sie schrieben, dass ein Weiterbetrieb der verbleibenden Reaktoren technisch möglich und sicherheitstechnisch unbedenklich gewesen wäre."},{"type":"text","content":"Aber dann passierte etwas Magisches – oder sollte ich sagen, etwas zutiefst Politisches? Jemand im Ministerium, der kein Experte war, schrieb diese Passage einfach um. Plötzlich hieß es in der offiziellen Vorlage für das Parlament: \\"Nicht mit den Sicherheitsanforderungen vereinbar\\". Man muss sich das einmal vorstellen! Da sitzen Wissenschaftler und sagen: \\"Es geht\\", und ein Beamter mit dem richtigen Parteibuch macht daraus: \\"Es geht auf keinen Fall\\"."},{"type":"text","content":"Das ist kein Irrtum, das ist Ideologie auf Kosten der Wahrheit. Während wir uns Sorgen um die Gasversorgung machten, wurde uns erzählt, die Rettung durch unsere eigenen Kraftwerke sei unmöglich. In Wahrheit war sie nur politisch unerwünscht."},{"type":"title","content":"Gerhard Schröder: Ein Kanzler auf der Durchreise nach Moskau"},{"type":"instruction","content":"Kamera 1 - Sarkastischer Unterton."},{"type":"text","content":"Aber fangen wir doch mal vorne an. Erinnern Sie sich noch an Gerhard Schröder? Der Kanzler der \\"Neuen Mitte\\". Sein größtes Vermächtnis war nicht die Agenda 2010, sondern der Grundstein für unsere totale Abhängigkeit vom russischen Gas. Schröder war der Architekt, der Deutschland davon überzeugte, dass Kernkraft böse und russisches Erdgas die saubere \\"Brückentechnologie\\" der Zukunft sei."},{"type":"text","content":"Und was für eine Brücke das war! Nur drei Wochen – ich wiederhole: drei Wochen! – nachdem er das Kanzleramt verlassen hatte, nahm er einen Job bei Nord Stream an. Einer Tochtergesellschaft von Gazprom. Das muss man sich mal auf der Zunge zergehen lassen. Er unterschreibt kurz vor seinem Abgang noch die Deals für die Pipeline und wechselt dann direkt auf die Gehaltsliste des Lieferanten. Ein Schelm, wer Böses dabei denkt."},{"type":"text","content":"Während das deutsche Volk heute horrende Preise zahlt, hat Schröder jahrelang Millionen gescheffelt. Er nannte Wladimir Putin seinen \\"lupenreinen Demokraten\\" und feierte Geburtstage im Kreml, während die Abhängigkeit Deutschlands von russischem Gas auf über 50 Prozent stieg. Für Schröder war es das Geschäft seines Lebens. Für den deutschen Rentner, der heute überlegt, ob er die Heizung eine Stufe höher dreht, ist es eine Katastrophe. Er hat die Energiesicherheit des Landes gegen einen hochdotierten Posten eingetauscht. In jedem anderen Land würde man das anders nennen als nur \\"Geschäftstüchtigkeit\\"."},{"type":"title","content":"Das Paradoxon der Grünen: Kohle statt Kernkraft"},{"type":"instruction","content":"Kamera 2 - Kopfschüttelnd."},{"type":"text","content":"Und dann haben wir unsere Freunde von den Grünen. Die Partei, die angetreten ist, um das Klima zu retten. Ihr lebenslanges Feindbild war die Kernkraft. \\"Atomkraft? Nein danke!\\" – wir kennen alle die Aufkleber."},{"type":"text","content":"Das Problem ist nur: Physik lässt sich nicht durch Wahlplakate beeindrucken. Wenn man saubere, CO2-freie Kernkraftwerke abschaltet, entsteht eine Lücke. Und womit haben wir diese Lücke gefüllt? Nicht mit purer Sonnenenergie und dem Rauschen des Windes. Nein, wir haben wieder angefangen, massiv Kohle zu verbrennen. Deutschland ist heute einer der größten Braunkohleproduzenten weltweit."},{"type":"text","content":"Es ist die Ironie der Geschichte: Um die \\"gefährliche\\" Kernkraft loszuwerden, akzeptieren die Grünen, dass wir Millionen Tonnen CO2 zusätzlich in die Luft blasen. Experten haben errechnet, dass wir zwischen 2002 und 2022 über 700 Millionen Tonnen CO2 zusätzlich emittiert haben, nur weil wir die Kernkraft durch fossile Brennstoffe ersetzt haben. Das ist mehr, als ganz Deutschland in einem Jahr insgesamt ausstößt! Herzlichen Glückwunsch, liebe Klimaretter. Man hat die sauberste Energiequelle, die wir hatten, geopfert, um wieder im Dreck zu graben."},{"type":"title","content":"Die Illusion der Erneuerbaren: Wenn der Wind nicht weht"},{"type":"instruction","content":"Kamera 1 - Erklärend, fast mitleidig."},{"type":"text","content":"Man erzählt uns immer wieder, dass Wind und Sonne alles lösen werden. Aber wir wissen es doch besser: In Deutschland scheint die Sonne nun mal nicht wie am Äquator. Und der Wind? Der weht, wann er will, nicht wann wir Strom brauchen."},{"type":"text","content":"Schauen Sie sich die Zahlen an: Wir haben eine enorme installierte Kapazität an Solaranlagen und Windrädern. Auf dem Papier sieht das toll aus. Aber die tatsächliche Strommenge, die ankommt, ist oft nur ein Bruchteil davon. Wenn es eine \\"Dunkelflaute\\" gibt – kein Wind, keine Sonne –, dann stehen wir da. Was machen wir dann? Wir importieren Strom aus Frankreich – meistens Kernkraft – oder wir lassen unsere Gaskraftwerke auf Hochtouren laufen."},{"type":"text","content":"Wir brauchen eine Grundlast. Etwas, das 24 Stunden am Tag, sieben Tage die Woche Strom liefert. Kernkraft konnte das. Kohle kann das auch, ist aber schmutzig. Die Erneuerbaren können es bisher nicht, weil wir keine Speicher haben, die groß genug sind. Aber anstatt die stabilen Kraftwerke zu behalten, bis wir eine Lösung haben, haben wir sie abgerissen. Das ist so, als ob man sein altes, zuverlässiges Auto verschrottet, bevor man weiß, ob das neue Elektroauto überhaupt eine Batterie hat."},{"type":"title","content":"Donald Trump und die nukleare Renaissance"},{"type":"instruction","content":"Kamera 2 - Vergleichend, sachlich aber mit Biss."},{"type":"text","content":"Schauen wir mal über den Großen Teich. Während in Deutschland Kanzler Scholz die Kernkraft als \\"totes Pferd\\" bezeichnet, wird sie in den USA gerade neu gesattelt. Donald Trump hat das Potenzial erkannt. In seiner Energiepolitik spielt Kernkraft eine zentrale Rolle für die nationale Sicherheit und die wirtschaftliche Unabhängigkeit."},{"type":"text","content":"Trump setzt auf Innovation statt auf Abrissbirnen. Er fördert die Entwicklung von kleinen, modularen Reaktoren – sogenannten SMRs. Das Ziel ist klar: Günstiger Strom für die Industrie, um wettbewerbsfähig zu bleiben. Während unsere Industrie aus Deutschland abwandert, weil die Energiekosten hier zu den höchsten der Welt gehören, locken die USA mit einer Strategie, die alles nutzt: Gas, Öl und eben Kernkraft."},{"type":"text","content":"Man muss Trump nicht mögen, aber eines muss man ihm lassen: Er priorisiert die eigene Wirtschaft. Er hat eine nationale Energienotlage ausgerufen, um die Produktion anzukurbeln. In Deutschland hingegen rufen wir den Notstand aus, um die Bürger zum Sparen zu zwingen. Das ist der feine Unterschied. Hier wird Mangel verwaltet, dort wird Fülle geplant."},{"type":"title","content":"Die Folgen: Deindustrialisierung und Kostenfalle"},{"type":"instruction","content":"Kamera 1 - Ernst und besorgt."},{"type":"text","content":"Die Quittung für dieses deutsche Experiment erhalten wir gerade. Große Traditionsunternehmen wie die BASF verlagern ihre Produktion ins Ausland. Warum? Weil sie hier nicht mehr profitabel arbeiten können. Wenn die Chemieindustrie geht, geht das Rückgrat unserer Wirtschaft."},{"type":"text","content":"Die Strompreise sind in Deutschland 2024 massiv gestiegen. Wären die Kernkraftwerke am Netz geblieben, hätten die Preise um über 20 Prozent niedriger sein können. Das sagen nicht wir, das sagen Studien von PwC. Wir zahlen also einen \\"Ideologie-Zuschlag\\" auf jede Kilowattstunde. Und wer trägt die Last? Es sind die Menschen mit kleinen Renten, die Familien und der Mittelstand. Die Politik hat sich für ein Experiment entschieden, bei dem das Volk das Laborratten-Dasein finanzieren muss."},{"type":"title","content":"Ein Blick in die Zukunft: Gibt es einen Weg zurück?"},{"type":"instruction","content":"Kamera 2 - Hoffnungsvoll aber realistisch."},{"type":"text","content":"Es gibt Stimmen, die fordern, die letzten drei Reaktoren wieder hochzufahren. Technisch wäre das mit Aufwand möglich. Aber unsere aktuelle Regierung weigert sich beharrlich. Man möchte keinen Fehler zugeben. Denn zuzugeben, dass der Ausstieg verfrüht war, hieße zuzugeben, dass man Milliarden verschwendet und das Land in eine riskante Abhängigkeit geführt hat."},{"type":"text","content":"Wir stehen an einem Scheideweg. Entweder wir besinnen uns auf Pragmatismus und Wissenschaft, oder wir dusten weiterhin unsere Solarpaneele ab und hoffen, dass der nächste Winter mild wird. Denn Hoffnung ist derzeit die wichtigste Komponente der deutschen Energiepolitik."},{"type":"title","content":"Abschlussworte"},{"type":"instruction","content":"Kamera 1 - Warmherzig."},{"type":"text","content":"Meine lieben Zuschauer, es ist wichtig, dass wir diese Dinge aussprechen. Wir lassen uns nicht mit einfachen Parolen abspeisen. Die Geschichte von Gerhard Schröder und dem Atomausstieg ist eine Lehre darüber, was passiert, wenn persönliche Interessen und Ideologie über das Wohl des Landes gestellt werden."},{"type":"text","content":"Ich danke Ihnen fürs Zuhören. Schreiben Sie mir gerne Ihre Meinung in die Kommentare. Wie erleben Sie die steigenden Energiekosten? Glauben Sie, Deutschland sollte zur Kernkraft zurückkehren? Bleiben Sie kritisch, bleiben Sie uns treu."},{"type":"text","content":"Gute Nacht und bis zum nächsten Mal bei TranslatedPressDE."},{"type":"instruction","content":"Kamera 1 - Standbild, Ausblenden."}]');
+    const cont = document.getElementById('script-container');
+    data.forEach(i => {
+        let el = document.createElement(i.type==='title'?'h2':i.type==='instruction'?'p':'div');
+        el.className = i.type==='title'?'timestamp':i.type==='instruction'?'instruction':'speaker-text';
+        el.innerText = i.content; cont.appendChild(el);
+    });
+    let state = { speed:3, font:3, playing:false };
+    let anim;
+    function update() {
+        document.getElementById('s-val').innerText = state.speed;
+        document.getElementById('f-val').innerText = state.font;
+        const fs = 20 + (state.font * 4);
+        document.querySelectorAll('.speaker-text').forEach(e => e.style.fontSize = fs+'px');
+    }
+    function loop() {
+        if(!state.playing) return;
+        window.scrollBy(0, state.speed * 0.4);
+        anim = requestAnimationFrame(loop);
+    }
+    function togglePlay() {
+        state.playing = !state.playing;
+        const btn = document.getElementById('play-pause-btn');
+        btn.innerText = state.playing ? "PAUSE" : "START";
+        btn.classList.toggle('paused', state.playing);
+        if(state.playing) loop(); else cancelAnimationFrame(anim);
+    }
+    document.getElementById('play-pause-btn').onclick = (e) => { e.stopPropagation(); togglePlay(); };
+    document.getElementById('reset-btn').onclick = (e) => { e.stopPropagation(); window.scrollTo(0,0); state.playing=false; cancelAnimationFrame(anim); const btn = document.getElementById('play-pause-btn'); btn.innerText="START"; btn.classList.remove('paused'); };
+    document.body.onclick = (e) => { if (!e.target.closest('#controls')) togglePlay(); };
+    document.getElementById('controls').onclick = (e) => { e.stopPropagation(); };
+    document.getElementById('s-').onclick = () => { if(state.speed>0) state.speed--; update(); };
+    document.getElementById('s+').onclick = () => { if(state.speed<20) state.speed++; update(); };
+    document.getElementById('f-').onclick = () => { if(state.font>0) state.font--; update(); };
+    document.getElementById('f+').onclick = () => { if(state.font<15) state.font++; update(); };
+    document.getElementById('save-btn').onclick = () => {
+        const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'teleprompter-recording.html';
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+    setTimeout(() => { if(!state.playing) togglePlay(); }, 2000);
+    update();
+  </script>
+</body>
+</html>
