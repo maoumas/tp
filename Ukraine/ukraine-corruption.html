@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Teleprompter Live</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { background-color: black; color: white; font-family: 'Inter', sans-serif; margin:0; overflow-x:hidden; cursor: pointer; }
+        #script-container { padding: 20px; padding-top: 20vh; padding-bottom: 60vh; max-width: 800px; margin: 0 auto; line-height: 1.5; opacity: 1; }
+        .speaker-text { font-size: 2.8rem; font-weight: 600; color: #ffffff; margin-bottom: 1.5rem; }
+        .instruction { font-size: 1.5rem; color: #FCD34D; font-style: italic; background: #333; padding: 10px; border-left: 4px solid #F59E0B; margin-bottom: 2rem; }
+        .timestamp { font-size: 2rem; font-weight: 800; color: #60A5FA; border-top: 1px solid #444; padding-top: 2rem; margin-top: 3rem; text-transform: uppercase; }
+        #controls { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111; border-top: 1px solid #333; padding: 10px; padding-bottom: env(safe-area-inset-bottom, 10px); display: flex; align-items: center; gap: 8px; z-index: 9999; justify-content: center; overflow-x: auto; cursor: default; }
+        @media (max-width: 600px) {
+            #controls { justify-content: flex-start; padding-left: 10px; padding-right: 10px; }
+            .btn-main, #save-btn, #reset-btn { height: 38px !important; min-width: 38px !important; padding: 0 10px !important; }
+            #play-pause-btn { min-width: auto !important; padding: 0 15px !important; font-size: 0.8rem; }
+            .stepper-btn { width: 34px !important; height: 34px !important; }
+            .value-display { font-size: 0.8rem; min-width: 20px; }
+            .speaker-text { font-size: 2rem; }
+        }
+        .btn-main { height: 48px; padding: 0 20px; border-radius: 8px; font-weight: 700; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition:0.2s; }
+        #play-pause-btn { background-color: #10B981; min-width: 100px; } 
+        #play-pause-btn.paused { background-color: #EF4444; } 
+        #reset-btn { background-color: #374151; }
+        #save-btn { background-color: #7C3AED; }
+        .control-group { display: flex; align-items: center; gap: 2px; background: #222; padding: 3px; border-radius: 8px; border: 1px solid #444; flex-shrink: 0; }
+        .stepper-btn { width: 44px; height: 44px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; color: white; background: transparent; }
+        .theme-speed .stepper-btn { background: #1E40AF; }
+        .theme-font .stepper-btn { background: #92400E; }
+        .value-display { font-family: monospace; font-weight: bold; min-width: 30px; text-align: center; }
+        .svg-icon { width: 20px; height: 20px; fill: currentColor; }
+    </style>
+</head>
+<body>
+  <div id="script-container"></div>
+  <div id="controls">
+    <button id="play-pause-btn" class="btn-main">START</button>
+    <button id="reset-btn" class="btn-main" title="Inicio"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+    <div class="control-group theme-speed"><button class="stepper-btn" id="s-">-</button><div class="value-display" id="s-val">3</div><button class="stepper-btn" id="s+">+</button></div>
+    <div class="control-group theme-font"><button class="stepper-btn" id="f-">-</button><div class="value-display" id="f-val">3</div><button class="stepper-btn" id="f+">+</button></div>
+    <button id="save-btn" class="btn-main" title="Guardar"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg></button>
+  </div>
+  <script>
+    const data = JSON.parse('[{"type":"title","content":"Willkommen bei TranslatedPressDE – Der Krieg hinter der Front"},{"type":"instruction","content":"Sprecher schaut direkt in die Kamera, ernster, aber leicht süffisanter Blick. Kurze Pause.*"},{"type":"text","content":"Guten Abend. Während die Welt gebannt auf die Landkarte der Ostukraine starrt und jeden Meter Geländegewinn analysiert, tobt im Herzen von Kiew ein ganz anderer Krieg. Ein Krieg, der nicht mit Drohnen und Panzern geführt wird, sondern mit Aktenkoffern voller Bargeld, geheimen Telefonmitschnitten und einem \\"Pappkarton-Maidan\\"."},{"type":"instruction","content":"Betonung auf \\"Pappkarton-Maidan\\". Kleines Schmunzeln.*"},{"type":"text","content":"In den nächsten zwei Stunden tauchen wir tief ein in das Labyrinth der ukrainischen Korruptionsbekämpfung. Wir sprechen über 100 Millionen Dollar, die ausgerechnet dort verschwanden, wo es am dunkelsten ist: im Energiesektor. Wir beleuchten das politische Beben um Andrij Jermak, den Mann, den man oft als das \\"Gehirn\\" hinter Präsident Selenskyj bezeichnete, und wir fragen uns, wie ein Treffen in Mar-a-Lago und seltene Erden in diesen Mix passen."},{"type":"text","content":"Machen Sie es sich bequem. Es wird investigativ, es wird sachlich, und ja, an manchen Stellen ist der Wahnsinn des politischen Alltags nur noch mit einer Prise Ironie zu ertragen."},{"type":"title","content":"Der Sommer der Pappkartons – Wenn das Volk \\"Stopp\\" sagt"},{"type":"instruction","content":"Sprecher lehnt sich leicht vor, Tonfall wird erzählerisch.*"},{"type":"text","content":"Erinnern Sie sich an den Juli 2025? Normalerweise die Zeit für Urlaub, aber in Kiew brannten die Gemüter. Es war das erste Mal seit Beginn der großflächigen Invasion, dass die Ukrainer massenhaft gegen ihre eigene Regierung auf die Straße gingen. Und womit? Mit handgemachten Plakaten aus Pappkartons. Daher auch der Name: Die Pappkarton-Proteste."},{"type":"text","content":"Was war passiert? Das Parlament hatte ein Gesetz verabschiedet – das berüchtigte Projekt 12414. Ein Name, der nach bürokratischer Langeweile klingt, aber Sprengkraft besaß. Es ging darum, die Unabhängigkeit der wichtigsten Anti-Korruptionsbehörden, der NABU und der SAPO, de facto abzuschaffen. Stellen Sie sich vor, man würde der Polizei sagen, sie dürfe nur noch dort ermitteln, wo das Innenministerium es gerade für modisch hält."},{"type":"instruction","content":"Kurze Pause für den Effekt.*"},{"type":"text","content":"Präsident Selenskyj unterschrieb das Gesetz trotz der Proteste. Er sprach auf Telegram von \\"russischem Einfluss\\", den man entfernen müsse. Ein Schelm, wer Böses dabei denkt, wenn ausgerechnet die Behörden entmachtet werden sollen, die gerade im engsten Umkreis des Präsidenten herumschnüffeln. Kritiker, auch aus der EU, nannten es einen gewaltigen Rückschritt. Doch der Druck auf der Straße und aus Brüssel wurde zu groß. Selenskyj machte eine 180-Grad-Wende – ein klassischer politischer Salto Mortale – und brachte selbst ein neues Gesetz ein, um die Unabhängigkeit wiederherzustellen. Ein Sieg für die Zivilgesellschaft, aber der Beigeschmack blieb bitter."},{"type":"title","content":"Operation Midas – Goldrausch im Dunkeln"},{"type":"instruction","content":"Tonfall wird investigativer, etwas schärfer.*"},{"type":"text","content":"Kommen wir zum eigentlichen Knall: Operation Midas. Während russische Drohnen das Stromnetz der Ukraine zertrümmern und Millionen Menschen im Dunkeln sitzen, dachten sich einige Herrschaften in Kiew offenbar: \\"Krisenmanagement fängt im eigenen Geldbeutel an.\\""},{"type":"text","content":"Es geht um Energoatom, den staatlichen Giganten, der für die Kernkraftwerke zuständig ist. Die Vorwürfe der NABU wiegen schwer: Ein Schmiergeldsystem, bei dem Auftragnehmer 10 bis 15 Prozent \\"Kickback\\" zahlen mussten, um überhaupt an Aufträge für Verteidigungsstrukturen zu kommen. Wir reden hier von Geldern, die eigentlich dazu gedacht waren, Transformatorenstationen vor Raketenangriffen zu schützen."},{"type":"instruction","content":"Sprecher schüttelt leicht den Kopf.*"},{"type":"text","content":"Die Rede ist von 100 Millionen Dollar. Mitten im Überlebenskampf einer Nation. Und wer taucht in den Ermittlungsakten auf? Timur Minditsch. Ein Name, den man in Kiew kennt. Ein ehemaliger Geschäftspartner von Selenskyj aus dessen Zeit bei der TV-Produktionsfirma Kvartal 95. Man kennt sich, man schätzt sich – man feierte früher Geburtstage in denselben Wohnungen."},{"type":"text","content":"Besonders pikant: Ein Teil des Geldes soll in einer Wohnung gewaschen worden sein, die ausgerechnet einem mutmaßlichen russischen Spion gehört, dem ehemaligen Abgeordneten Derkatsch. Man muss die Ironie fast bewundern – Korruption als Brücke zwischen den Fronten."},{"type":"title","content":"Das Beben im Präsidialamt – Jermaks Abgang"},{"type":"instruction","content":"Tonfall wird ruhiger, fast ein wenig geheimnisvoll.*"},{"type":"text","content":"Und dann fiel der Dominostein, mit dem viele nicht gerechnet hatten: Andrij Jermak. Der Stabschef, die rechte Hand, der Vize-Präsident in allem außer dem Namen. Jermak war das Zentrum der Macht. Er entschied, wer Selenskyj sehen durfte und welche Informationen das Ohr des Präsidenten erreichten."},{"type":"text","content":"Inmitten des Energoatom-Skandals und der Operation Midas kam der Rücktritt. Offiziell, um die interne Stärke nicht zu gefährden und keine Angriffsfläche für Zweifel an der Ukraine zu bieten. Doch Beobachter sind sich einig: Der Druck aus Washington wurde unerträglich."},{"type":"instruction","content":"Ironischer Unterton.*"},{"type":"text","content":"Es ist schon erstaunlich, wie schnell \\"unersetzliche\\" Manager plötzlich ersetzlich werden, wenn die internationale Unterstützung an einem seidenen Faden hängt. Jermak war der Architekt eines Systems, das Loyalität über Kompetenz stellte. Jetzt stellt sich die Frage: Kann Selenskyj ohne sein \\"Gehirn\\" regieren, oder war dies der notwendige Befreiungsschlag, um den Weg nach Europa nicht endgültig zu verbauen?"},{"type":"title","content":"Mar-a-Lago und die 60-Milliarden-Dollar-Frage"},{"type":"instruction","content":"Sprecher wechselt die Perspektive, schaut auf eine imaginäre Weltkarte.*"},{"type":"text","content":"Während Kiew seine Wunden leckt, blickt die Ukraine nach Westen. Das Treffen Selenskyjs mit Donald Trump in Mar-a-Lago. Ein Gipfel der Superlative, zumindest wenn man Trumps Schilderungen glaubt. Er sprach von 95 Prozent Fortschritt bei einem Friedensplan."},{"type":"text","content":"Aber hinter den Kulissen geht es um harte Zahlen. Die Ukraine benötigt für die Jahre 2026 und 2027 etwa 60 Milliarden Dollar an externer Finanzierung. Und hier schließt sich der Kreis zur Korruption. Die Geldgeber in Washington und Brüssel fragen immer lauter: \\"Warum sollen wir Milliarden schicken, wenn 100 Millionen davon in VIP-Taxis nach Israel verschwinden?\\" – eine Anspielung auf einen der Verdächtigen im Energoatom-Fall, der sich rechtzeitig abgesetzt hat."},{"type":"text","content":"Trump erwähnte beiläufig einen Vertrag über \\"Seltene Erden\\". Ein Geschäft: Sicherheit gegen Ressourcen. Es ist eine neue Ära der Diplomatie – weniger moralischer Beistand, mehr transaktionales Business. Selenskyj muss nun beweisen, dass er ein verlässlicher Geschäftspartner ist, der seinen eigenen Laden im Griff hat."},{"type":"title","content":"Die Wurzeln des Übels – Das Erbe der Oligarchen"},{"type":"instruction","content":"Sprecher wird belehrend, aber auf eine lockere Art.*"},{"type":"text","content":"Um das Heute zu verstehen, müssen wir kurz ins Gestern. Warum ist Korruption in der Ukraine so zäh? Es ist das Erbe eines oligarchischen Systems, das aus der Asche der Sowjetunion entstand. Oligarchen sind keine einfachen Reichen. Sie sind Unternehmer, die Reichtum nutzen, um Politik zu kaufen, Medien zu kontrollieren und Monopole zu zementieren."},{"type":"text","content":"Studien zeigen, dass diese \\"ukrainische Art der Wirtschaft\\" die gesamte Produktionskette kontrolliert – vom Rohstoff bis zum Endprodukt. Das Problem dabei: Jede zusätzliche Million Gewinn für einen Oligarchen kostet das Land oft das Vierfache an verlorenem Wirtschaftswachstum. Es ist wie ein Parasit, der den Wirt schwächt, aber gerade so viel übrig lässt, dass er nicht stirbt."},{"type":"text","content":"Selenskyj trat 2019 an, um genau dieses System zu zerschlagen. Die Ironie ist fast schon tragisch: Er, der Mann aus dem Volk, der in einer TV-Serie den ehrlichen Lehrer spielte, sieht sich nun mit denselben Vorwürfen gegen seinen eigenen inneren Zirkel konfrontiert."},{"type":"title","content":"Der Bericht aus Brüssel – Hausaufgaben für Kiew"},{"type":"instruction","content":"Tonfall wird sachlich-informativ.*"},{"type":"text","content":"Der aktuelle Bericht der Europäischen Kommission für das Jahr 2025 ist kein Liebesbrief. \\"Begrenzter Fortschritt\\" ist die diplomatische Umschreibung für \\"Setzen, sechs – aber wir geben dir noch eine Chance\\"."},{"type":"text","content":"Brüssel fordert klare Reformen: Das Strafprozessrecht muss geändert werden, um Verfahren nicht ewig verschleppen zu können. Die NABU braucht volle Befugnisse zum unabhängigen Abhören – bisher müssen sie oft andere Dienste fragen, was etwa so effektiv ist, wie den Verdächtigen zu bitten, das Mikrofon selbst zu halten."},{"type":"text","content":"Positiv wird vermerkt, dass die Institutionen überhaupt Ergebnisse liefern. Dass hochrangige Beamte angeklagt werden, ist neu in der ukrainischen Geschichte. Es zeigt, dass das Immunsystem des Staates arbeitet. Die Frage ist nur, ob es schnell genug ist, bevor der Patient die Lust verliert, seine Medikamente – sprich: die Reformen – zu schlucken."},{"type":"title","content":"Fazit – Eine Nation am Scheideweg"},{"type":"instruction","content":"Sprecher blickt wieder direkt und eindringlich in die Kamera. Tonfall wird ruhig und zusammenfassend.*"},{"type":"text","content":"Die Ukraine führt zwei Kriege gleichzeitig. Einen an den Grenzen gegen eine äußere Aggression und einen in den Büros gegen eine innere Fäulnis. Der Fall Energoatom und der Rücktritt Jermaks sind keine bloßen Randnotizen. Sie sind Symptome einer tiefgreifenden Transformation."},{"type":"text","content":"Für Selenskyj ist es die größte Prüfung seiner Präsidentschaft. Er muss sich entscheiden: Schützt er seine loyalen Weggefährten oder schützt er die Zukunft seines Landes in Europa? Die Ukrainer auf dem \\"Pappkarton-Maidan\\" haben ihre Antwort bereits gegeben. Sie sind nicht bereit, für die Freiheit an der Front zu sterben, nur um sie an die Korruption in Kiew zu verlieren."},{"type":"text","content":"Die internationale Gemeinschaft wird genau beobachten, ob auf die Verhaftungen auch Verurteilungen folgen. Denn am Ende des Tages ist Vertrauen die einzige Währung, die in diesem Krieg wirklich zählt."},{"type":"instruction","content":"Kurze Pause.*"},{"type":"text","content":"Vielen Dank, dass Sie sich die Zeit für diese Analyse genommen haben. Bleiben Sie kritisch, bleiben Sie informiert. Mein Name ist... und das war TranslatedPressDE. Bis zum nächsten Mal."},{"type":"instruction","content":"Sprecher nickt kurz, Licht blendet langsam ab.*"}]');
+    const cont = document.getElementById('script-container');
+    data.forEach(i => {
+        let el = document.createElement(i.type==='title'?'h2':i.type==='instruction'?'p':'div');
+        el.className = i.type==='title'?'timestamp':i.type==='instruction'?'instruction':'speaker-text';
+        el.innerText = i.content; cont.appendChild(el);
+    });
+    let state = { speed:3, font:3, playing:false };
+    let anim;
+    function update() {
+        document.getElementById('s-val').innerText = state.speed;
+        document.getElementById('f-val').innerText = state.font;
+        const fs = 20 + (state.font * 4);
+        document.querySelectorAll('.speaker-text').forEach(e => e.style.fontSize = fs+'px');
+    }
+    function loop() {
+        if(!state.playing) return;
+        window.scrollBy(0, state.speed * 0.4);
+        anim = requestAnimationFrame(loop);
+    }
+    function togglePlay() {
+        state.playing = !state.playing;
+        const btn = document.getElementById('play-pause-btn');
+        btn.innerText = state.playing ? "PAUSE" : "START";
+        btn.classList.toggle('paused', state.playing);
+        if(state.playing) loop(); else cancelAnimationFrame(anim);
+    }
+    document.getElementById('play-pause-btn').onclick = (e) => { e.stopPropagation(); togglePlay(); };
+    document.getElementById('reset-btn').onclick = (e) => { e.stopPropagation(); window.scrollTo(0,0); state.playing=false; cancelAnimationFrame(anim); const btn = document.getElementById('play-pause-btn'); btn.innerText="START"; btn.classList.remove('paused'); };
+    document.body.onclick = (e) => { if (!e.target.closest('#controls')) togglePlay(); };
+    document.getElementById('controls').onclick = (e) => { e.stopPropagation(); };
+    document.getElementById('s-').onclick = () => { if(state.speed>0) state.speed--; update(); };
+    document.getElementById('s+').onclick = () => { if(state.speed<20) state.speed++; update(); };
+    document.getElementById('f-').onclick = () => { if(state.font>0) state.font--; update(); };
+    document.getElementById('f+').onclick = () => { if(state.font<15) state.font++; update(); };
+    document.getElementById('save-btn').onclick = () => {
+        const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'teleprompter-recording.html';
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+    setTimeout(() => { if(!state.playing) togglePlay(); }, 2000);
+    update();
+  </script>
+</body>
+</html>
