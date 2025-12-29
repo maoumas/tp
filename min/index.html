@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Teleprompter Live</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { background-color: black; color: white; font-family: 'Inter', sans-serif; margin:0; overflow-x:hidden; cursor: pointer; }
+        #script-container { padding: 20px; padding-top: 20vh; padding-bottom: 60vh; max-width: 800px; margin: 0 auto; line-height: 1.5; opacity: 1; }
+        .speaker-text { font-size: 2.8rem; font-weight: 600; color: #ffffff; margin-bottom: 1.5rem; }
+        .instruction { font-size: 1.5rem; color: #FCD34D; font-style: italic; background: #333; padding: 10px; border-left: 4px solid #F59E0B; margin-bottom: 2rem; }
+        .timestamp { font-size: 2rem; font-weight: 800; color: #60A5FA; border-top: 1px solid #444; padding-top: 2rem; margin-top: 3rem; text-transform: uppercase; }
+        #controls { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111; border-top: 1px solid #333; padding: 10px; padding-bottom: env(safe-area-inset-bottom, 10px); display: flex; align-items: center; gap: 8px; z-index: 9999; justify-content: center; overflow-x: auto; cursor: default; }
+        @media (max-width: 600px) {
+            #controls { justify-content: flex-start; padding-left: 10px; padding-right: 10px; }
+            .btn-main, #save-btn, #reset-btn { height: 38px !important; min-width: 38px !important; padding: 0 10px !important; }
+            #play-pause-btn { min-width: auto !important; padding: 0 15px !important; font-size: 0.8rem; }
+            .stepper-btn { width: 34px !important; height: 34px !important; }
+            .value-display { font-size: 0.8rem; min-width: 20px; }
+            .speaker-text { font-size: 2rem; }
+        }
+        .btn-main { height: 48px; padding: 0 20px; border-radius: 8px; font-weight: 700; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition:0.2s; }
+        #play-pause-btn { background-color: #10B981; min-width: 100px; } 
+        #play-pause-btn.paused { background-color: #EF4444; } 
+        #reset-btn { background-color: #374151; }
+        #save-btn { background-color: #7C3AED; }
+        .control-group { display: flex; align-items: center; gap: 2px; background: #222; padding: 3px; border-radius: 8px; border: 1px solid #444; flex-shrink: 0; }
+        .stepper-btn { width: 44px; height: 44px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; color: white; background: transparent; }
+        .theme-speed .stepper-btn { background: #1E40AF; }
+        .theme-font .stepper-btn { background: #92400E; }
+        .value-display { font-family: monospace; font-weight: bold; min-width: 30px; text-align: center; }
+        .svg-icon { width: 20px; height: 20px; fill: currentColor; }
+    </style>
+</head>
+<body>
+  <div id="script-container"></div>
+  <div id="controls">
+    <button id="play-pause-btn" class="btn-main">START</button>
+    <button id="reset-btn" class="btn-main" title="Inicio"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+    <div class="control-group theme-speed"><button class="stepper-btn" id="s-">-</button><div class="value-display" id="s-val">3</div><button class="stepper-btn" id="s+">+</button></div>
+    <div class="control-group theme-font"><button class="stepper-btn" id="f-">-</button><div class="value-display" id="f-val">3</div><button class="stepper-btn" id="f+">+</button></div>
+    <button id="save-btn" class="btn-main" title="Guardar"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg></button>
+  </div>
+  <script>
+    const data = JSON.parse('[{"type":"title","content":"Minnesota Spezial: Der Milliardenbetrug und das Schweigen der Demokraten"},{"type":"instruction","content":"Moderat sprechen, Sarkasmus durch Pausen betonen"},{"type":"text","content":"Willkommen bei @translatedpressde. Heute schauen wir uns eine Geschichte an, die so absurd ist, dass man sie für eine schlechte Netflix-Parodie halten könnte. Aber leider ist sie Realität. Wir sprechen über Minnesota, das Land der zehntausend Seen und offenbar auch das Land der zehntausend gierigen Hände, die im größten Betrugsskandal der amerikanischen Geschichte gelandet sind."},{"type":"text","content":"Stellen Sie sich vor, Sie leiten einen Staat und plötzlich verschwinden Milliarden von Dollar. Nicht Millionen, Milliarden. Wir reden hier von einer Summe, die zwischen einer und mittlerweile geschätzten neun Milliarden Dollar liegt. Steuergelder, die eigentlich dazu gedacht waren, hungernde Kinder zu füttern, Obdachlose unterzubringen und autistische Kinder zu unterstützen. Aber in der wunderbaren Welt von Gouverneur Tim Walz wurden daraus Jachten, Luxusvillen in den Malediven und – halten Sie sich fest – möglicherweise Finanzspritzen für die Terrororganisation Al-Shabaab in Somalia."},{"type":"title","content":"Das Geschäftsmodell der Geister-Kitas"},{"type":"text","content":"Lassen Sie uns über die Details reden, denn die sind an Dreistigkeit kaum zu überbieten. Da ist zum einen das Programm Feeding Our Future. Offiziell sollte es Kindern während der Pandemie Mahlzeiten liefern. In der Realität wurden Listen mit erfundenen Namen eingereicht. In einigen Kleinstädten in Minnesota wurden angeblich doppelt so viele Kinder gefüttert, wie dort überhaupt leben. Ein echtes demografisches Wunder, vollbracht durch pure Korruption."},{"type":"text","content":"Oder schauen wir uns die Kitas an. Der investigative YouTuber Nick Shirley ist einfach mal hingefahren. Er klopfte an Türen von Einrichtungen, die Millionen an Steuergeldern kassiert hatten. Was hat er gefunden? Abgeschlossene Türen. Abgeklebte Fenster. Und – Sie ahnen es – kein einziges Kind. In einem Fall gab es sogar ein Schild mit der Aufschrift Quality Learing Center. Ja, sie haben sogar das Wort Lernen falsch geschrieben, während sie vier Millionen Dollar kassierten. Das ist kein einfacher Betrug, das ist eine industrielle Plünderung des Staates unter den Augen der Regierung Walz."},{"type":"title","content":"Tim Walz: Der Mann, der nichts sah und alles unterdrückte"},{"type":"text","content":"Jetzt wird es politisch richtig brenzlig. Gouverneur Tim Walz, der Mann, den Kamala Harris uns als den netten, bodenständigen Onkel aus dem Mittleren Westen verkaufen wollte, steckt bis zum Hals in den Ermittlungen des Repräsentantenhauses. Warum? Weil er gewarnt wurde. Und zwar massiv."},{"type":"text","content":"Fast fünfhundert Mitarbeiter seines eigenen Ministeriums für Humandienste haben ausgesagt, dass sie Walz und seine Regierung frühzeitig über den Betrug informiert haben. Was war die Reaktion des Gouverneurs? Hat er die Schlupflöcher geschlossen? Nein. Er hat das getan, was man in diesen Kreisen offenbar am besten kann: Er hat die Whistleblower schikaniert, überwacht und bedroht. Die Mitarbeiter berichten von einem Klima der Angst und systematischen Vergeltungsmaßnahmen. Walz behauptet heute, seine Hände seien durch Gerichtsbeschlüsse gebunden gewesen. Die Ermittler sehen das anders: Er hat weggeschaut, weil die betroffenen Kreise ein wichtiger Wahlblock für die Demokraten sind."},{"type":"title","content":"Kamala Harris: Warnungen einfach ignoriert"},{"type":"text","content":"Und wo war Kamala Harris in dieser ganzen Geschichte? Die Quellen belegen, dass ihre Kampagne im Jahr 2024 mehrfach schriftlich von Staatsangestellten aus Minnesota gewarnt wurde. Die Botschaft war unmissverständlich: Nehmen Sie Tim Walz nicht als Vizepräsidenten. Sein politisches Gepäck ist kein Koffer, es ist ein ganzer Güterzug voller Inkompetenz und Betrugsskandale."},{"type":"text","content":"Hätte Kamala die Wahl gewonnen, wäre dieser Skandal wahrscheinlich tiefer begraben worden als die Akten von Area 51. Es gibt sogar Ermittlungen des FBI, ob illegale Gelder über die Plattform ActBlue direkt in die Taschen demokratischer Kandidaten geflossen sind. Ein perfekter Kreislauf: Steuerzahler finanzieren Betrüger, und Betrüger finanzieren den Wahlkampf derer, die sie eigentlich kontrollieren sollten. Ein echtes politisches Perpetuum Mobile der Korruption."},{"type":"title","content":"Ilhan Omar und die Rassismus-Karte als Schutzschild"},{"type":"text","content":"Wir müssen natürlich auch über den Bezirk von Ilhan Omar sprechen. Das Epizentrum des Betrugs liegt mitten in ihrem Wahlkreis. Wann immer Ermittler oder Auditoren Fragen stellten, warum Millionen für Dienstleistungen gezahlt wurden, die nie erbracht wurden, kam die prompte Antwort: Das ist Rassismus! Das ist Islamophobie!"},{"type":"text","content":"Senator Omar Fate hat sich sogar öffentlich für Organisationen wie Feeding Our Future eingesetzt, während diese bereits unter Betrugsverdacht standen. Es ist ein bewährtes Muster: Man nutzt Identitätspolitik als moralisches Schutzschild, um die Plünderung öffentlicher Kassen zu decken. Wer die Quittungen sehen will, wird als rassistisch abgestempelt. In Minnesota hat das jahrelang funktioniert, während der Haushalt von einem 18-Milliarden-Dollar-Überschuss in ein 6-Milliarden-Dollar-Defizit stürzte. Eine stolze Leistung für eine einzige Amtszeit."},{"type":"title","content":"Die nationale Sicherheit und die Terror-Connection"},{"type":"text","content":"Dieser Skandal ist keine rein lokale Angelegenheit mehr. Das US-Finanzministerium untersucht derzeit, wie viel von dem gestohlenen Geld über sogenannte Hawalas ins Ausland geflossen ist. Es geht um den Verdacht, dass amerikanische Steuergelder direkt bei Al-Shabaab gelandet sind – einer Terrororganisation, die Al-Qaida nahesteht."},{"type":"text","content":"Das muss man sich einmal auf der Zunge zergehen lassen: Während amerikanische Bürger hart arbeiten, um ihre Steuern zu zahlen, erlaubt die Inkompetenz – oder die bewusste Fahrlässigkeit – der Regierung Walz, dass dieses Geld am Ende Terroristen finanziert, die den Westen hassen. Es ist die ultimative Form des Staatsversagens."},{"type":"title","content":"Knast oder Karriereende: Wie geht es weiter?"},{"type":"text","content":"Wie hoch ist die Wahrscheinlichkeit, dass wir Tim Walz oder Ilhan Omar in Handschellen sehen? Nun, die Mühlen der Justiz mahlen langsam, besonders wenn ein demokratisches Parteibuch im Spiel ist. Aber der Druck wächst. Über 70 Personen wurden bereits angeklagt, viele davon aus der somalischen Gemeinschaft, die als Kernwählergruppe der Demokraten gilt."},{"type":"text","content":"James Comer und der Aufsichtsausschuss des Repräsentantenhauses lassen nicht locker. Sie fordern Dokumente und Kommunikation aus dem Büro des Gouverneurs. Wenn erst einmal lückenlos bewiesen ist, dass Warnungen aktiv unterdrückt wurden, um politische Unterstützung nicht zu gefährden, dann wird die Luft für Walz sehr dünn. In Minnesota lernt man anscheinend zwei Dinge: Wie man im Winter überlebt und wie man eine Milliarde Dollar verschwinden lässt, während man den Retter der hungernden Kinder spielt."},{"type":"instruction","content":"Sarkastischer Ausstieg"},{"type":"text","content":"Einen massiven Betrug zu ignorieren, nur um einen Wahlblock zu schützen, ist so, als würde ein Kapitän die Löcher im Schiffsrumpf nicht flicken, weil er die Passagiere nicht wecken will, die am lautesten schnarchen. Nur dass in diesem Fall das Schiff der Steuerzahler ist und wir alle gerade absaufen."},{"type":"text","content":"Bleiben Sie kritisch. Wir von @translatedpressde halten Sie auf dem Laufenden, egal wie tief der Sumpf noch wird. Vergessen Sie nicht, das Video zu teilen und den Kanal zu abonnieren, bevor die nächste Milliarde weg ist. Bis zum nächsten Mal."}]');
+    const cont = document.getElementById('script-container');
+    data.forEach(i => {
+        let el = document.createElement(i.type==='title'?'h2':i.type==='instruction'?'p':'div');
+        el.className = i.type==='title'?'timestamp':i.type==='instruction'?'instruction':'speaker-text';
+        el.innerText = i.content; cont.appendChild(el);
+    });
+    let state = { speed:3, font:3, playing:false };
+    let anim;
+    function update() {
+        document.getElementById('s-val').innerText = state.speed;
+        document.getElementById('f-val').innerText = state.font;
+        const fs = 20 + (state.font * 4);
+        document.querySelectorAll('.speaker-text').forEach(e => e.style.fontSize = fs+'px');
+    }
+    function loop() {
+        if(!state.playing) return;
+        window.scrollBy(0, state.speed * 0.4);
+        anim = requestAnimationFrame(loop);
+    }
+    function togglePlay() {
+        state.playing = !state.playing;
+        const btn = document.getElementById('play-pause-btn');
+        btn.innerText = state.playing ? "PAUSE" : "START";
+        btn.classList.toggle('paused', state.playing);
+        if(state.playing) loop(); else cancelAnimationFrame(anim);
+    }
+    document.getElementById('play-pause-btn').onclick = (e) => { e.stopPropagation(); togglePlay(); };
+    document.getElementById('reset-btn').onclick = (e) => { e.stopPropagation(); window.scrollTo(0,0); state.playing=false; cancelAnimationFrame(anim); const btn = document.getElementById('play-pause-btn'); btn.innerText="START"; btn.classList.remove('paused'); };
+    document.body.onclick = (e) => { if (!e.target.closest('#controls')) togglePlay(); };
+    document.getElementById('controls').onclick = (e) => { e.stopPropagation(); };
+    document.getElementById('s-').onclick = () => { if(state.speed>0) state.speed--; update(); };
+    document.getElementById('s+').onclick = () => { if(state.speed<20) state.speed++; update(); };
+    document.getElementById('f-').onclick = () => { if(state.font>0) state.font--; update(); };
+    document.getElementById('f+').onclick = () => { if(state.font<15) state.font++; update(); };
+    document.getElementById('save-btn').onclick = () => {
+        const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'teleprompter-recording.html';
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+    setTimeout(() => { if(!state.playing) togglePlay(); }, 2000);
+    update();
+  </script>
+</body>
+</html>
