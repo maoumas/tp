@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Teleprompter Live</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { background-color: black; color: white; font-family: 'Inter', sans-serif; margin:0; overflow-x:hidden; cursor: pointer; }
+        #script-container { padding: 20px; padding-top: 20vh; padding-bottom: 60vh; max-width: 800px; margin: 0 auto; line-height: 1.5; opacity: 1; }
+        .speaker-text { font-size: 2.8rem; font-weight: 600; color: #ffffff; margin-bottom: 1.5rem; }
+        .instruction { font-size: 1.5rem; color: #FCD34D; font-style: italic; background: #333; padding: 10px; border-left: 4px solid #F59E0B; margin-bottom: 2rem; }
+        .timestamp { font-size: 2rem; font-weight: 800; color: #60A5FA; border-top: 1px solid #444; padding-top: 2rem; margin-top: 3rem; text-transform: uppercase; }
+        #controls { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111; border-top: 1px solid #333; padding: 10px; padding-bottom: env(safe-area-inset-bottom, 10px); display: flex; align-items: center; gap: 8px; z-index: 9999; justify-content: center; overflow-x: auto; cursor: default; }
+        @media (max-width: 600px) {
+            #controls { justify-content: flex-start; padding-left: 10px; padding-right: 10px; }
+            .btn-main, #save-btn, #reset-btn { height: 38px !important; min-width: 38px !important; padding: 0 10px !important; }
+            #play-pause-btn { min-width: auto !important; padding: 0 15px !important; font-size: 0.8rem; }
+            .stepper-btn { width: 34px !important; height: 34px !important; }
+            .value-display { font-size: 0.8rem; min-width: 20px; }
+            .speaker-text { font-size: 2rem; }
+        }
+        .btn-main { height: 48px; padding: 0 20px; border-radius: 8px; font-weight: 700; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition:0.2s; }
+        #play-pause-btn { background-color: #10B981; min-width: 100px; } 
+        #play-pause-btn.paused { background-color: #EF4444; } 
+        #reset-btn { background-color: #374151; }
+        #save-btn { background-color: #7C3AED; }
+        .control-group { display: flex; align-items: center; gap: 2px; background: #222; padding: 3px; border-radius: 8px; border: 1px solid #444; flex-shrink: 0; }
+        .stepper-btn { width: 44px; height: 44px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; color: white; background: transparent; }
+        .theme-speed .stepper-btn { background: #1E40AF; }
+        .theme-font .stepper-btn { background: #92400E; }
+        .value-display { font-family: monospace; font-weight: bold; min-width: 30px; text-align: center; }
+        .svg-icon { width: 20px; height: 20px; fill: currentColor; }
+    </style>
+</head>
+<body>
+  <div id="script-container"></div>
+  <div id="controls">
+    <button id="play-pause-btn" class="btn-main">START</button>
+    <button id="reset-btn" class="btn-main" title="Inicio"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+    <div class="control-group theme-speed"><button class="stepper-btn" id="s-">-</button><div class="value-display" id="s-val">3</div><button class="stepper-btn" id="s+">+</button></div>
+    <div class="control-group theme-font"><button class="stepper-btn" id="f-">-</button><div class="value-display" id="f-val">3</div><button class="stepper-btn" id="f+">+</button></div>
+    <button id="save-btn" class="btn-main" title="Guardar"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg></button>
+  </div>
+  <script>
+    const data = JSON.parse('[{"type":"title","content":"Frohes neues Jahr zwei-tausend-sechs-und-zwanzig – Ein Rückblick auf den feministischen Kater"},{"type":"instruction","content":"Moderator sitzt in einem Sessel, nippt an einem Glas Sekt und schaut schelmisch in die Kamera*"},{"type":"text","content":"Guten Abend, meine sehr verehrten Damen und Herren. Ich hoffe, Sie sind alle gut in dieses wunderbare Jahr zwei-tausend-sechs-und-zwanzig gerutscht. Wir haben heute den zweiten Januar. Die Vorsätze für das neue Jahr sind wahrscheinlich schon alle über den Haufen geworfen, genau wie die politische Vernunft in diesem Land."},{"type":"text","content":"Aber schauen wir uns doch mal an, wo wir heute stehen. In Berlin regiert wieder die Vernunft der alten Schule. Friedrich Merz hat sich seinen Traum erfüllt und sitzt als Kanzler fest im Sattel einer neuen Großen Koalition. Und wie es sich für eine ordentliche CDU-geführte Regierung gehört, wurde als Erstes mal kräftig gelüftet. Wissen Sie, was als Erstes aus dem Fenster geflogen ist? Die feministische Außenpolitik. Im neuen Koalitionsvertrag taucht dieser Begriff schlichtweg nicht mehr auf. Die Experten sagen uns, Gleichstellung sei keine definierte Priorität der Regierung mehr. Überraschung. Da haben sich die Herren in den Verhandlungen wohl gedacht: Außenpolitik ist Männersache, da brauchen wir kein feministisches Etikett draufzukleben."},{"type":"instruction","content":"Sarkastisches Kopfschütteln*"},{"type":"text","content":"Und wenn wir schon von Gleichstellung reden: Das neue Parlament ist so männlich wie eine Bundeswehr-Kantine in den achtziger Jahren. Nur noch knapp zwei-und-dreißig Prozent der Abgeordneten sind Frauen. Ein ordentlicher Rückschlag für die Parität. Besonders bei der CDU und der AfD muss man Frauen ja fast schon mit der Lupe suchen. Aber hey, wer braucht schon Frauen im Parlament, wenn man dafür eine Wehrpflicht bekommt, die sich gewaschen hat? Merz zieht das jetzt durch. Aber natürlich nur für die jungen Männer. Die Frauen bleiben fein raus, weil man uns erzählt, die Verfassung erlaube das nicht. Da ist sie wieder, die gute alte Blocklogik: Männer an die Front, Frauen an den Herd – oder zumindest weg von der Waffe. In der Krise wird die Gleichberechtigung eben ganz schnell zur Nebensache erklärt."},{"type":"instruction","content":"Moderator beugt sich vertraulich zur Kamera*"},{"type":"text","content":"Ich weiß, viele von Ihnen, die schon ein paar mehr Jahrzehnte auf dem Buckel haben, fragen sich jetzt wahrscheinlich: Was war eigentlich mit dieser ominösen Dating-App los, von der im letzten Jahr alle geredet haben? Lassen Sie es mich Ihnen erklären, als wäre es ein schlechter Kriminalroman."},{"type":"text","content":"Es gab da diese App namens Tea Dating Advice. Eine revolutionäre Idee, hieß es. Ein digitaler Kaffeeklatsch, bei dem ausschließlich Frauen Informationen über Männer austauschen durften. Stellen Sie sich das vor: Bevor eine junge Dame zu einem Rendezvous ging, schaute sie in der App nach, was andere Frauen über den Herrn geschrieben hatten. Gab es da böse rote Flaggen? War er ein Betrüger oder einfach nur ein Geizhals? Um sicherzugehen, dass sich kein böser Mann unter die Nutzerinnen schleicht, hatte die App ein extrem strenges Sicherheitssystem. Die Frauen mussten Fotos von sich hochladen und sogar ihre Ausweisdokumente hinterlegen, um ihre Identität zu beweisen."},{"type":"text","content":"Klingt sicher, oder? Tja, bis zum Abend des fünf-und-zwanzigsten Juli zwei-tausend-fünf-und-zwanzig. Da haben sich ein paar findige Hacker – man vermutet natürlich, es waren beleidigte Männer – Zugang zum System verschafft. Und was haben sie getan? Sie haben alles veröffentlicht. Millionen von privaten Daten, Fotos, Adressen und Ausweise der Nutzerinnen landeten im Netz. Das Werkzeug, das die Frauen eigentlich schützen sollte, hat sie am Ende komplett entblößt und ihre Privatsphäre vernichtet. Ein digitaler Albtraum, der zeigt: Wenn man versucht, Sicherheit durch Ausgrenzung zu schaffen, fällt einem das am Ende meistens auf die Füße."},{"type":"instruction","content":"Ein kurzes, trockenes Lachen*"},{"type":"text","content":"Aber keine Sorge, in Deutschland wird Datenschutz ja immer noch großgeschrieben – zumindest solange es darum geht, die AfD zu überwachen. Unsere Geheimdienste haben das jetzt offiziell gemacht: Die Partei gilt nun als gesichert rechtsextremistisch. Das hält aber anscheinend Millionen von Wählern nicht davon ab, sie zur zweitstärksten Kraft zu machen. Alice Weidel führt die Opposition an und inszeniert sich als die wahre Retterin des Abendlandes, während der Verfassungsschutz fleißig Notizen macht."},{"type":"text","content":"Wir starten also in ein Jahr zwei-tausend-sechs-und-zwanzig, in dem die Gräben zwischen Männern und Frauen tiefer sind als der Berliner Mietspiegel. Während die Politik darüber streitet, ob man den Paragrafen zwei-hundert-achtzehn jetzt endlich abschafft oder doch lieber alles beim Alten lässt, ziehen sich die jungen Leute immer mehr in ihre eigenen Welten zurück. Über die Hälfte der Millennials heiratet nicht mehr. Wir leben in einer Gesellschaft der Einsamen, aber Hauptsache, wir haben jetzt ein Gewalthilfegesetz, das pünktlich zum Koalitionsbruch verabschiedet wurde."},{"type":"text","content":"Es bleibt also alles beim Alten im neuen Jahr. Die Männer sollen wieder Soldaten werden, die Frauen werden aus der Außenpolitik gestrichen, und wir alle wundern uns, warum die Welt von morgen sich so verdammt nach gestern anfühlt."},{"type":"text","content":"Ich danke Ihnen fürs Zuschauen bei @translatedpressde. Bleiben Sie kritisch, bleiben Sie humorvoll und vor allem: Lassen Sie sich Ihre Identität nicht von einer App bestätigen."},{"type":"text","content":"Einen schönen Abend noch und auf ein spannendes Jahr zwei-tausend-sechs-und-zwanzig."},{"type":"instruction","content":"Winkt in die Kamera, Bild blendet langsam aus, während im Hintergrund eine alte Marschmusik leise anklingt*"}]');
+    const cont = document.getElementById('script-container');
+    data.forEach(i => {
+        let el = document.createElement(i.type==='title'?'h2':i.type==='instruction'?'p':'div');
+        el.className = i.type==='title'?'timestamp':i.type==='instruction'?'instruction':'speaker-text';
+        el.innerText = i.content; cont.appendChild(el);
+    });
+    let state = { speed:3, font:3, playing:false };
+    let anim;
+    function update() {
+        document.getElementById('s-val').innerText = state.speed;
+        document.getElementById('f-val').innerText = state.font;
+        const fs = 20 + (state.font * 4);
+        document.querySelectorAll('.speaker-text').forEach(e => e.style.fontSize = fs+'px');
+    }
+    function loop() {
+        if(!state.playing) return;
+        window.scrollBy(0, state.speed * 0.4);
+        anim = requestAnimationFrame(loop);
+    }
+    function togglePlay() {
+        state.playing = !state.playing;
+        const btn = document.getElementById('play-pause-btn');
+        btn.innerText = state.playing ? "PAUSE" : "START";
+        btn.classList.toggle('paused', state.playing);
+        if(state.playing) loop(); else cancelAnimationFrame(anim);
+    }
+    document.getElementById('play-pause-btn').onclick = (e) => { e.stopPropagation(); togglePlay(); };
+    document.getElementById('reset-btn').onclick = (e) => { e.stopPropagation(); window.scrollTo(0,0); state.playing=false; cancelAnimationFrame(anim); const btn = document.getElementById('play-pause-btn'); btn.innerText="START"; btn.classList.remove('paused'); };
+    document.body.onclick = (e) => { if (!e.target.closest('#controls')) togglePlay(); };
+    document.getElementById('controls').onclick = (e) => { e.stopPropagation(); };
+    document.getElementById('s-').onclick = () => { if(state.speed>0) state.speed--; update(); };
+    document.getElementById('s+').onclick = () => { if(state.speed<20) state.speed++; update(); };
+    document.getElementById('f-').onclick = () => { if(state.font>0) state.font--; update(); };
+    document.getElementById('f+').onclick = () => { if(state.font<15) state.font++; update(); };
+    document.getElementById('save-btn').onclick = () => {
+        const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'teleprompter-recording.html';
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+    setTimeout(() => { if(!state.playing) togglePlay(); }, 2000);
+    update();
+  </script>
+</body>
+</html>
