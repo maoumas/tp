@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Teleprompter Live</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { background-color: black; color: white; font-family: 'Inter', sans-serif; margin:0; overflow-x:hidden; cursor: pointer; }
+        #script-container { padding: 20px; padding-top: 20vh; padding-bottom: 60vh; max-width: 800px; margin: 0 auto; line-height: 1.5; opacity: 1; }
+        .speaker-text { font-size: 2.8rem; font-weight: 600; color: #ffffff; margin-bottom: 1.5rem; }
+        .instruction { font-size: 1.5rem; color: #FCD34D; font-style: italic; background: #333; padding: 10px; border-left: 4px solid #F59E0B; margin-bottom: 2rem; }
+        .timestamp { font-size: 2rem; font-weight: 800; color: #60A5FA; border-top: 1px solid #444; padding-top: 2rem; margin-top: 3rem; text-transform: uppercase; }
+        #controls { position: fixed; bottom: 0; left: 0; right: 0; background-color: #111; border-top: 1px solid #333; padding: 10px; padding-bottom: env(safe-area-inset-bottom, 10px); display: flex; align-items: center; gap: 8px; z-index: 9999; justify-content: center; overflow-x: auto; cursor: default; }
+        @media (max-width: 600px) {
+            #controls { justify-content: flex-start; padding-left: 10px; padding-right: 10px; }
+            .btn-main, #save-btn, #reset-btn { height: 38px !important; min-width: 38px !important; padding: 0 10px !important; }
+            #play-pause-btn { min-width: auto !important; padding: 0 15px !important; font-size: 0.8rem; }
+            .stepper-btn { width: 34px !important; height: 34px !important; }
+            .value-display { font-size: 0.8rem; min-width: 20px; }
+            .speaker-text { font-size: 2rem; }
+        }
+        .btn-main { height: 48px; padding: 0 20px; border-radius: 8px; font-weight: 700; border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition:0.2s; }
+        #play-pause-btn { background-color: #10B981; min-width: 100px; } 
+        #play-pause-btn.paused { background-color: #EF4444; } 
+        #reset-btn { background-color: #374151; }
+        #save-btn { background-color: #7C3AED; }
+        .control-group { display: flex; align-items: center; gap: 2px; background: #222; padding: 3px; border-radius: 8px; border: 1px solid #444; flex-shrink: 0; }
+        .stepper-btn { width: 44px; height: 44px; border-radius: 6px; border: none; font-weight: bold; cursor: pointer; color: white; background: transparent; }
+        .theme-speed .stepper-btn { background: #1E40AF; }
+        .theme-font .stepper-btn { background: #92400E; }
+        .value-display { font-family: monospace; font-weight: bold; min-width: 30px; text-align: center; }
+        .svg-icon { width: 20px; height: 20px; fill: currentColor; }
+    </style>
+</head>
+<body>
+  <div id="script-container"></div>
+  <div id="controls">
+    <button id="play-pause-btn" class="btn-main">START</button>
+    <button id="reset-btn" class="btn-main" title="Inicio"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg></button>
+    <div class="control-group theme-speed"><button class="stepper-btn" id="s-">-</button><div class="value-display" id="s-val">3</div><button class="stepper-btn" id="s+">+</button></div>
+    <div class="control-group theme-font"><button class="stepper-btn" id="f-">-</button><div class="value-display" id="f-val">3</div><button class="stepper-btn" id="f+">+</button></div>
+    <button id="save-btn" class="btn-main" title="Guardar"><svg class="svg-icon" viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg></button>
+  </div>
+  <script>
+    const data = JSON.parse('[{"type":"title","content":"Ein neuer Morgen für Venezuela: Das Ende einer Diktatur"},{"type":"instruction","content":"Der Moderator blickt direkt in die Kamera. Die Haltung ist ruhig und seriös.*"},{"type":"text","content":"Guten Tag, liebe Zuschauer von Translated Press DE. Heute ist ein Tag, der in die Geschichtsbücher eingehen wird. In den frühen Morgenstunden des heutigen 3. Januar 2026 hat sich die Welt für Millionen von Menschen in Südamerika grundlegend verändert. Ich möchte Ihnen heute erklären, was genau in Venezuela passiert ist und warum dies auch für uns in Europa von so großer Bedeutung ist."},{"type":"title","content":"Der Zugriff: Operation Midnight Hammer"},{"type":"instruction","content":"Hintergrundgrafik zeigt eine Karte von Caracas in der Nacht.*"},{"type":"text","content":"In der vergangenen Nacht führten Spezialeinheiten der Vereinigten Staaten, die berühmte Delta Force, eine beispiellose Militäroperation im Herzen von Caracas durch. Unter dem Namen Operation Midnight Hammer drangen über 150 Flugzeuge, darunter modernste Tarnkappenjets und Hubschrauber, in den venezolanischen Luftraum ein. Sie schalteten die Verteidigungsanlagen der Diktatur innerhalb von Minuten aus, ohne dass die venezolanische Führung reagieren konnte."},{"type":"text","content":"Das Ziel war klar: Nicolas Maduro und seine Ehefrau Cilia Flores. Die Einsatzkräfte stürmten den befestigten Komplex des Diktators. Maduro versuchte noch, sich in einen stahlverstärkten Schutzraum zu retten, doch er schaffte es nicht mehr, die Tür rechtzeitig zu schließen. Er und seine Frau wurden festgenommen und sofort per Hubschrauber auf das Kriegsschiff USS Iwo Jima im Karibischen Meer gebracht. Von dort geht die Reise nun direkt nach New York."},{"type":"title","content":"Warum wurde Maduro verhaftet?"},{"type":"instruction","content":"Moderator zeigt ein Dokument, das einen Haftbefehl symbolisiert.*"},{"type":"text","content":"Man muss verstehen, dass Maduro für die US-Justiz kein politischer Gegner war, sondern ein gesuchter Krimineller. Ein New Yorker Richter hatte bereits vor Jahren Haftbefehle wegen Drogenhandels und narcoterroristischer Verschwörung ausgestellt. Die Anklage ist schwerwiegend: Maduro wird vorgeworfen, jahrelang als Kopf des sogenannten Cartel de los Soles fungiert zu haben. Er soll tonnenweise Kokain in die USA geschmuggelt und dafür gesorgt haben, dass staatliche Institutionen in Venezuela zu einer kriminellen Organisation umgebaut wurden. Nun wird er sich auf amerikanischem Boden vor einem ordentlichen Gericht verantworten müssen."},{"type":"title","content":"Das Märchen vom Öldiebstahl"},{"type":"instruction","content":"Der Moderator spricht nun eindringlicher.*"},{"type":"text","content":"Oft hört man in unseren Medien die Meinung, die Amerikaner kämen nur nach Venezuela, um das Öl zu stehlen. Doch wenn wir uns die nackten Zahlen ansehen, erkennen wir die wahre Tragödie. Die wirklichen Plünderer Venezuelas saßen im Präsidentenpalast in Caracas."},{"type":"text","content":"Venezuela besitzt die größten Ölreserven der Welt. Doch unter der Herrschaft von Maduro und seinem Vorgänger Chavez wurde die Ölindustrie systematisch ruiniert. Während das Land früher über drei Millionen Barrel pro Tag förderte, brach die Produktion unter Maduro völlig zusammen. Das Geld aus dem Öl floss nicht in Schulen oder Krankenhäuser, sondern in die Taschen der korrupten Elite und ihrer Verbündeten."},{"type":"text","content":"Noch schlimmer: Maduro verschenkte das venezolanische Öl jahrelang an die kommunistische Regierung in Kuba. Kuba erhielt billiges Öl als Lebensader, während die Menschen in Venezuela kein Benzin mehr für ihre Autos hatten und im Dunkeln saßen, weil das Stromnetz zusammenbrach. Maduro hat das nationale Erbe verpfändet, um seine Macht und die seiner Verbündeten in Russland und China zu sichern. Die USA kommen nicht, um das Öl zu stehlen – sie greifen ein, weil die kriminellen Banden das Land und seine Ressourcen bereits bis auf die Knochen abgenagt haben."},{"type":"title","content":"Die Zerstörung einer Nation"},{"type":"instruction","content":"Moderator blickt betroffen.*"},{"type":"text","content":"Die Bilanz dieser Diktatur ist erschütternd. Die venezolanische Wirtschaft liegt in Trümmern, die Inflation hat das Ersparte der Menschen wertlos gemacht. Über 96 Prozent der Bevölkerung leben in Armut. Dies hat zu einer der größten Fluchtbewegungen der modernen Geschichte geführt: Über acht Millionen Venezolaner haben ihre Heimat verlassen, weil sie dort keine Zukunft mehr sahen und buchstäblich hungerten. Viele von ihnen leben heute in prekären Verhältnissen auf dem ganzen Kontinent verteilt."},{"type":"title","content":"Der Schatten Kubas"},{"type":"text","content":"Ein wichtiger Punkt, den man oft übersieht, ist der Einfluss der kubanischen Regierung. Maduro war kein freier Herrscher. Er wurde maßgeblich von kubanischen Geheimdiensten gesteuert, die jeden Winkel des venezolanischen Militärs infiltriert hatten. Die Kubaner ließen Maduro nicht aufgeben, weil sie wussten, dass ihr eigenes Regime ohne das kostenlose Öl aus Venezuela zusammenbrechen würde. Für Venezuela war es keine Regierung, sondern eine Besatzung durch eine fremde Ideologie."},{"type":"title","content":"Wie geht es jetzt weiter? Trumps Plan"},{"type":"instruction","content":"Moderator blickt zuversichtlich.*"},{"type":"text","content":"Präsident Trump hat klargestellt, dass die USA Venezuela nicht im Chaos versinken lassen werden. Er hat angekündigt, dass die USA das Land vorübergehend gemeinsam mit einer Gruppe erfahrener Experten verwalten werden, bis eine sichere und geordnete Übergabe an eine demokratische Regierung möglich ist."},{"type":"text","content":"Das Ziel ist es, das Land nicht kriminellen Banden oder den verbliebenen Komplizen Maduros wie Diosdado Cabello zu überlassen. Große amerikanische Unternehmen sollen helfen, die zerstörte Infrastruktur wieder aufzubauen, damit das Öl wieder fließen kann und das Geld endlich dem venezolanischen Volk zugutekommt. Es geht darum, Venezuela wieder reich, unabhängig und sicher zu machen."},{"type":"text","content":"Für die Komplizen des Diktators gibt es nun zwei Wege: Entweder sie kooperieren bei diesem friedlichen Übergang oder sie werden dasselbe Schicksal wie Maduro erleiden und sich ebenfalls vor Gericht wiederfinden."},{"type":"text","content":"Liebe Zuschauer, heute endet ein dunkles Kapitel der Unterdrückung. Venezuela hat die Chance, wieder das wohlhabende und demokratische Land zu werden, das es einmal war. Wir werden die Entwicklung für Sie weiter beobachten."},{"type":"text","content":"Vielen Dank für Ihr Interesse. Wenn Ihnen dieser Beitrag geholfen hat, die Situation besser zu verstehen, abonnieren Sie bitte unseren Kanal @TranslatedPressDE. Bis zum nächsten Mal."},{"type":"instruction","content":"Moderator nickt höflich und das Bild blendet aus.*"}]');
+    const cont = document.getElementById('script-container');
+    data.forEach(i => {
+        let el = document.createElement(i.type==='title'?'h2':i.type==='instruction'?'p':'div');
+        el.className = i.type==='title'?'timestamp':i.type==='instruction'?'instruction':'speaker-text';
+        el.innerText = i.content; cont.appendChild(el);
+    });
+    let state = { speed:3, font:3, playing:false };
+    let anim;
+    function update() {
+        document.getElementById('s-val').innerText = state.speed;
+        document.getElementById('f-val').innerText = state.font;
+        const fs = 20 + (state.font * 4);
+        document.querySelectorAll('.speaker-text').forEach(e => e.style.fontSize = fs+'px');
+    }
+    function loop() {
+        if(!state.playing) return;
+        window.scrollBy(0, state.speed * 0.4);
+        anim = requestAnimationFrame(loop);
+    }
+    function togglePlay() {
+        state.playing = !state.playing;
+        const btn = document.getElementById('play-pause-btn');
+        btn.innerText = state.playing ? "PAUSE" : "START";
+        btn.classList.toggle('paused', state.playing);
+        if(state.playing) loop(); else cancelAnimationFrame(anim);
+    }
+    document.getElementById('play-pause-btn').onclick = (e) => { e.stopPropagation(); togglePlay(); };
+    document.getElementById('reset-btn').onclick = (e) => { e.stopPropagation(); window.scrollTo(0,0); state.playing=false; cancelAnimationFrame(anim); const btn = document.getElementById('play-pause-btn'); btn.innerText="START"; btn.classList.remove('paused'); };
+    document.body.onclick = (e) => { if (!e.target.closest('#controls')) togglePlay(); };
+    document.getElementById('controls').onclick = (e) => { e.stopPropagation(); };
+    document.getElementById('s-').onclick = () => { if(state.speed>0) state.speed--; update(); };
+    document.getElementById('s+').onclick = () => { if(state.speed<20) state.speed++; update(); };
+    document.getElementById('f-').onclick = () => { if(state.font>0) state.font--; update(); };
+    document.getElementById('f+').onclick = () => { if(state.font<15) state.font++; update(); };
+    document.getElementById('save-btn').onclick = () => {
+        const blob = new Blob([document.documentElement.outerHTML], {type:'text/html'});
+        const link = document.createElement('a'); link.href = URL.createObjectURL(blob); link.download = 'teleprompter-recording.html';
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    };
+    setTimeout(() => { if(!state.playing) togglePlay(); }, 2000);
+    update();
+  </script>
+</body>
+</html>
