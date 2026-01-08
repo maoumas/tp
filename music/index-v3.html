@@ -1,0 +1,1123 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>TranslatedPressDE – SUNO News Music Toolkit (v3)</title>
+  <style>
+    :root{
+      --bg:#0b0f17;
+      --text:#e9eefc;
+      --muted:#a8b3d1;
+      --line:#22304a;
+      --accent:#6aa6ff;
+      --good:#4be38a;
+      --warn:#ffcc66;
+      --panel: rgba(18,26,40,.92);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Noto Sans";
+      background: radial-gradient(1200px 700px at 20% 10%, #13203a 0%, var(--bg) 60%);
+      color:var(--text);
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: rgba(11,15,23,.65);
+      border-bottom:1px solid rgba(34,48,74,.6);
+    }
+    .wrap{max-width:1240px;margin:0 auto;padding:18px 16px;}
+    .toprow{display:flex;gap:12px;align-items:center;justify-content:space-between;}
+    .brand h1{margin:0;font-size:16px;letter-spacing:.3px}
+    .brand p{margin:4px 0 0 0;font-size:12px;color:var(--muted)}
+    .lang{display:flex;gap:8px;align-items:center;}
+    .lang button{
+      width:34px;height:26px;border-radius:7px;
+      border:1px solid rgba(34,48,74,.9);
+      background: rgba(18,26,40,.9);
+      color:var(--text);
+      cursor:pointer;
+      font-weight:700;
+      letter-spacing:.3px;
+    }
+    .lang button.active{
+      border-color: rgba(106,166,255,.95);
+      box-shadow: 0 0 0 3px rgba(106,166,255,.18);
+    }
+    .resetBtn{
+      width:34px;height:26px;border-radius:7px;
+      border:1px solid rgba(34,48,74,.9);
+      background: rgba(18,26,40,.9);
+      color:var(--warn);
+      cursor:pointer;
+      font-weight:900;
+      line-height:1;
+    }
+    .grid{display:grid;grid-template-columns:1fr;gap:14px;}
+    @media (min-width: 1020px){
+      .grid{grid-template-columns:1fr 1fr;}
+      .span2{grid-column:1/-1;}
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(18,26,40,.92), rgba(15,22,35,.92));
+      border:1px solid rgba(34,48,74,.85);
+      border-radius:14px;
+      padding:14px;
+    }
+    .card h2{margin:0 0 10px 0;font-size:14px}
+    .meta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px;color:var(--muted);font-size:12px;}
+    .pill{padding:4px 8px;border-radius:999px;border:1px solid rgba(34,48,74,.85);background: rgba(11,15,23,.35);}
+    label{display:block;margin:10px 0 6px;font-size:12px;color:var(--muted);}
+    select, textarea, input{
+      width:100%;
+      border-radius:12px;
+      border:1px solid rgba(34,48,74,.9);
+      background: rgba(11,15,23,.35);
+      color:var(--text);
+      padding:10px 12px;
+      outline:none;
+    }
+    textarea{
+      min-height: 220px;
+      resize: vertical;
+      line-height:1.35;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size:12px;
+    }
+    .mini{min-height:110px}
+    .row{display:flex; gap:10px; align-items:flex-start; flex-wrap:wrap;}
+    .row > *{flex:1; min-width: 240px;}
+    .btns{display:flex; gap:10px; flex-wrap:wrap;margin-top:10px;}
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;
+      padding:10px 12px;border-radius:12px;
+      border:1px solid rgba(34,48,74,.95);
+      background: rgba(18,26,40,.9);
+      color:var(--text);cursor:pointer;font-weight:650;font-size:12px;
+    }
+    .btn.primary{border-color: rgba(106,166,255,.9);background: rgba(106,166,255,.16);}
+    .btn.good{border-color: rgba(75,227,138,.75);background: rgba(75,227,138,.10);}
+    .btn.warn{border-color: rgba(255,204,102,.8);background: rgba(255,204,102,.10);}
+    .hint{margin-top:8px;color:var(--muted);font-size:12px;line-height:1.45;}
+    .toast{
+      position: fixed;right: 16px;bottom: 16px;
+      background: rgba(18,26,40,.96);
+      border:1px solid rgba(34,48,74,.95);
+      border-radius:12px;
+      padding:10px 12px;
+      color:var(--text);
+      font-size:12px;
+      opacity:0;transform: translateY(10px);
+      transition: opacity .18s ease, transform .18s ease;
+      pointer-events:none;max-width: 520px;
+    }
+    .toast.show{opacity:1;transform:translateY(0)}
+    footer{border-top:1px solid rgba(34,48,74,.6);margin-top:18px;padding:16px 0 26px;color:var(--muted);font-size:12px;}
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding:2px 6px;border:1px solid rgba(34,48,74,.9);
+      border-radius:8px;background: rgba(11,15,23,.35);
+      color: var(--text);font-size:11px;
+    }
+    .split{
+      display:grid;
+      grid-template-columns: 1fr;
+      gap:10px;
+    }
+    @media(min-width:1020px){
+      .split{grid-template-columns: 1fr 1fr;}
+    }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="toprow">
+      <div class="brand">
+        <h1>TranslatedPressDE – SUNO News Music Toolkit (v3)</h1>
+        <p id="subtitle">Zwei Vorlagen: Song mit Lyrics oder Instrumental. Presets: Genre, Ton, Playlist, Thumbnail-Serie.</p>
+      </div>
+      <div class="lang">
+        <button id="btnDE" class="active" data-lang="de" title="Deutsch">DE</button>
+        <button id="btnEN" data-lang="en" title="English">EN</button>
+        <button id="btnES" data-lang="es" title="Español">ES</button>
+        <button id="btnReset" class="resetBtn" title="Reset">⟲</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="grid">
+      <div class="card span2">
+        <h2 id="hQuick">Schnellstart</h2>
+        <div class="meta">
+          <span class="pill" id="p1">1) Genre wählen</span>
+          <span class="pill" id="p2">2) Ton wählen</span>
+          <span class="pill" id="p3">3) Thema + Punkte</span>
+          <span class="pill" id="p4">4) Copy: STYLE + LYRICS</span>
+        </div>
+
+        <div class="row">
+          <div>
+            <label id="labSongLang">Song-Sprache (Lyrics)</label>
+            <select id="songLang">
+              <option value="de">Deutsch (DE)</option>
+              <option value="en">English (EN)</option>
+              <option value="es">Español (ES)</option>
+            </select>
+          </div>
+          <div>
+            <label id="labTone">Ton-Preset</label>
+            <select id="tone">
+              <option value="serious">Seriös & nüchtern</option>
+              <option value="ironic">Seriös mit feiner Ironie</option>
+              <option value="satirical">Sarkasmus & Kabarett (professionell)</option>
+              <option value="dramatic">Dramatisch & filmisch</option>
+            </select>
+          </div>
+          <div>
+            <label id="labMode">Modus</label>
+            <select id="mode">
+              <option value="song">Song mit Lyrics</option>
+              <option value="inst">Nur Instrumental</option>
+            </select>
+          </div>
+          <div>
+            <label id="labGenre">Genre / Stil-Paket</label>
+            <select id="genre"></select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label id="labTopic">Thema / Skript (Kurzfassung)</label>
+            <textarea id="topic" class="mini" placeholder="Kurz & klar: 5–15 Zeilen."></textarea>
+          </div>
+          <div>
+            <label id="labPoints">Kernpunkte (3–5 Bulletpoints)</label>
+            <textarea id="points" class="mini" placeholder="• Punkt 1&#10;• Punkt 2&#10;• Punkt 3"></textarea>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label id="labTeaser">Intro-Text (gesprochen, 1–2 Zeilen)</label>
+            <textarea id="teaser" class="mini"></textarea>
+          </div>
+          <div>
+            <label id="labCTA">Outro-CTA (gesprochen)</label>
+            <textarea id="cta" class="mini"></textarea>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label id="labRules">Fixe SUNO-Regeln</label>
+            <div class="hint" id="rulesBox">
+              ✓ ~10s Instrumental-Intro ohne Lyrics • ✓ Sauberer instrumentaler Outro • ✓ Kurzer gesprochener CTA (Like/Abo/Kommentar)
+            </div>
+          </div>
+          <div>
+            <label id="labButtons">Aktionen</label>
+            <div class="btns">
+              <button class="btn good" id="btnCopyAll">Alles kopieren (STYLE + LYRICS)</button>
+              <button class="btn" id="btnCopyExtend">Extend-Prompt</button>
+              <button class="btn warn" id="btnCopyThumb">Thumbnail-Prompt</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="hint" id="hint1">
+          Redaktionell bleiben: keine Quellen, keine Zahlenkolonnen, keine Namenslisten. Stattdessen: klare Metaphern, Story, Hook.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 id="hStyle">SUNO – STYLE (English)</h2>
+        <div class="meta">
+          <span class="pill">Paste into SUNO: Style</span>
+          <span class="pill" id="pillGenre">Genre</span>
+          <span class="pill" id="pillTone">Tone</span>
+        </div>
+        <textarea id="styleOut"></textarea>
+        <div class="btns">
+          <button class="btn good" id="btnCopyStyle">Copy STYLE</button>
+        </div>
+        <div class="hint" id="hintStyle">Hier steht der musikalische Vertrag: Instrumental-Intro, Harmonik, Hook, Outro/CTA.</div>
+      </div>
+
+      <div class="card">
+        <h2 id="hLyrics">SUNO – LYRICS / PROMPT</h2>
+        <div class="meta">
+          <span class="pill" id="pillLang">Deutsch</span>
+          <span class="pill">Paste into SUNO: Lyrics</span>
+        </div>
+        <textarea id="lyricsOut"></textarea>
+        <div class="btns">
+          <button class="btn good" id="btnCopyLyrics">Copy LYRICS</button>
+        </div>
+        <div class="hint" id="hintLyrics">Song-Modus erzeugt Struktur + gesprochenes Intro/Outro. Instrumental-Modus entfernt jede Stimme.</div>
+      </div>
+
+      <div class="card span2">
+        <h2 id="hPlaylist">Playlist-Modus (Batch Generator)</h2>
+        <div class="hint" id="playlistHint">
+          Erzeugt mehrere “Episoden” auf einmal (für Upload-Queue). Jede Episode bekommt: Titel, STYLE, LYRICS + Thumbnail-Text.
+        </div>
+
+        <div class="row">
+          <div>
+            <label id="labSeriesName">Serienname (Brand)</label>
+            <input id="seriesName" value="TranslatedPressDE – News Songs" />
+          </div>
+          <div>
+            <label id="labEpisodeCount">Anzahl Episoden</label>
+            <select id="episodeCount">
+              <option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option><option>8</option><option>10</option>
+            </select>
+          </div>
+          <div>
+            <label id="labEpisodePrefix">Titel-Prefix</label>
+            <input id="episodePrefix" value="Episode" />
+          </div>
+          <div>
+            <label id="labHookWords">Hook-Wörter (optional)</label>
+            <input id="hookWords" placeholder="Schatten, Bühne, Akte, Mikrofon" />
+          </div>
+        </div>
+
+        <div class="btns">
+          <button class="btn primary" id="btnBuildBatch">Batch bauen</button>
+          <button class="btn good" id="btnCopyBatch">Batch kopieren</button>
+        </div>
+
+        <label id="labBatchOut">Batch Output</label>
+        <textarea id="batchOut" style="min-height:260px"></textarea>
+
+        <div class="hint" id="batchTip">
+          Tipp: Paste Episode für Episode in SUNO. Für Variationen: ändere nur 1–2 Zeilen in den Kernpunkten oder Hook-Wörtern.
+        </div>
+      </div>
+
+      <div class="card span2">
+        <h2 id="hThumb">Thumbnail-Serie – Exaktes visuelles Konzept</h2>
+        <div class="split">
+          <div>
+            <label id="labThumbSystem">Serien-System</label>
+            <select id="thumbSystem">
+              <option value="staffwave" selected>Pentagramm + Soundwave (Signature)</option>
+              <option value="radar">Radar/Scanner + Waveform (Security)</option>
+              <option value="ticker">News-Ticker + Waveform (TV)</option>
+              <option value="noir">Noir-Lichtkegel + Notenlinien (Investigativ)</option>
+            </select>
+
+            <label id="labPalette">Farbpalette</label>
+            <select id="palette">
+              <option value="midnight" selected>Midnight Blue + Ice</option>
+              <option value="amber">Midnight + Amber Accent</option>
+              <option value="crimson">Midnight + Crimson Accent</option>
+              <option value="mono">Monochrom + Neon Blue</option>
+            </select>
+
+            <label id="labThumbText">Thumbnail-Text (max 4 Wörter)</label>
+            <input id="thumbText" value="SCHATTEN AKTE" />
+
+            <label id="labThumbSub">Kleintext (optional)</label>
+            <input id="thumbSub" value="@TranslatedPressDE • News Song" />
+
+            <div class="btns">
+              <button class="btn warn" id="btnBuildThumb">Prompt erzeugen</button>
+              <button class="btn good" id="btnCopyThumb2">Prompt kopieren</button>
+            </div>
+          </div>
+          <div>
+            <label id="labThumbOut">Thumbnail Prompt</label>
+            <textarea id="thumbOut" style="min-height:260px"></textarea>
+            <div class="hint" id="thumbRules">
+              Regeln: Symbolisch, editorial, kein echtes Foto realer Personen kompromittierend. Hohe Lesbarkeit, 16:9, starker Kontrast.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card span2">
+        <h2 id="hYouTube">YouTube Pack</h2>
+        <div class="row">
+          <div>
+            <label id="labYTTitle">Titel</label>
+            <input id="ytTitle" />
+          </div>
+          <div>
+            <label id="labYTTags">Tags</label>
+            <input id="ytTags" />
+          </div>
+        </div>
+        <label id="labYTDesc">Beschreibung</label>
+        <textarea id="ytDesc" style="min-height:170px"></textarea>
+
+        <div class="btns">
+          <button class="btn good" id="btnCopyYT">Copy YouTube Pack</button>
+        </div>
+
+        <div class="hint" id="ytNote">
+          Hinweis-Text ist vorbereitet (künstlerisch/redaktionell, keine offiziellen Erklärungen). Passe nur das Thema an.
+        </div>
+      </div>
+
+    </div>
+
+    <footer>
+      <div id="footLine">
+        Workflow: STYLE → SUNO Style • LYRICS → SUNO Lyrics • Für Länge: Extend (kontinuierlich) • Thumbnail: Serienprompt + 4-Wort-Titel.
+      </div>
+    </footer>
+  </div>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const I18N = {
+  de: {
+    subtitle:"Zwei Vorlagen: Song mit Lyrics oder Instrumental. Presets: Genre, Ton, Playlist, Thumbnail-Serie.",
+    hQuick:"Schnellstart",
+    labSongLang:"Song-Sprache (Lyrics)",
+    labTone:"Ton-Preset",
+    labMode:"Modus",
+    labGenre:"Genre / Stil-Paket",
+    labTopic:"Thema / Skript (Kurzfassung)",
+    labPoints:"Kernpunkte (3–5 Bulletpoints)",
+    labTeaser:"Intro-Text (gesprochen, 1–2 Zeilen)",
+    labCTA:"Outro-CTA (gesprochen)",
+    hint1:"Redaktionell bleiben: keine Quellen, keine Zahlenkolonnen, keine Namenslisten. Stattdessen: klare Metaphern, Story, Hook.",
+    hStyle:"SUNO – STYLE (English)",
+    hintStyle:"Hier steht der musikalische Vertrag: Instrumental-Intro, Harmonik, Hook, Outro/CTA.",
+    hLyrics:"SUNO – LYRICS / PROMPT",
+    hintLyrics:"Song-Modus erzeugt Struktur + gesprochenes Intro/Outro. Instrumental-Modus entfernt jede Stimme.",
+    hPlaylist:"Playlist-Modus (Batch Generator)",
+    playlistHint:"Erzeugt mehrere “Episoden” auf einmal (für Upload-Queue). Jede Episode bekommt: Titel, STYLE, LYRICS + Thumbnail-Text.",
+    labSeriesName:"Serienname (Brand)",
+    labEpisodeCount:"Anzahl Episoden",
+    labEpisodePrefix:"Titel-Prefix",
+    labHookWords:"Hook-Wörter (optional)",
+    labBatchOut:"Batch Output",
+    batchTip:"Tipp: Paste Episode für Episode in SUNO. Für Variationen: ändere nur 1–2 Zeilen in den Kernpunkten oder Hook-Wörtern.",
+    hThumb:"Thumbnail-Serie – Exaktes visuelles Konzept",
+    labThumbSystem:"Serien-System",
+    labPalette:"Farbpalette",
+    labThumbText:"Thumbnail-Text (max 4 Wörter)",
+    labThumbSub:"Kleintext (optional)",
+    labThumbOut:"Thumbnail Prompt",
+    thumbRules:"Regeln: Symbolisch, editorial, kein echtes Foto realer Personen kompromittierend. Hohe Lesbarkeit, 16:9, starker Kontrast.",
+    hYouTube:"YouTube Pack",
+    labYTTitle:"Titel",
+    labYTTags:"Tags",
+    labYTDesc:"Beschreibung",
+    ytNote:"Hinweis-Text ist vorbereitet (künstlerisch/redaktionell, keine offiziellen Erklärungen). Passe nur das Thema an.",
+    copied:"Kopiert!",
+    extendCopied:"Extend-Prompt kopiert.",
+    batchCopied:"Batch kopiert.",
+    thumbCopied:"Thumbnail-Prompt kopiert.",
+    reset:"Reset."
+  },
+  en: {
+    subtitle:"Two templates: song with lyrics or instrumental. Presets: genre, tone, playlist, thumbnail series.",
+    hQuick:"Quick start",
+    labSongLang:"Song language (lyrics)",
+    labTone:"Tone preset",
+    labMode:"Mode",
+    labGenre:"Genre / style pack",
+    labTopic:"Topic / script (short)",
+    labPoints:"Key points (3–5 bullets)",
+    labTeaser:"Intro text (spoken, 1–2 lines)",
+    labCTA:"Outro CTA (spoken)",
+    hint1:"Stay editorial: no citations, no number dumps, no long name lists. Use metaphors, narrative, hook.",
+    hStyle:"SUNO – STYLE (English)",
+    hintStyle:"This is your music contract: intro, harmony, hook, outro/CTA.",
+    hLyrics:"SUNO – LYRICS / PROMPT",
+    hintLyrics:"Song mode creates structure + spoken intro/outro. Instrumental removes any voice.",
+    hPlaylist:"Playlist mode (Batch generator)",
+    playlistHint:"Creates multiple episodes at once (upload queue). Each gets: title, STYLE, LYRICS + thumbnail text.",
+    labSeriesName:"Series name (brand)",
+    labEpisodeCount:"Episode count",
+    labEpisodePrefix:"Title prefix",
+    labHookWords:"Hook words (optional)",
+    labBatchOut:"Batch output",
+    batchTip:"Tip: paste episode by episode into Suno. For variation, change only 1–2 lines in key points or hook words.",
+    hThumb:"Thumbnail series – exact visual concept",
+    labThumbSystem:"Series system",
+    labPalette:"Color palette",
+    labThumbText:"Thumbnail text (max 4 words)",
+    labThumbSub:"Small text (optional)",
+    labThumbOut:"Thumbnail prompt",
+    thumbRules:"Rules: symbolic & editorial, no real people in compromising contexts. High readability, 16:9, strong contrast.",
+    hYouTube:"YouTube pack",
+    labYTTitle:"Title",
+    labYTTags:"Tags",
+    labYTDesc:"Description",
+    ytNote:"Disclaimer text is prepared (artistic/editorial, not official statements). Just adapt the topic.",
+    copied:"Copied!",
+    extendCopied:"Extend prompt copied.",
+    batchCopied:"Batch copied.",
+    thumbCopied:"Thumbnail prompt copied.",
+    reset:"Reset."
+  },
+  es: {
+    subtitle:"Dos plantillas: canción con lírica o instrumental. Presets: género, tono, playlist y serie de thumbnails.",
+    hQuick:"Inicio rápido",
+    labSongLang:"Idioma de la canción (lírica)",
+    labTone:"Preset de tono",
+    labMode:"Modo",
+    labGenre:"Género / paquete de estilo",
+    labTopic:"Tema / guion (resumen)",
+    labPoints:"Puntos clave (3–5)",
+    labTeaser:"Texto de intro (hablado, 1–2 líneas)",
+    labCTA:"CTA final (hablado)",
+    hint1:"Mantén el enfoque editorial: sin fuentes, sin volcados de números, sin listas largas de nombres. Usa metáforas, narración y gancho.",
+    hStyle:"SUNO – STYLE (English)",
+    hintStyle:"Este es tu contrato musical: intro, armonía, gancho, cierre/CTA.",
+    hLyrics:"SUNO – LYRICS / PROMPT",
+    hintLyrics:"Modo canción crea estructura + intro/outro hablados. Instrumental elimina cualquier voz.",
+    hPlaylist:"Modo playlist (generador por lotes)",
+    playlistHint:"Genera varias “episodios” a la vez (cola de subida). Cada uno trae: título, STYLE, LYRICS + texto de thumbnail.",
+    labSeriesName:"Nombre de serie (marca)",
+    labEpisodeCount:"Cantidad de episodios",
+    labEpisodePrefix:"Prefijo del título",
+    labHookWords:"Palabras gancho (opcional)",
+    labBatchOut:"Salida por lotes",
+    batchTip:"Tip: pega episodio por episodio en SUNO. Para variar, cambia solo 1–2 líneas en puntos clave o palabras gancho.",
+    hThumb:"Serie de thumbnails – concepto visual exacto",
+    labThumbSystem:"Sistema de serie",
+    labPalette:"Paleta de color",
+    labThumbText:"Texto del thumbnail (máx 4 palabras)",
+    labThumbSub:"Texto pequeño (opcional)",
+    labThumbOut:"Prompt del thumbnail",
+    thumbRules:"Reglas: simbólico y editorial, sin personas reales en contextos comprometidos. Alta legibilidad, 16:9, contraste fuerte.",
+    hYouTube:"Pack de YouTube",
+    labYTTitle:"Título",
+    labYTTags:"Tags",
+    labYTDesc:"Descripción",
+    ytNote:"El disclaimer ya viene listo (artístico/editorial, no oficial). Solo ajusta el tema.",
+    copied:"¡Copiado!",
+    extendCopied:"Prompt Extend copiado.",
+    batchCopied:"Batch copiado.",
+    thumbCopied:"Prompt de thumbnail copiado.",
+    reset:"Reset."
+  }
+};
+
+const GENRES = [
+  { key:"tango_editorial", name:{de:"Tango Editorial (Serie)", en:"Editorial Tango (Series)", es:"Tango editorial (serie)"},
+    style:`Political editorial tango with rich traditional harmony.
+Mid-tempo tango rhythm, dramatic and elegant.
+Bandoneon lead, piano with complex tango progressions, upright bass, subtle strings.
+Full tango harmony: minor keys, dominant tension, chromatic movement, emotional chord changes.
+MANDATORY: begin with ~10 seconds instrumental intro before any vocals/lyrics.
+MANDATORY: end with a clean instrumental outro and a short spoken call-to-action (like/subscribe/comment).`
+  },
+  { key:"orchestral_tango", name:{de:"Orchestraler Tango (Premium)", en:"Orchestral Tango (Premium)", es:"Tango orquestal (premium)"},
+    style:`Orchestral tango with cinematic scope and premium polish.
+Bandoneon + full strings + piano, upright bass; restrained percussion.
+Rich harmony, dramatic swells but controlled; clear hook motif.
+10 seconds instrumental intro; strong instrumental outro; short spoken CTA at end.`
+  },
+  { key:"electro_tango", name:{de:"Electro-Tango (Modern)", en:"Electro Tango (Modern)", es:"Electro tango (moderno)"},
+    style:`Modern electro-tango: bandoneon + electronic bass + tight drums.
+Club-adjacent groove but editorial, not party music.
+Chromatic tango harmony, crisp hook, radio-friendly structure.
+10s instrumental intro; clean outro; spoken CTA at end.`
+  },
+  { key:"noir_jazz", name:{de:"Noir Jazz (Investigativ)", en:"Noir Jazz (Investigative)", es:"Jazz noir (investigativo)"},
+    style:`Noir jazz editorial with investigative tension.
+Muted trumpet or sax, piano, upright bass, brushed drums.
+Cinematic atmosphere, subtle pulse, clear motifs, professional tone.
+10s instrumental intro; elegant outro; spoken CTA at end.`
+  },
+  { key:"cabaret_80s", name:{de:"Kabarett 80s Synth (Satire)", en:"Cabaret 80s Synth (Satire)", es:"Cabaret synth 80s (satírico)"},
+    style:`Satirical cabaret-pop with 80s synth-pop touches.
+Catchy mid-tempo groove, theatrical delivery, biting humor (professional).
+Retro synths, punchy bass, light drums, occasional mock-march accents.
+10s instrumental intro; outro with short spoken CTA.`
+  },
+  { key:"cinematic_underscore", name:{de:"Cinematic News Underscore (Instrumental)", en:"Cinematic News Underscore (Instrumental)", es:"Subfondo cinematográfico (instrumental)"},
+    style:`Instrumental cinematic underscore for news coverage.
+No vocals, no spoken voice. Slow to mid tempo.
+Soft strings, low brass pads, piano motifs, minimal pulses.
+Smooth intro/outro, loop-friendly, suitable for extending.`
+  },
+  { key:"industrial_cabaret", name:{de:"Industrial Cabaret (Bissig)", en:"Industrial Cabaret (Biting)", es:"Cabaret industrial (mordaz)"},
+    style:`Industrial cabaret with sharp satire, professional delivery.
+Mechanical drums, dark synths, theatrical vocal tone.
+Keep it clever, not aggressive. Hook-driven structure.
+10s instrumental intro; strong outro; spoken CTA.`
+  },
+  { key:"dark_waltz", name:{de:"Dunkler Walzer (Satire)", en:"Dark Waltz (Satire)", es:"Vals oscuro (satírico)"},
+    style:`Dark satirical waltz with tango-adjacent harmony.
+Piano + strings, subtle accordion/bandoneon colors.
+Elegant but uneasy mood; clear hook.
+10s instrumental intro; refined outro; spoken CTA.`
+  },
+  { key:"lofi_newsroom", name:{de:"Lo‑Fi Newsroom (leicht)", en:"Lo‑Fi Newsroom (light)", es:"Lo‑Fi Newsroom (ligero)"},
+    style:`Lo-fi newsroom groove for long listening.
+Soft drums, warm chords, minimal melody, subtle texture.
+10s instrumental intro; gentle outro; optional spoken CTA at end.`
+  },
+  { key:"string_quartet_tango", name:{de:"Streichquartett‑Tango (Elegant)", en:"String Quartet Tango (Elegant)", es:"Tango cuarteto de cuerdas (elegante)"},
+    style:`Elegant tango with string quartet + piano + bandoneon accents.
+High-brow, clean, minimal percussion; rich harmony.
+10s instrumental intro; refined outro; spoken CTA at end.`
+  },
+  { key:"minimal_piano", name:{de:"Minimal Piano Editorial", en:"Minimal Piano Editorial", es:"Piano minimal editorial"},
+    style:`Minimal piano editorial with subtle tension.
+Sparse motifs, tasteful harmony, restrained dynamics.
+Add light strings/pads if needed. Keep it professional.
+10s instrumental intro; clean outro; optional short spoken CTA.`
+  },
+  { key:"ambient_political", name:{de:"Ambient (Erklärung/Calm)", en:"Ambient (Calm)", es:"Ambient (calmo)"},
+    style:`Ambient editorial soundscape for calm explainers.
+No singing; optionally spoken voice only if lyrics mode.
+Soft pads, gentle drones, subtle chimes, no harsh percussion.
+10s instrumental intro; smooth outro; short spoken CTA.`
+  }
+];
+
+const EXTEND_PROMPT = `Continue the same track seamlessly.
+Keep the same genre, tempo, and harmonic language.
+Respect the arrangement: ~10 seconds instrumental lead-in, and a clean outro.
+If vocals are present: keep them consistent and end with a short spoken like/subscribe/comment CTA.
+No abrupt changes. Smooth transitions.`;
+
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;
+  t.classList.add("show");
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer=setTimeout(()=>t.classList.remove("show"),1400);
+}
+async function copyText(text){ await navigator.clipboard.writeText(text); }
+
+function normalizeBullets(text){
+  const lines=(text||"").split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  return lines.map(l=>{
+    if(l.startsWith("•")) return l;
+    if(l.startsWith("-")) return "• "+l.slice(1).trim();
+    return "• "+l;
+  }).join("\n");
+}
+
+function defaultTeaser(lang, tone){
+  const map = {
+    de:{
+      serious:"Heute fassen wir das Thema nüchtern zusammen – mit Kontext und klaren Linien.",
+      ironic:"Heute gibt es Fakten mit Haltung – seriös, aber mit einem Hauch Ironie.",
+      satirical:"Heute servieren wir Nachrichten – mit scharfem Blick, trockenem Humor und Cabaret‑Kante.",
+      dramatic:"Heute wird es ernst: ein Thema, das nach Bühne, Spannung und Klartext verlangt."
+    },
+    en:{
+      serious:"Tonight we summarize the topic with calm clarity and context.",
+      ironic:"Tonight: facts with framing — serious, with a hint of irony.",
+      satirical:"Tonight we serve the news with dry humor and a sharp editorial edge.",
+      dramatic:"Tonight it gets intense: a topic made for tension, drama, and clarity."
+    },
+    es:{
+      serious:"Hoy resumimos el tema con calma, contexto y líneas claras.",
+      ironic:"Hoy: hechos con enfoque — serio, con un toque de ironía.",
+      satirical:"Hoy servimos noticias con humor seco y filo editorial.",
+      dramatic:"Hoy se pone serio: un tema de tensión, drama y claridad."
+    }
+  };
+  return map[lang][tone];
+}
+function defaultCTA(lang, tone){
+  const base = {
+    de:"Wenn Ihnen diese musikalische Einordnung gefällt: Like da lassen, @TranslatedPressDE abonnieren und Ihre Meinung in die Kommentare.",
+    en:"If you enjoy this musical editorial: please hit Like, subscribe to @TranslatedPressDE, and leave your thoughts in the comments.",
+    es:"Si te gusta esta interpretación musical: dale like, suscríbete a @TranslatedPressDE y deja tu opinión en los comentarios."
+  };
+  // tone can slightly vary (keep pro)
+  if(tone==="satirical" && lang==="de") return "Wenn Ihnen diese Nummer gefällt: Like, Abo bei @TranslatedPressDE – und schreiben Sie Ihre Diagnose in die Kommentare.";
+  if(tone==="satirical" && lang==="es") return "Si te gustó esta pieza: like, suscripción a @TranslatedPressDE y tu veredicto en comentarios.";
+  if(tone==="satirical" && lang==="en") return "If you like this one: hit Like, subscribe to @TranslatedPressDE, and drop your verdict in the comments.";
+  return base[lang];
+}
+
+function buildStyle(genreKey, tone){
+  const g = GENRES.find(x=>x.key===genreKey) || GENRES[0];
+  const toneAdd = {
+    serious:"Delivery: neutral, journalistic, clear diction. Avoid exaggerated comedy.",
+    ironic:"Delivery: professional with subtle irony. Clever, not silly.",
+    satirical:"Delivery: theatrical but professional. Biting humor, controlled.",
+    dramatic:"Delivery: cinematic intensity, serious, emotional swells, controlled."
+  }[tone];
+  return g.style.trim()+"\n\n"+toneAdd+"\n";
+}
+
+function buildLyrics(lang, mode, tone, topic, points, teaser, cta){
+  const t=(topic||"").trim() || "—";
+  const p=normalizeBullets(points||"");
+  const intro=(teaser||"").trim() || defaultTeaser(lang, tone);
+  const out=(cta||"").trim() || defaultCTA(lang, tone);
+
+  if(mode==="inst"){
+    if(lang==="de") return `INSTRUMENTALVERSION – @TranslatedPressDE
+
+KEINE STIMME. KEIN GESANG. KEIN SPRECHTEXT.
+
+KONTEXT (kurz):
+${t}
+
+KERNPUNKTE (optional):
+${p || "—"}
+
+ANFORDERUNG:
+– Instrumentaler Track passend zum gewählten Genre
+– Weicher Aufbau, klare Motive, loop‑freundlich
+– Sauberer Schluss (Outro), keine Stimme
+`;
+    if(lang==="en") return `INSTRUMENTAL ONLY – @TranslatedPressDE
+
+NO VOCALS. NO SPOKEN VOICE. NO SINGING.
+
+CONTEXT (short):
+${t}
+
+KEY POINTS (optional):
+${p || "—"}
+
+REQUIREMENTS:
+– Instrumental track matching the selected genre
+– Smooth build, clear motifs, loop‑friendly
+– Clean ending outro, no voice
+`;
+    return `SOLO INSTRUMENTAL – @TranslatedPressDE
+
+SIN VOZ. SIN HABLADO. SIN CANTO.
+
+CONTEXTO (breve):
+${t}
+
+PUNTOS CLAVE (opcional):
+${p || "—"}
+
+REQUISITOS:
+– Pista instrumental según el género elegido
+– Construcción suave, motivos claros, apto para loop
+– Cierre limpio (outro), sin voz
+`;
+  }
+
+  // song mode
+  const header = (lang==="de") ? "AUFGABE" : (lang==="en") ? "TASK" : "TAREA";
+  const noNums = (lang==="de") ? "Keine Zahlen, keine Quellen, keine langen Namenslisten." :
+                 (lang==="en") ? "No numbers, no citations, no long name lists." :
+                 "Sin números, sin fuentes, sin listas largas de nombres.";
+  const toneLine = (lang==="de") ? ({
+      serious:"Ton: seriös, sachlich, journalistisch.",
+      ironic:"Ton: seriös, analytisch, mit feiner Ironie.",
+      satirical:"Ton: professioneller Sarkasmus, Kabarett‑Energie, aber sauber.",
+      dramatic:"Ton: dramatisch, filmisch, ernst."
+    }[tone]) :
+    (lang==="en") ? ({
+      serious:"Tone: serious, neutral, journalistic.",
+      ironic:"Tone: serious, analytical, subtle irony.",
+      satirical:"Tone: professional sarcasm, cabaret energy, controlled.",
+      dramatic:"Tone: dramatic, cinematic, serious."
+    }[tone]) :
+    ({
+      serious:"Tono: serio, neutral, periodístico.",
+      ironic:"Tono: serio, analítico, ironía sutil.",
+      satirical:"Tono: sarcasmo profesional, energía cabaret, controlado.",
+      dramatic:"Tono: dramático, cinematográfico, serio."
+    }[tone]);
+
+  const structure = (lang==="de") ?
+`STRUKTUR:
+[INTRO – instrumental, ~10s]
+[INTRO (spoken, 1–2 Zeilen)]
+[Strophe 1]
+[Refrain – Hook]
+[Strophe 2]
+[Refrain]
+[Bridge (spoken/reflective)]
+[Finaler Refrain]
+[OUTRO – instrumental + spoken CTA]`
+:
+(lang==="en") ?
+`STRUCTURE:
+[INTRO – instrumental, ~10s]
+[INTRO (spoken, 1–2 lines)]
+[Verse 1]
+[Chorus – hook]
+[Verse 2]
+[Chorus]
+[Bridge (spoken/reflective)]
+[Final Chorus]
+[OUTRO – instrumental + spoken CTA]`
+:
+`ESTRUCTURA:
+[INTRO – instrumental, ~10s]
+[INTRO (hablado, 1–2 líneas)]
+[Verso 1]
+[Coro – gancho]
+[Verso 2]
+[Coro]
+[Puente (hablado/reflexivo)]
+[Coro final]
+[OUTRO – instrumental + CTA hablado]`;
+
+  const topicLabel = (lang==="de") ? "THEMA" : (lang==="en") ? "TOPIC" : "TEMA";
+  const pointsLabel = (lang==="de") ? "KERNPUNKTE" : (lang==="en") ? "KEY POINTS" : "PUNTOS CLAVE";
+  const introLabel = (lang==="de") ? "INTRO (spoken)" : (lang==="en") ? "INTRO (spoken)" : "INTRO (hablado)";
+  const outroLabel = (lang==="de") ? "OUTRO (spoken CTA)" : (lang==="en") ? "OUTRO (spoken CTA)" : "OUTRO (CTA hablado)";
+
+  return `${header} – @TranslatedPressDE (${lang.toUpperCase()})
+
+${toneLine}
+${noNums}
+
+WICHTIG:
+– Beginne mit ~10 Sekunden rein instrumentaler INTRO (ohne Lyrics).
+– Stimme erst danach.
+– Sauberer instrumentaler OUTRO + kurzer gesprochener CTA.
+
+${topicLabel}:
+${t}
+
+${pointsLabel}:
+${p || "—"}
+
+${structure}
+
+${introLabel}:
+${intro}
+
+${outroLabel}:
+${out}
+`;
+}
+
+function youtubePack(lang, tone, topic){
+  const t=(topic||"").trim()||"—";
+  const title = (lang==="de") ? "News Tango: Schatten & Akten" :
+                (lang==="en") ? "News Tango: Shadows & Files" :
+                "Tango Noticias: Sombras y Archivos";
+  const tags = (lang==="de") ? "politische satire,tango,news song,kommentar,analyse,translatedpressde,kabarett,geopolitik" :
+               (lang==="en") ? "political satire,tango,news song,commentary,analysis,translatedpressde,geopolitics" :
+               "satira politica,tango,cancion de noticias,comentario,analisis,translatedpressde,geopolitica";
+  const disclaimer = (lang==="de")
+    ? "Dieser Inhalt ist ein künstlerischer und redaktioneller Ausdruck. Er spiegelt Interpretationen und Kommentare wider, keine offiziellen Erklärungen."
+    : (lang==="en")
+    ? "This content is an artistic and editorial expression. It reflects interpretations and commentary, not official statements."
+    : "Este contenido es una expresión artística y editorial. Refleja interpretaciones y comentarios, no declaraciones oficiales.";
+  const credit = (lang==="de")
+    ? "Text & Redaktion: TranslatedPressDE (Mauricio Umana / maoumas)"
+    : (lang==="en")
+    ? "Lyrics & editorial concept: TranslatedPressDE (Mauricio Umana / maoumas)"
+    : "Texto y concepto editorial: TranslatedPressDE (Mauricio Umana / maoumas)";
+  const desc = `${disclaimer}
+
+${credit}
+Musik: KI-gestützt generiert (SUNO), genutzt gemäß Nutzungsbedingungen.
+
+Thema (Kurzfassung):
+${t}
+`;
+  return {title, tags, desc};
+}
+
+function buildThumbPrompt(system, palette, bigText, smallText){
+  const base = {
+    staffwave:"A symbolic editorial music thumbnail. A clean 5-line music staff across the image, blended with a glowing audio waveform that follows the staff like a signature. Subtle grid, high contrast, modern newsroom style.",
+    radar:"A symbolic editorial music thumbnail. Dark radar/scanner screen with circular sweep lines, with a bright audio waveform overlay. High contrast, security/intelligence vibe, tasteful.",
+    ticker:"A symbolic editorial music thumbnail. TV-news layout with a subtle ticker bar and a centered waveform/staff motif. Clean, professional, not cluttered.",
+    noir:"A symbolic editorial music thumbnail. Noir light beam across darkness, faint music staff lines, waveform in the light, investigative mood, cinematic."
+  }[system];
+
+  const pal = {
+    midnight:"Palette: midnight blue/black background, icy blue highlights, white text.",
+    amber:"Palette: midnight background with warm amber accent, icy highlights, white text.",
+    crimson:"Palette: midnight background with crimson accent, icy highlights, white text.",
+    mono:"Palette: near-monochrome black/gray with neon blue accent, white text."
+  }[palette];
+
+  return `${base}
+${pal}
+Aspect ratio 16:9, YouTube thumbnail, ultra readable.
+NO real people. NO photoreal portraits.
+Add big bold German text: "${(bigText||"SCHATTEN AKTE").trim()}" (max 4 words), centered-left.
+Add small text: "${(smallText||"@TranslatedPressDE • News Song").trim()}" bottom-right.
+Include a subtle series badge icon (music note + waveform) in a corner.`;
+}
+
+function setUILang(uiLang){
+  const d=I18N[uiLang];
+  document.documentElement.lang=uiLang;
+  document.getElementById("subtitle").textContent=d.subtitle;
+  document.getElementById("hQuick").textContent=d.hQuick;
+  document.getElementById("labSongLang").textContent=d.labSongLang;
+  document.getElementById("labTone").textContent=d.labTone;
+  document.getElementById("labMode").textContent=d.labMode;
+  document.getElementById("labGenre").textContent=d.labGenre;
+  document.getElementById("labTopic").textContent=d.labTopic;
+  document.getElementById("labPoints").textContent=d.labPoints;
+  document.getElementById("labTeaser").textContent=d.labTeaser;
+  document.getElementById("labCTA").textContent=d.labCTA;
+  document.getElementById("hint1").textContent=d.hint1;
+  document.getElementById("hStyle").textContent=d.hStyle;
+  document.getElementById("hintStyle").textContent=d.hintStyle;
+  document.getElementById("hLyrics").textContent=d.hLyrics;
+  document.getElementById("hintLyrics").textContent=d.hintLyrics;
+  document.getElementById("hPlaylist").textContent=d.hPlaylist;
+  document.getElementById("playlistHint").textContent=d.playlistHint;
+  document.getElementById("labSeriesName").textContent=d.labSeriesName;
+  document.getElementById("labEpisodeCount").textContent=d.labEpisodeCount;
+  document.getElementById("labEpisodePrefix").textContent=d.labEpisodePrefix;
+  document.getElementById("labHookWords").textContent=d.labHookWords;
+  document.getElementById("labBatchOut").textContent=d.labBatchOut;
+  document.getElementById("batchTip").textContent=d.batchTip;
+  document.getElementById("hThumb").textContent=d.hThumb;
+  document.getElementById("labThumbSystem").textContent=d.labThumbSystem;
+  document.getElementById("labPalette").textContent=d.labPalette;
+  document.getElementById("labThumbText").textContent=d.labThumbText;
+  document.getElementById("labThumbSub").textContent=d.labThumbSub;
+  document.getElementById("labThumbOut").textContent=d.labThumbOut;
+  document.getElementById("thumbRules").textContent=d.thumbRules;
+  document.getElementById("hYouTube").textContent=d.hYouTube;
+  document.getElementById("labYTTitle").textContent=d.labYTTitle;
+  document.getElementById("labYTTags").textContent=d.labYTTags;
+  document.getElementById("labYTDesc").textContent=d.labYTDesc;
+  document.getElementById("ytNote").textContent=d.ytNote;
+
+  ["btnDE","btnEN","btnES"].forEach(id=>{
+    const b=document.getElementById(id);
+    b.classList.toggle("active", b.dataset.lang===uiLang);
+  });
+}
+
+function populateGenres(uiLang){
+  const sel=document.getElementById("genre");
+  sel.innerHTML="";
+  GENRES.forEach(g=>{
+    const o=document.createElement("option");
+    o.value=g.key;
+    o.textContent=g.name[uiLang];
+    sel.appendChild(o);
+  });
+}
+
+function refreshAll(){
+  const songLang=document.getElementById("songLang").value;
+  const tone=document.getElementById("tone").value;
+  const mode=document.getElementById("mode").value;
+  const genreKey=document.getElementById("genre").value;
+
+  const topic=document.getElementById("topic").value;
+  const points=document.getElementById("points").value;
+  const teaser=document.getElementById("teaser").value;
+  const cta=document.getElementById("cta").value;
+
+  document.getElementById("styleOut").value = buildStyle(genreKey, tone);
+  document.getElementById("lyricsOut").value = buildLyrics(songLang, mode, tone, topic, points, teaser, cta);
+  document.getElementById("pillLang").textContent = songLang==="de" ? "Deutsch" : (songLang==="en" ? "English" : "Español");
+  const g=GENRES.find(x=>x.key===genreKey)||GENRES[0];
+  document.getElementById("pillGenre").textContent = g.name[document.documentElement.lang] || "Genre";
+  document.getElementById("pillTone").textContent = document.getElementById("tone").selectedOptions[0].textContent;
+
+  // YT pack
+  const yt = youtubePack(songLang, tone, topic);
+  document.getElementById("ytTitle").value = yt.title;
+  document.getElementById("ytTags").value = yt.tags;
+  document.getElementById("ytDesc").value = yt.desc;
+
+  // defaults for teaser/cta if empty
+  if(!teaser.trim()) document.getElementById("teaser").value = defaultTeaser(songLang, tone);
+  if(!cta.trim()) document.getElementById("cta").value = defaultCTA(songLang, tone);
+}
+
+function doReset(){
+  document.getElementById("songLang").value="de";
+  document.getElementById("tone").value="ironic";
+  document.getElementById("mode").value="song";
+  document.getElementById("genre").value="tango_editorial";
+  document.getElementById("topic").value="";
+  document.getElementById("points").value="";
+  document.getElementById("teaser").value=defaultTeaser("de","ironic");
+  document.getElementById("cta").value=defaultCTA("de","ironic");
+  document.getElementById("seriesName").value="TranslatedPressDE – News Songs";
+  document.getElementById("episodeCount").value="4";
+  document.getElementById("episodePrefix").value="Episode";
+  document.getElementById("hookWords").value="";
+  document.getElementById("thumbSystem").value="staffwave";
+  document.getElementById("palette").value="midnight";
+  document.getElementById("thumbText").value="SCHATTEN AKTE";
+  document.getElementById("thumbSub").value="@TranslatedPressDE • News Song";
+  document.getElementById("batchOut").value="";
+  document.getElementById("thumbOut").value="";
+  refreshAll();
+}
+
+function buildBatch(){
+  const uiLang=document.documentElement.lang;
+  const songLang=document.getElementById("songLang").value;
+  const tone=document.getElementById("tone").value;
+  const mode=document.getElementById("mode").value;
+  const genreKey=document.getElementById("genre").value;
+
+  const series=document.getElementById("seriesName").value.trim()||"TranslatedPressDE – News Songs";
+  const n=parseInt(document.getElementById("episodeCount").value,10);
+  const prefix=document.getElementById("episodePrefix").value.trim()||"Episode";
+  const hook=(document.getElementById("hookWords").value||"").trim();
+
+  const topic=document.getElementById("topic").value;
+  const points=normalizeBullets(document.getElementById("points").value);
+  const baseTeaser=(document.getElementById("teaser").value||"").trim() || defaultTeaser(songLang,tone);
+  const baseCTA=(document.getElementById("cta").value||"").trim() || defaultCTA(songLang,tone);
+
+  const g=GENRES.find(x=>x.key===genreKey)||GENRES[0];
+  const style = buildStyle(genreKey,tone).trim();
+
+  let out=[];
+  for(let i=1;i<=n;i++){
+    const epTitle = `${series} – ${prefix} ${i}`;
+    const thumbText = (songLang==="de") ? `EP ${i} • ${(hook||"NEWS SONG").split(",")[0].trim().slice(0,12) || "NEWS"}` :
+                      (songLang==="en") ? `EP ${i} • ${(hook||"NEWS SONG").split(",")[0].trim().slice(0,12) || "NEWS"}` :
+                      `EP ${i} • ${(hook||"NEWS SONG").split(",")[0].trim().slice(0,12) || "NEWS"}`;
+
+    const teaser = baseTeaser + (hook ? `\nHook: ${hook}` : "");
+    const lyrics = buildLyrics(songLang, mode, tone, topic, points, teaser, baseCTA).trim();
+
+    out.push(
+`===== EPISODE ${i} =====
+TITLE:
+${epTitle}
+
+THUMBNAIL TEXT (max 4 words):
+${thumbText}
+
+STYLE (EN):
+${style}
+
+LYRICS / PROMPT (${songLang.toUpperCase()}):
+${lyrics}
+`);
+  }
+  document.getElementById("batchOut").value = out.join("\n");
+}
+
+(function init(){
+  // default UI language
+  setUILang("de");
+  populateGenres("de");
+
+  // set defaults
+  doReset();
+
+  // UI lang buttons
+  document.querySelectorAll(".lang button[data-lang]").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      const ui=b.dataset.lang;
+      setUILang(ui);
+      populateGenres(ui);
+      // preserve selected genre key; re-select
+      const currentKey=document.getElementById("genre").value || "tango_editorial";
+      document.getElementById("genre").value=currentKey;
+      refreshAll();
+    });
+  });
+
+  document.getElementById("btnReset").addEventListener("click", ()=>{
+    doReset();
+    showToast(I18N[document.documentElement.lang].reset);
+  });
+
+  // refresh on changes
+  ["songLang","tone","mode","genre","topic","points","teaser","cta"].forEach(id=>{
+    const el=document.getElementById(id);
+    el.addEventListener("input", ()=>{
+      clearTimeout(window.__t);
+      window.__t=setTimeout(refreshAll, 200);
+    });
+    el.addEventListener("change", refreshAll);
+  });
+
+  // copy buttons
+  document.getElementById("btnCopyStyle").addEventListener("click", async ()=>{
+    await copyText(document.getElementById("styleOut").value);
+    showToast("STYLE");
+  });
+  document.getElementById("btnCopyLyrics").addEventListener("click", async ()=>{
+    await copyText(document.getElementById("lyricsOut").value);
+    showToast("LYRICS");
+  });
+  document.getElementById("btnCopyAll").addEventListener("click", async ()=>{
+    const all = "STYLE:\n"+document.getElementById("styleOut").value.trim()+"\n\nLYRICS:\n"+document.getElementById("lyricsOut").value.trim();
+    await copyText(all);
+    showToast(I18N[document.documentElement.lang].copied);
+  });
+  document.getElementById("btnCopyExtend").addEventListener("click", async ()=>{
+    await copyText(EXTEND_PROMPT);
+    showToast(I18N[document.documentElement.lang].extendCopied);
+  });
+
+  // playlist/batch
+  document.getElementById("btnBuildBatch").addEventListener("click", ()=>{
+    buildBatch();
+    showToast("Batch built");
+  });
+  document.getElementById("btnCopyBatch").addEventListener("click", async ()=>{
+    await copyText(document.getElementById("batchOut").value);
+    showToast(I18N[document.documentElement.lang].batchCopied);
+  });
+
+  // thumbnail generator
+  function rebuildThumb(){
+    const sys=document.getElementById("thumbSystem").value;
+    const pal=document.getElementById("palette").value;
+    const big=document.getElementById("thumbText").value;
+    const sub=document.getElementById("thumbSub").value;
+    document.getElementById("thumbOut").value = buildThumbPrompt(sys,pal,big,sub);
+  }
+  document.getElementById("btnBuildThumb").addEventListener("click", ()=>{
+    rebuildThumb();
+    showToast("Thumbnail prompt built");
+  });
+  document.getElementById("btnCopyThumb2").addEventListener("click", async ()=>{
+    if(!document.getElementById("thumbOut").value.trim()) rebuildThumb();
+    await copyText(document.getElementById("thumbOut").value);
+    showToast(I18N[document.documentElement.lang].thumbCopied);
+  });
+  document.getElementById("btnCopyThumb").addEventListener("click", async ()=>{
+    if(!document.getElementById("thumbOut").value.trim()) rebuildThumb();
+    await copyText(document.getElementById("thumbOut").value);
+    showToast(I18N[document.documentElement.lang].thumbCopied);
+  });
+
+  // youtube pack copy
+  document.getElementById("btnCopyYT").addEventListener("click", async ()=>{
+    const pack =
+`TITLE:
+${document.getElementById("ytTitle").value.trim()}
+
+DESCRIPTION:
+${document.getElementById("ytDesc").value.trim()}
+
+TAGS:
+${document.getElementById("ytTags").value.trim()}`;
+    await copyText(pack);
+    showToast("YOUTUBE");
+  });
+
+  // live update thumb on fields
+  ["thumbSystem","palette","thumbText","thumbSub"].forEach(id=>{
+    document.getElementById(id).addEventListener("input", ()=>{ clearTimeout(window.__th); window.__th=setTimeout(()=>{document.getElementById("thumbOut").value="";},150);});
+    document.getElementById(id).addEventListener("change", ()=>{document.getElementById("thumbOut").value="";});
+  });
+
+})();
+</script>
+</body>
+</html>
