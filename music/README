@@ -1,1 +1,249 @@
-Music News
+# TranslatedPressDE – SUNO News Music Toolkit (maoumas)
+
+Dieses Tool ist eine **redaktionelle Produktionsoberfläche** zur Erstellung von
+musikalischen Beiträgen für den deutschen YouTube‑Kanal **@TranslatedPressDE**.
+
+Es verbindet **journalistische Analyse**, **satirische Einordnung** und **Musik**
+(z. B. Tango, Cabaret, Noir Jazz, Cinematic Underscore) zu einem klaren Workflow,
+der direkt mit **SUNO** genutzt werden kann.
+
+---
+
+## 🎯 Zweck der Anwendung
+
+Das Toolkit dient dazu:
+
+- Nachrichten, Skripte oder Analysen in **musikalische Editorials** zu verwandeln  
+- konsistente **Lyrics- und Instrumental‑Prompts** für SUNO zu erzeugen  
+- eine einheitliche **akustische und visuelle Identität** für Musik‑Videos aufzubauen  
+- Playlists und Serien (Batch‑Produktion) effizient vorzubereiten  
+
+Das Tool ist **kein Musikspielzeug**, sondern ein **Redaktionswerkzeug**.
+
+---
+
+## 🧭 Überblick über den Workflow
+
+1. Thema vorbereiten (extern)
+2. Tool öffnen (HTML-Datei im Browser)
+3. Sprache, Ton und Genre auswählen
+4. Thema und Kernpunkte einfügen
+5. STYLE und LYRICS kopieren
+6. In SUNO einfügen und generieren
+7. Thumbnail‑Prompt und YouTube‑Pack nutzen
+
+---
+
+## 🗂️ Aufbau der Anwendung
+
+Die Anwendung besteht aus **einer einzigen HTML-Datei**, die lokal oder über
+GitHub Pages geöffnet wird.
+
+### Hauptbereiche:
+
+- **Schnellstart / Presets**
+- **STYLE (EN)** → für das Style‑Feld in SUNO
+- **LYRICS / PROMPT** → für das Lyrics‑Feld in SUNO
+- **Instrumental‑Modus**
+- **Playlist‑/Batch‑Generator**
+- **Thumbnail‑Serien‑Generator**
+- **YouTube Pack (Titel, Beschreibung, Tags)**
+
+---
+
+## 🌍 Sprachen
+
+Die Oberfläche unterstützt drei UI‑Sprachen:
+
+- **DE** – Deutsch  
+- **EN** – Englisch  
+- **ES** – Español  
+
+⚠️ Wichtig:
+- Die **UI‑Sprache** ist unabhängig von der **Song‑Sprache**
+- Die **Song‑Sprache** wird separat ausgewählt (Lyrics‑Sprache)
+
+---
+
+## 🎼 Modi: Song oder Instrumental
+
+### 🎤 Song mit Lyrics
+- Gesungene oder gesprochene Parts
+- Struktur mit Intro, Strophen, Refrain, Bridge
+- Fester Abschluss mit gesprochenem Call‑to‑Action
+
+### 🎹 Nur Instrumental
+- Keine Stimme, kein Gesang, kein Sprechtext
+- Ideal für:
+  - Loops
+  - Livestream‑Hintergründe
+  - Playlist‑Dauerbeschallung
+
+---
+
+## ⏱️ Feste Produktionsregeln (automatisch)
+
+Alle Prompts enthalten verbindlich:
+
+- ca. **10 Sekunden rein instrumentales Intro**
+- Stimme erst nach dem Intro
+- **sauberer instrumentaler Outro**
+- kurzer gesprochener **CTA** am Ende:
+  - Like
+  - Abonnement
+  - Kommentar
+
+Diese Regeln sorgen für:
+- saubere Video‑Intros
+- Loop‑Tauglichkeit
+- konsistente Dramaturgie
+
+---
+
+## 🧠 Das Themen‑File (wichtig)
+
+Das Tool erwartet **keinen Roh‑Artikel**, sondern eine **vorbereitete Kurzfassung**.
+
+### Empfohlener Inhalt des Themen‑Files
+
+Das Themen‑Material (Textdatei, Markdown, Notizen) sollte enthalten:
+
+#### 1️⃣ Thema (Kurzfassung)
+- 5–15 Zeilen
+- Zusammenhängend
+- Keine Quellenangaben
+- Keine Zahlenlisten
+
+#### 2️⃣ Kernpunkte (3–5 Punkte)
+- Was ist passiert?
+- Warum ist es relevant?
+- Wo liegt der Konflikt?
+- Welche Ironie / Tragik / Dynamik steckt darin?
+
+Beispiel:
+
+```
+Thema:
+Politische Spannungen zwischen Regierung und Sicherheitsapparat
+nach dem Rückzug eines prominenten Insiders.
+
+Kernpunkte:
+• Machtkämpfe im Inneren
+• Schweigen statt Aufklärung
+• Rückzug aus dem System
+• Medien als neue Bühne
+```
+
+⚠️ **Wichtig:**  
+Das Tool arbeitet **redaktionell**, nicht dokumentarisch.
+Die Musik soll **einordnen**, nicht protokollieren.
+
+---
+
+## 🎭 Ton‑Presets
+
+Du kannst zwischen verschiedenen Tonlagen wählen:
+
+- **Seriös & nüchtern**
+- **Seriös mit feiner Ironie**
+- **Sarkasmus & Kabarett (professionell)**
+- **Dramatisch & filmisch**
+
+Diese Presets beeinflussen:
+- Wortwahl
+- Intro‑Text
+- CTA‑Formulierung
+- Musikalische Dynamik
+
+---
+
+## 🎨 Thumbnail‑System (Serie)
+
+Die Anwendung erzeugt **symbolische, serientaugliche Thumbnails**:
+
+### Systeme:
+- Pentagramm + Soundwave (Signature)
+- Radar / Scanner
+- News‑Ticker
+- Noir‑Lichtkegel
+
+### Regeln:
+- Keine realen Personen in kompromittierenden Kontexten
+- Symbolisch, editorial, seriös
+- Maximal **4 Wörter** Haupttext
+- Format **16:9**, hoher Kontrast
+
+---
+
+## 📦 Playlist‑ & Batch‑Modus
+
+Mit dem Batch‑Generator kannst du:
+
+- 2–10 Episoden auf einmal erzeugen
+- Jede Episode enthält:
+  - Titel
+  - STYLE
+  - LYRICS
+  - Thumbnail‑Text
+
+Ideal für:
+- Produktions‑Sprints
+- Upload‑Wochen
+- Serienformate
+
+---
+
+## 📺 YouTube Pack
+
+Das Tool erstellt automatisch:
+
+- Titel
+- Beschreibung (inkl. Pflicht‑Disclaimer)
+- Tags
+
+### Pflicht‑Disclaimer (automatisch enthalten)
+
+> Dieser Inhalt ist ein künstlerischer und redaktioneller Ausdruck.  
+> Er spiegelt Interpretationen und Kommentare wider, keine offiziellen Erklärungen.
+
+---
+
+## 🚀 Empfohlene Nutzung
+
+- Für **regelmäßige Musik‑Formate**
+- Für **News‑Playlists**
+- Für **Livestream‑Begleitmusik**
+- Für **satirisch‑analytische Kommentare**
+
+---
+
+## 🛡️ Redaktionelle Linie
+
+Dieses Tool folgt der Linie von **@TranslatedPressDE**:
+
+- erwachsen
+- kritisch
+- ironisch, aber respektvoll
+- keine Hetze
+- keine Diffamierung
+- keine Sensationsrhetorik
+
+---
+
+## 📄 Lizenz & Hinweis
+
+Dieses Toolkit ist ein internes Redaktionswerkzeug.
+Die Verantwortung für Inhalte und Veröffentlichung liegt beim Betreiber des Kanals.
+
+---
+
+## ✍️ Credits
+
+Konzept & Redaktion  
+**TranslatedPressDE**  
+Mauricio Umana (maoumas)
+
+---
+
+Ende der Dokumentation.
+
