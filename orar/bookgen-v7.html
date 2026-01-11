@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Libro de Melodías - V7 (Plegado)</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #d35400;
+            --gold: #b7950b;
+            --bg: #fdfbf7;
+            --text: #333;
+            --code-bg: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.8;
+            scroll-behavior: smooth;
+        }
+
+        /* --- UI CARGA --- */
+        #uploader {
+            background: white; padding: 40px; border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center;
+            max-width: 600px; margin: 50px auto; border: 1px solid #ddd;
+            font-family: sans-serif;
+        }
+        
+        /* --- BOTONES --- */
+        .btn {
+            background: var(--primary); color: white; padding: 15px 35px;
+            border-radius: 50px; cursor: pointer; display: inline-block;
+            font-weight: bold; font-size: 1.1em; text-decoration: none; border:none;
+            font-family: sans-serif; transition: transform 0.2s, background 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .btn:hover { transform: scale(1.02); background: var(--accent); }
+        .btn-success { background: #27ae60; }
+
+        /* --- INTERFAZ GENERADA --- */
+        #generated-view { display: none; max-width: 800px; margin: 0 auto; padding-bottom: 100px; }
+        
+        #top-controls {
+            text-align: center; margin-bottom: 40px; padding: 20px;
+            background: rgba(255,255,255,0.8); border-radius: 8px;
+            border: 1px dashed #ccc;
+        }
+
+        /* --- PORTADA --- */
+        .cover-page {
+            text-align: center; padding: 60px 20px; margin-bottom: 60px;
+            border: 4px double var(--primary); background: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        .cover-title-es { font-size: 3.5em; color: var(--primary); margin-bottom: 20px; line-height: 1.1; font-weight: bold; }
+        .cover-subtitle { font-size: 1.4em; color: #7f8c8d; font-style: italic; }
+        .cover-author { margin-top: 50px; font-size: 1.3em; font-weight: bold; border-top: 2px solid var(--gold); display: inline-block; padding-top: 20px; }
+
+        /* --- PREFACIOS E ÍNDICE --- */
+        details.preface, details.intro-box {
+            background: #fff; margin-bottom: 15px;
+            border-left: 5px solid var(--gold);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-radius: 4px;
+        }
+        details.preface > summary, details.intro-box > summary {
+            padding: 15px 20px; cursor: pointer; font-weight: bold; color: #555;
+            list-style: none; background: #fff; font-family: sans-serif;
+            text-transform: uppercase; letter-spacing: 1px; font-size: 0.9em;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        /* Flecha personalizada para índice y prefacios */
+        details.preface > summary::after, details.intro-box > summary::after { content: '+'; font-size: 1.2em; color: #999; }
+        details.preface[open] > summary::after, details.intro-box[open] > summary::after { content: '−'; }
+        
+        details.preface[open] > summary { border-bottom: 1px solid #eee; color: var(--gold); }
+        .preface-content { padding: 25px; font-size: 1.05em; color: #444; white-space: pre-wrap; }
+
+        /* Links del Índice */
+        .index-link {
+            display: block; padding: 10px 15px; border-bottom: 1px solid #eee;
+            cursor: pointer; color: var(--primary); text-decoration: none;
+            transition: background 0.2s; font-family: sans-serif;
+        }
+        .index-link:hover { background: #ecf0f1; color: var(--accent); padding-left: 20px; }
+        .index-num { font-weight: bold; color: var(--gold); margin-right: 10px; }
+
+        /* --- CAPÍTULOS --- */
+        details.chapter {
+            background: white; margin-bottom: 25px; border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08); overflow: hidden;
+            scroll-margin-top: 20px;
+        }
+        details.chapter > summary {
+            background: var(--primary); color: white; padding: 20px 30px;
+            font-size: 1.4em; font-family: sans-serif; cursor: pointer; list-style: none;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        details.chapter > summary:hover { background: #34495e; }
+        details.chapter > summary::after { content: '+'; font-size: 1.5em; opacity: 0.7; }
+        details.chapter[open] > summary::after { content: '−'; }
+        
+        .chapter-content { padding: 0 25px 25px 25px; }
+
+        /* --- MEDITACIONES --- */
+        details.melody { margin: 20px 0; border: 1px solid #eee; border-radius: 6px; }
+        details.melody > summary {
+            background: #ecf0f1; color: var(--primary); padding: 15px;
+            font-weight: 600; font-family: sans-serif; cursor: pointer; list-style: none;
+            display: flex; justify-content: space-between;
+        }
+        details.melody > summary::after { content: '+'; color: #7f8c8d; }
+        details.melody[open] > summary::after { content: '−'; }
+
+        /* --- TARJETAS --- */
+        .lang-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px; padding: 20px; background: #fff;
+        }
+        .lang-card {
+            background: var(--code-bg); padding: 15px; border-radius: 6px;
+            border: 1px solid #e0e0e0; position: relative;
+        }
+        .lang-badge {
+            font-size: 0.7em; text-transform: uppercase; letter-spacing: 2px;
+            color: #aaa; margin-bottom: 10px; font-family: sans-serif; display: block;
+        }
+        .verse-text { white-space: pre-wrap; font-size: 1.05em; color: #333; margin-top: 10px; }
+
+        /* --- SUNO --- */
+        details.suno-block {
+            background: #2d3436; color: #eee; margin: 20px 0; border-radius: 8px;
+            border: 1px solid #444; position: relative;
+        }
+        details.suno-block > summary {
+            padding: 15px; cursor: pointer; color: #a29bfe; font-family: sans-serif; font-weight: bold;
+        }
+        .suno-content { padding: 20px; white-space: pre-wrap; font-family: monospace; }
+        
+        /* --- COPIAR --- */
+        .copy-btn {
+            position: absolute; top: 10px; right: 10px;
+            background: white; border: 1px solid #ccc; border-radius: 4px;
+            padding: 5px 10px; font-size: 0.8em; cursor: pointer;
+            font-family: sans-serif; color: #555; z-index: 10;
+        }
+        .copy-btn:hover { background: var(--primary); color: white; }
+
+        /* --- BOTÓN FLOTANTE (BACKUP) --- */
+        #floating-btn {
+            position: fixed; bottom: 30px; right: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.4); z-index: 9999; display: none;
+            padding: 15px; border-radius: 50%; font-size: 1.5em; width: 60px; height: 60px;
+            text-align: center; line-height: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="uploader">
+        <h2>📘 Generador V7 (Todo Plegado)</h2>
+        <p>Sube tu archivo .md completo.</p>
+        <label for="fileInput" class="btn">Seleccionar Archivo</label>
+        <input type="file" id="fileInput" accept=".md,.txt">
+    </div>
+
+    <div id="generated-view">
+        
+        <div id="top-controls">
+            <h3 style="color: green; margin-top:0;">✅ Libro Generado con Éxito</h3>
+            <p><strong>Nota:</strong> Todo aparece plegado por defecto. Si abres algo aquí, se guardará abierto.<br>Para un libro totalmente cerrado, dale a Guardar sin tocar nada.</p>
+            <button class="btn btn-success" onclick="downloadHTML()">💾 GUARDAR LIBRO HTML</button>
+        </div>
+
+        <div id="book-content"></div>
+    </div>
+
+    <button id="floating-btn" class="btn" onclick="downloadHTML()" title="Guardar HTML">💾</button>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) { processBook(e.target.result); };
+            reader.readAsText(file);
+        });
+
+        // NAVEGACIÓN
+        window.goToChapter = function(id) {
+            const el = document.getElementById(id);
+            if(el) {
+                el.open = true;
+                el.scrollIntoView({behavior: 'smooth', block: 'start'});
+            }
+        };
+
+        function copyToClipboard(btn, text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const originalText = btn.innerText;
+                btn.innerText = "¡Copiado!";
+                btn.style.background = "#27ae60"; btn.style.color = "white";
+                setTimeout(() => {
+                    btn.innerText = originalText;
+                    btn.style.background = ""; btn.style.color = "";
+                }, 2000);
+            });
+        }
+
+        function processBook(mdContent) {
+            const splitRegex = /(?=\n# .*(Capítulo|Chapter) 1)/i;
+            const parts = mdContent.split(splitRegex);
+            let frontMatterRaw = parts[0];
+            let bodyRaw = parts.length > 1 ? mdContent.substring(frontMatterRaw.length) : "";
+
+            let html = "";
+            html += generateFrontMatterHTML(frontMatterRaw);
+            if (bodyRaw) html += parseBodyMarkdown(bodyRaw);
+            renderBook(html);
+        }
+
+        function generateFrontMatterHTML(text) {
+            const blocks = text.split(/\n-{3,}|⸻/);
+            let html = "";
+            
+            if(blocks.length > 0) html += parseCover(blocks[0].trim());
+
+            for (let i = 1; i < blocks.length; i++) {
+                let block = blocks[i].trim();
+                if (!block || block.includes("Edición Profesional") || block.includes("Instrucciones Editoriales")) continue;
+
+                let lines = block.split('\n');
+                let title = lines[0].replace(/^[#\s]+/, '').trim();
+                let content = lines.slice(1).join('\n');
+
+                if (title.toLowerCase().includes("índice") || title.toLowerCase().includes("index")) {
+                    // AQUÍ ESTÁ EL CAMBIO: Se eliminó el atributo 'open'
+                    html += `<details class="preface"><summary>📚 ${title}</summary>
+                             <div class="preface-content">${parseIndexContent(content)}</div>
+                             </details>`;
+                } else {
+                    html += `<details class="preface"><summary>${title}</summary><div class="preface-content">${parseText(content)}</div></details>`;
+                }
+            }
+            return html;
+        }
+
+        function parseIndexContent(text) {
+            const lines = text.split('\n');
+            let html = "";
+            lines.forEach(line => {
+                line = line.trim();
+                if(!line) return;
+                const match = line.match(/^(\d+)[\.\)]\s+(.*)/);
+                if (match) {
+                    const num = match[1];
+                    const title = match[2];
+                    html += `<div class="index-link" onclick="goToChapter('chapter-${num}')">
+                                <span class="index-num">${num}.</span> ${title}
+                             </div>`;
+                } else {
+                    html += `<p>${line}</p>`;
+                }
+            });
+            return html;
+        }
+
+        function parseCover(text) {
+            const lines = text.split('\n').filter(l => l.trim() !== "");
+            let titleES = lines[0]?.replace(/[#*_]/g, '').trim();
+            let author = "";
+            let subtitles = [];
+            lines.forEach((line, index) => {
+                let clean = line.replace(/[#*_]/g, '').trim();
+                if (index === 0) return;
+                if (clean.toLowerCase().startsWith("autor:")) author = clean;
+                else subtitles.push(clean);
+            });
+            return `<div class="cover-page"><div class="cover-title-es">${titleES}</div>
+                    ${subtitles.map(s => `<div class="cover-subtitle">${s}</div>`).join('')}
+                    <div class="cover-author">${author}</div></div>`;
+        }
+
+        function parseText(text) {
+            return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+        }
+
+        function parseBodyMarkdown(md) {
+            const lines = md.split('\n');
+            let html = '';
+            let state = 'NONE';
+            let buffer = []; 
+            let sunoBuffer = [];
+            let chapterCounter = 0;
+
+            lines.forEach(line => {
+                line = line.trim();
+                if (line.startsWith('```')) return;
+
+                if (line.startsWith('# ')) {
+                    if (state === 'SUNO') html += closeSuno(sunoBuffer);
+                    else if (state === 'MELODY') html += '</div></div></details>';
+                    else if (state === 'INTRO') html += '</div></details>';
+                    else if (state === 'CHAPTER') html += '</div></details>';
+
+                    state = 'CHAPTER';
+                    chapterCounter++;
+                    sunoBuffer = [];
+                    const title = line.replace(/^#+ /, '');
+                    
+                    // Aseguramos que NO haya 'open' aquí
+                    html += `<details class="chapter" id="chapter-${chapterCounter}">
+                                <summary>${title}</summary>
+                                <div class="chapter-content">`;
+                    return;
+                }
+
+                if (line.includes('SUNO Style') && line.startsWith('##')) {
+                    if (state === 'MELODY') html += '</div></div></details>';
+                    if (state === 'INTRO') html += '</div></details>';
+                    state = 'SUNO';
+                    sunoBuffer = [];
+                    return;
+                }
+
+                if (line.startsWith('## ') && !line.toLowerCase().includes('intro')) {
+                    if (state === 'MELODY') html += '</div></div></details>';
+                    if (state === 'INTRO') html += '</div></details>';
+                    state = 'MELODY';
+                    const title = line.replace(/^##+ /, '');
+                    html += `<details class="melody"><summary>${title}</summary><div class="lang-grid">`;
+                    return;
+                }
+
+                if (line.startsWith('### ') && state === 'MELODY') {
+                    if (buffer.length > 0) html += `</div>`;
+                    const lang = line.replace(/^###+ /, '').split('—')[0].trim();
+                    html += `<div class="lang-card">
+                                <span class="lang-badge">${lang}</span>
+                                <button class="copy-btn" onclick="copyToClipboard(this, this.nextElementSibling.innerText)">📋 Copiar</button>
+                                <div class="verse-text">`;
+                    return;
+                }
+
+                if ((line.startsWith('## ') || line.toLowerCase().includes('introducción')) && state === 'CHAPTER') {
+                     state = 'INTRO';
+                     const title = line.replace(/^##+ /, '');
+                     html += `<details class="intro-box"><summary>📜 ${title}</summary><div class="preface-content">`;
+                     return;
+                }
+
+                if (line === '---' || line === '⸻') {
+                    if (state === 'INTRO') { html += '</div></details>'; state = 'CHAPTER'; }
+                    return;
+                }
+
+                if (state === 'SUNO') {
+                    if (line) sunoBuffer.push(line);
+                } else if (line) {
+                    let processed = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                                        .replace(/^\* (.*)/, '<li>$1</li>');
+                    html += `${processed}\n`;
+                } else {
+                    html += '\n';
+                }
+            });
+
+            if (state === 'SUNO') html += closeSuno(sunoBuffer);
+            if (state === 'MELODY') html += '</div></div></details>';
+            if (state === 'INTRO') html += '</div></details>';
+            if (state === 'CHAPTER') html += '</div></details>';
+
+            return html;
+        }
+
+        function closeSuno(buffer) {
+            const fullText = buffer.join('\n');
+            const htmlText = fullText.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            const safeText = fullText.replace(/"/g, '&quot;').replace(/'/g, "\\'"); 
+            return `<details class="suno-block">
+                        <summary>🎧 Instrucciones Suno (Estilo)</summary>
+                        <button class="copy-btn" style="top:15px; right:50px" onclick="copyToClipboard(this, \`${safeText}\`)">📋 Copiar Estilo</button>
+                        <div class="suno-content">${htmlText}</div>
+                    </details>`;
+        }
+
+        function renderBook(htmlContent) {
+            document.getElementById('uploader').style.display = 'none';
+            document.getElementById('book-content').innerHTML = htmlContent;
+            document.getElementById('generated-view').style.display = 'block';
+            document.getElementById('floating-btn').style.display = 'block'; 
+        }
+
+        function downloadHTML() {
+            // Guardamos todo el HTML actual
+            const pageContent = document.documentElement.outerHTML;
+            const blob = new Blob([pageContent], {type: 'text/html'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Libro_Melodias_V7_Plegado.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    </script>
+</body>
+</html>
