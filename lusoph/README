@@ -1,0 +1,52 @@
+# 🧠 Training Console (Multilingual Web App)
+
+## Overview
+
+**Training Console** is a lightweight, single-page web application built with pure **HTML, CSS, and JavaScript**.  
+Its purpose is to provide **interactive training tasks** (such as math quizzes or custom exercises) with a **fully multilingual user interface** that updates dynamically when the language changes.
+
+The application is intentionally framework-free to remain:
+- Easy to audit
+- Easy to modify
+- Easy to host (GitHub Pages, local files, or any static server)
+
+---
+
+## 🎯 Objectives
+
+The main goals of this project are:
+
+1. **Provide a clean training workflow**
+   - Tasks progress sequentially
+   - No repeated questions unless intended
+   - Clear feedback after each answer
+
+2. **Guarantee full language consistency**
+   - The app always starts in English
+   - Changing the language updates *all* visible UI elements
+   - No mixed-language states
+
+3. **Offer a modern and accessible UI**
+   - Large, touch-friendly buttons
+   - High-contrast layout
+   - Responsive design for desktop and mobile
+
+4. **Maintain simple and transparent logic**
+   - Centralized state management
+   - Single render pipeline
+   - No hidden side effects
+
+---
+
+## 🌍 Language System (i18n)
+
+### How it works
+
+All visible text is stored in a single `I18N` object:
+
+```js
+const I18N = {
+  en: { ... },
+  es: { ... },
+  de: { ... }
+};
