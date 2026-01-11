@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trainer</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --card:#121a33;
+      --text:#eaf0ff;
+      --muted:#a8b3d6;
+      --accent:#4da3ff;
+      --accent2:#7c5cff;
+      --danger:#ff4d6d;
+      --ok:#3ddc97;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 700px at 20% 0%, #15204a 0%, var(--bg) 55%);
+      color:var(--text);
+    }
+
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+    }
+
+    .topbar{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:18px;
+    }
+
+    .brand{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    .logo{
+      width:44px;height:44px;border-radius:14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow: var(--shadow);
+    }
+
+    h1{
+      margin:0;
+      font-size: 20px;
+      letter-spacing:.2px;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    select{
+      background:#0f1733;
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:12px;
+      padding:10px 12px;
+      font-size: 15px;
+      outline:none;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:16px;
+    }
+
+    @media (max-width: 860px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.10);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(6px);
+    }
+
+    .menu{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    /* Botones más grandes y llamativos */
+    .btn{
+      cursor:pointer;
+      border: none;
+      border-radius: 16px;
+      padding: 14px 18px;      /* más grande */
+      font-size: 16px;         /* más grande */
+      font-weight: 700;
+      color: #071026;
+      background: linear-gradient(135deg, #7dd3ff, #a78bfa);
+      box-shadow: 0 10px 22px rgba(77,163,255,.18);
+      transform: translateY(0);
+      transition: transform .08s ease, filter .15s ease;
+      min-height: 48px;        /* target táctil */
+    }
+
+    .btn:hover{ filter: brightness(1.08); }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn.secondary{
+      color: var(--text);
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow:none;
+    }
+
+    .btn.danger{
+      color: #16060b;
+      background: linear-gradient(135deg, #ff7aa2, #ff4d6d);
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    input{
+      background:#0f1733;
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:12px;
+      padding:12px 12px;
+      font-size: 16px;
+      outline:none;
+      min-width: 120px;
+    }
+
+    .muted{ color: var(--muted); }
+    .status{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.15);
+    }
+    .ok{ border-color: rgba(61,220,151,.35); }
+    .bad{ border-color: rgba(255,77,109,.35); }
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>
+          <h1 id="appTitle"></h1>
+          <div class="muted" id="appSubtitle"></div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <label class="muted" id="langLabel" for="langSelect"></label>
+        <select id="langSelect" aria-label="Language">
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="de">Deutsch</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="muted" id="menuLabel"></div>
+        <div class="menu">
+          <button class="btn" id="btnMath"></button>
+          <button class="btn secondary" id="btnOther"></button>
+          <button class="btn danger" id="btnReset"></button>
+        </div>
+
+        <div style="height:14px"></div>
+
+        <div class="muted" id="taskLabel"></div>
+        <div style="font-size:22px; font-weight:800; margin-top:6px" id="taskText">—</div>
+
+        <div style="height:14px"></div>
+
+        <div class="row">
+          <input id="answerInput" inputmode="numeric" autocomplete="off" />
+          <button class="btn" id="btnSubmit"></button>
+          <button class="btn secondary" id="btnSkip"></button>
+        </div>
+
+        <div class="status" id="statusBox" aria-live="polite"></div>
+      </div>
+
+      <div class="card">
+        <div style="font-weight:800; font-size:16px" id="progressTitle"></div>
+        <div class="muted" id="progressText" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // -------------------------
+  // i18n: TODO texto sale de aquí
+  // -------------------------
+  const I18N = {
+    en: {
+      appTitle: "Training Console",
+      appSubtitle: "Language changes update the entire interface.",
+      language: "Language",
+      menu: "Choose a mode:",
+      math: "Math Quiz",
+      other: "Other Task",
+      reset: "Reset",
+      task: "Task",
+      placeholder: "Type your answer",
+      submit: "Check",
+      skip: "Skip",
+      progressTitle: "Progress",
+      progressText: ({done,total}) => `Completed: ${done}/${total}`,
+      startMath: "Starting math quiz…",
+      startOther: "Starting other tasks…",
+      correct: "✅ Correct! Moving to the next task.",
+      wrong: (expected) => `❌ Not quite. Expected: ${expected}. Try again or skip.`,
+      finished: "🎉 All tasks completed.",
+      skipped: "⏭️ Skipped. Moving on.",
+      pickMode: "Pick a mode to begin."
+    },
+    es: {
+      appTitle: "Consola de Entrenamiento",
+      appSubtitle: "Al cambiar el idioma se actualiza toda la interfaz.",
+      language: "Idioma",
+      menu: "Elige un modo:",
+      math: "Prueba de Matemáticas",
+      other: "Otra Tarea",
+      reset: "Reiniciar",
+      task: "Tarea",
+      placeholder: "Escribe tu respuesta",
+      submit: "Validar",
+      skip: "Saltar",
+      progressTitle: "Progreso",
+      progressText: ({done,total}) => `Completado: ${done}/${total}`,
+      startMath: "Iniciando prueba de matemáticas…",
+      startOther: "Iniciando otras tareas…",
+      correct: "✅ ¡Correcto! Pasando a la siguiente tarea.",
+      wrong: (expected) => `❌ No es correcto. Era: ${expected}. Intenta de nuevo o salta.`,
+      finished: "🎉 Todas las tareas completadas.",
+      skipped: "⏭️ Saltado. Continuando.",
+      pickMode: "Elige un modo para comenzar."
+    },
+    de: {
+      appTitle: "Trainingskonsole",
+      appSubtitle: "Beim Sprachwechsel wird die gesamte Oberfläche aktualisiert.",
+      language: "Sprache",
+      menu: "Modus wählen:",
+      math: "Mathe-Quiz",
+      other: "Andere Aufgabe",
+      reset: "Zurücksetzen",
+      task: "Aufgabe",
+      placeholder: "Antwort eingeben",
+      submit: "Prüfen",
+      skip: "Überspringen",
+      progressTitle: "Fortschritt",
+      progressText: ({done,total}) => `Erledigt: ${done}/${total}`,
+      startMath: "Mathe-Quiz startet…",
+      startOther: "Andere Aufgaben starten…",
+      correct: "✅ Richtig! Nächste Aufgabe.",
+      wrong: (expected) => `❌ Leider nein. Erwartet: ${expected}. Nochmals oder überspringen.`,
+      finished: "🎉 Alle Aufgaben abgeschlossen.",
+      skipped: "⏭️ Übersprungen. Weiter geht’s.",
+      pickMode: "Wähle einen Modus zum Start."
+    }
+  };
+
+  // -------------------------
+  // Estado global (la clave para que NO repita la misma pregunta)
+  // -------------------------
+  const state = {
+    lang: "en",         // FORZADO
+    mode: null,         // "math" | "other"
+    tasks: [],
+    index: 0,
+    done: 0
+  };
+
+  function t(key, vars){
+    const pack = I18N[state.lang] ?? I18N.en;
+    const val = pack[key];
+    return (typeof val === "function") ? val(vars) : (val ?? key);
+  }
+
+  function setHtmlLang(){
+    document.documentElement.lang = state.lang;
+  }
+
+  // -------------------------
+  // Generación de tareas
+  // -------------------------
+  function buildMathTasks(count=10){
+    const tasks = [];
+    for(let i=0;i<count;i++){
+      const a = randInt(2, 15);
+      const b = randInt(2, 15);
+      const op = ["+","-","×"][randInt(0,2)];
+      let expected;
+      if(op === "+") expected = a + b;
+      if(op === "-") expected = a - b;
+      if(op === "×") expected = a * b;
+
+      tasks.push({
+        type: "math",
+        text: `${a} ${op} ${b} = ?`,
+        expected
+      });
+    }
+    return tasks;
+  }
+
+  function buildOtherTasks(){
+    // Placeholder: pon aquí tus otras tareas reales
+    return [
+      { type:"other", text:"(Demo) Write a short summary in 2 lines.", expected:null },
+      { type:"other", text:"(Demo) Choose the correct option.", expected:null }
+    ];
+  }
+
+  function startMode(mode){
+    state.mode = mode;
+    state.index = 0;
+    state.done = 0;
+
+    state.tasks = (mode === "math") ? buildMathTasks(12) : buildOtherTasks();
+
+    setStatus(mode === "math" ? t("startMath") : t("startOther"));
+    renderTask();
+    renderProgress();
+  }
+
+  // -------------------------
+  // Render único (i18n real)
+  // -------------------------
+  function render(){
+    setHtmlLang();
+    document.getElementById("appTitle").textContent = t("appTitle");
+    document.getElementById("appSubtitle").textContent = t("appSubtitle");
+    document.getElementById("langLabel").textContent = t("language");
+    document.getElementById("menuLabel").textContent = t("menu");
+
+    document.getElementById("btnMath").textContent = t("math");
+    document.getElementById("btnOther").textContent = t("other");
+    document.getElementById("btnReset").textContent = t("reset");
+
+    document.getElementById("taskLabel").textContent = t("task");
+    document.getElementById("answerInput").placeholder = t("placeholder");
+
+    document.getElementById("btnSubmit").textContent = t("submit");
+    document.getElementById("btnSkip").textContent = t("skip");
+
+    document.getElementById("progressTitle").textContent = t("progressTitle");
+
+    // Si ya hay una tarea cargada, vuelve a pintarla (por si textos del modo cambian)
+    renderTask();
+    renderProgress();
+
+    if(!state.mode && !document.getElementById("statusBox").textContent){
+      setStatus(t("pickMode"));
+    }
+  }
+
+  function renderTask(){
+    const el = document.getElementById("taskText");
+    const input = document.getElementById("answerInput");
+
+    if(!state.mode || state.tasks.length === 0){
+      el.textContent = "—";
+      input.value = "";
+      input.disabled = true;
+      return;
+    }
+
+    if(state.index >= state.tasks.length){
+      el.textContent = "—";
+      input.value = "";
+      input.disabled = true;
+      setStatus(t("finished"), "ok");
+      return;
+    }
+
+    const task = state.tasks[state.index];
+    el.textContent = task.text;
+    input.disabled = false;
+    input.value = "";
+    input.focus();
+  }
+
+  function renderProgress(){
+    const total = state.tasks.length || 0;
+    const done = state.done || 0;
+    document.getElementById("progressText").textContent = t("progressText", {done, total});
+  }
+
+  // -------------------------
+  // Validación / avance (aquí estaba tu bug)
+  // -------------------------
+  function submitAnswer(){
+    if(!state.mode) return;
+    if(state.index >= state.tasks.length) return;
+
+    const task = state.tasks[state.index];
+
+    // Si no hay expected (tareas "other"), aquí decidirías tu lógica real.
+    if(task.expected === null){
+      // Demo: avanzar siempre
+      state.index++;
+      state.done++;
+      setStatus(t("correct"), "ok");
+      renderTask();
+      renderProgress();
+      return;
+    }
+
+    const raw = document.getElementById("answerInput").value.trim();
+    const val = Number(raw);
+
+    if(!Number.isFinite(val)){
+      setStatus(t("wrong", task.expected), "bad");
+      return;
+    }
+
+    if(val === task.expected){
+      // CLAVE: avanzar índice para que NO repita la misma pregunta
+      state.index++;
+      state.done++;
+      setStatus(t("correct"), "ok");
+      renderTask();
+      renderProgress();
+    }else{
+      setStatus(t("wrong", task.expected), "bad");
+    }
+  }
+
+  function skipTask(){
+    if(!state.mode) return;
+    if(state.index >= state.tasks.length) return;
+
+    state.index++;
+    setStatus(t("skipped"));
+    renderTask();
+    renderProgress();
+  }
+
+  function resetAll(){
+    state.mode = null;
+    state.tasks = [];
+    state.index = 0;
+    state.done = 0;
+
+    document.getElementById("statusBox").className = "status";
+    setStatus(t("pickMode"));
+    render();
+  }
+
+  function setStatus(msg, tone){
+    const box = document.getElementById("statusBox");
+    box.textContent = msg;
+
+    box.className = "status";
+    if(tone === "ok") box.classList.add("ok");
+    if(tone === "bad") box.classList.add("bad");
+  }
+
+  function randInt(min, max){
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+  }
+
+  // -------------------------
+  // Eventos
+  // -------------------------
+  document.getElementById("langSelect").addEventListener("change", (e)=>{
+    state.lang = e.target.value || "en";
+    render(); // CAMBIA TODO
+  });
+
+  document.getElementById("btnMath").addEventListener("click", ()=> startMode("math"));
+  document.getElementById("btnOther").addEventListener("click", ()=> startMode("other"));
+  document.getElementById("btnReset").addEventListener("click", resetAll);
+
+  document.getElementById("btnSubmit").addEventListener("click", submitAnswer);
+  document.getElementById("btnSkip").addEventListener("click", skipTask);
+
+  document.getElementById("answerInput").addEventListener("keydown", (e)=>{
+    if(e.key === "Enter") submitAnswer();
+  });
+
+  // Idioma inicial FORZADO a inglés antes de pintar
+  (function init(){
+    state.lang = "en";
+    document.getElementById("langSelect").value = "en";
+    render();
+  })();
+</script>
+</body>
+</html>
