@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>README - El Despertar del Alma</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --accent: #d35400; /* Naranja cálido */
+            --bg: #fdfbf7;      /* Crema suave */
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --border: #e0e0e0;
+            --header-bg: #ffffff;
+        }
+
+        /* MODO OSCURO (Automático si el sistema lo prefiere) */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --primary: #ecf0f1;
+                --accent: #e67e22;
+                --bg: #1a1a1a;
+                --card-bg: #2d2d2d;
+                --text: #e0e0e0;
+                --border: #444;
+                --header-bg: #2d2d2d;
+            }
+        }
+
+        body {
+            font-family: 'Merriweather', serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            padding-top: 80px; /* Espacio para barra fija */
+            line-height: 1.8;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* --- TIPOGRAFÍA --- */
+        h1, h2, h3, h4, .btn { font-family: 'Lato', sans-serif; }
+        
+        h1 { font-weight: 900; font-size: 2.2em; color: var(--accent); margin-bottom: 0.2em; line-height: 1.2; }
+        h2 { font-weight: 700; font-size: 1.5em; margin-top: 40px; border-bottom: 2px solid var(--border); padding-bottom: 10px; }
+        h3 { font-weight: 700; font-size: 1.2em; margin-top: 30px; color: var(--accent); }
+        
+        p { margin-bottom: 20px; font-weight: 300; }
+        
+        ul { margin-bottom: 20px; padding-left: 20px; }
+        li { margin-bottom: 10px; }
+        
+        code { background: rgba(0,0,0,0.05); padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.9em; border: 1px solid var(--border); }
+
+        /* --- BARRA SUPERIOR FIJA --- */
+        #top-bar {
+            position: fixed; top: 0; left: 0; right: 0;
+            height: 70px; background: var(--header-bg);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 30px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+            z-index: 1000;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo { font-weight: 900; font-size: 1.2em; letter-spacing: 1px; color: var(--text); }
+
+        .lang-switcher { display: flex; gap: 5px; }
+
+        .lang-btn {
+            background: transparent;
+            border: 1px solid var(--text);
+            color: var(--text);
+            padding: 6px 15px;
+            font-weight: 700;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 0.85em;
+            transition: all 0.2s;
+        }
+
+        .lang-btn:hover { opacity: 0.7; }
+        .lang-btn.active { background: var(--text); color: var(--bg); }
+
+        /* --- CONTENEDOR PRINCIPAL --- */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 20px 100px 20px;
+        }
+
+        /* --- BADGES (Etiquetas) --- */
+        .badges { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px; font-family: 'Lato', sans-serif; font-size: 0.75em; }
+        .badge { padding: 4px 10px; border-radius: 4px; color: white; font-weight: bold; }
+        .b-ver { background: #8e44ad; } /* Púrpura */
+        .b-lic { background: #f1c40f; color: #333; } /* Oro */
+        .b-foc { background: #2980b9; } /* Azul */
+
+        /* --- LOGICA DE VISUALIZACIÓN --- */
+        /* Por defecto ocultamos todo lo que tenga clase de idioma */
+        .content-es, .content-en, .content-de { display: none; }
+
+        /* Si el body tiene clase view-es, mostramos content-es */
+        body.view-es .content-es { display: block; animation: fadeIn 0.5s; }
+        body.view-en .content-en { display: block; animation: fadeIn 0.5s; }
+        body.view-de .content-de { display: block; animation: fadeIn 0.5s; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Footer */
+        .footer { margin-top: 60px; padding-top: 30px; border-top: 1px solid var(--border); text-align: center; font-size: 0.9em; opacity: 0.8; }
+
+    </style>
+</head>
+<body class="view-es">
+
+    <div id="top-bar">
+        <div class="logo">PROJECT README</div>
+        <div class="lang-switcher">
+            <button class="lang-btn" onclick="setLang('en')">EN</button>
+            <button class="lang-btn active" onclick="setLang('es')">ES</button>
+            <button class="lang-btn" onclick="setLang('de')">DE</button>
+        </div>
+    </div>
+
+    <div class="container">
+
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h1>El Despertar del Alma</h1>
+            <div style="font-family: 'Lato'; font-weight: 300; font-size: 1.2em; color: #7f8c8d; margin-bottom: 20px;">
+                The Awakening of the Soul | Das Erwachen der Seele
+            </div>
+            
+            <div class="badges" style="justify-content: center;">
+                <span class="badge b-ver">Version 24.0</span>
+                <span class="badge b-lic">© Sergio Umaña</span>
+                <span class="badge b-foc">Healing & Self-Hypnosis</span>
+            </div>
+        </div>
+
+        <div class="content-es">
+            <h2>🇪🇸 La Arquitectura de la Luz</h2>
+            <p><strong>"El Despertar del Alma"</strong> no es solo un libro digital; es un <strong>artefacto de consciencia</strong>. Este repositorio contiene el código fuente y la arquitectura lógica para generar una experiencia de lectura inmersiva, diseñada para guiar al usuario a través de 72 estados vibracionales de sanación y recuerdo.</p>
+
+            <h3>🎯 Propósito del Proyecto</h3>
+            <p>El objetivo central es trascender la lectura pasiva. A través de la combinación de <strong>Cromoterapia Digital</strong>, <strong>Frecuencias de Audio</strong> y <strong>Programación Neurolingüística (PNL)</strong> trilingüe, esta aplicación actúa como un inductor de estados de autohipnosis ligera.</p>
+            <p>El lector no "aprende" información; el lector <strong>entra</strong> en un espacio seguro donde la mente racional descansa y el subconsciente se reprograma hacia la paz, la totalidad y el silencio interior.</p>
+
+            <h3>🧬 Evolución Técnica (BookGen Engine)</h3>
+            <p>Este proyecto ha evolucionado a través de 24 iteraciones (<code>V1</code> a <code>V24</code>), perfeccionando la interacción entre tecnología y espíritu:</p>
+            <ul>
+                <li><strong>Motor de Renderizado Trilingüe:</strong> Un sistema de bloques separados que permite la sincronización perfecta entre Español, Inglés y Alemán.</li>
+                <li><strong>Psicología del Color (Cromoterapia):</strong>
+                    <ul>
+                        <li>Los capítulos evolucionan visualmente desde los tonos terrenales (Rojos/Naranjas) para el enraizamiento.</li>
+                        <li>Transitan hacia la calma mental (Azules profundos a Celestes).</li>
+                        <li>Culminan en la elevación espiritual (Púrpuras vibrantes a Blanco Puro), guiando visualmente la ascensión de la energía.</li>
+                    </ul>
+                </li>
+                <li><strong>Inmersión Sonora:</strong> Integración de un reproductor de audio nativo personalizado para acompañar cada meditación.</li>
+                <li><strong>Protección y Privacidad:</strong> El código final es autónomo (SPA), sin dependencias externas, asegurando que la experiencia sea privada.</li>
+            </ul>
+
+            <h3>🛠️ Uso y Despliegue</h3>
+            <ul>
+                <li><strong>Fuente:</strong> Archivo Markdown <code>.md</code> formateado en 3 bloques de idioma.</li>
+                <li><strong>Herramienta:</strong> Generador <code>Generador_V24.html</code>.</li>
+                <li><strong>Audio:</strong> Estructura de carpetas <code>/audio/c{X}_m{Y}_{lang}.mp3</code>.</li>
+            </ul>
+        </div>
+
+        <div class="content-en">
+            <h2>🇬🇧 The Architecture of Light</h2>
+            <p><strong>"The Awakening of the Soul"</strong> is not just a digital book; it is an <strong>artifact of consciousness</strong>. This repository contains the source code and logical architecture to generate an immersive reading experience, designed to guide the user through 72 vibrational states of healing and remembrance.</p>
+
+            <h3>🎯 Project Purpose</h3>
+            <p>The core goal is to transcend passive reading. Through the combination of <strong>Digital Chromotherapy</strong>, <strong>Audio Frequencies</strong>, and trilingual <strong>Neuro-Linguistic Programming (NLP)</strong>, this application acts as an inductor for light self-hypnosis states.</p>
+            <p>The reader does not "learn" information; the reader <strong>enters</strong> a safe space where the rational mind rests, and the subconscious is reprogrammed towards peace, wholeness, and inner silence.</p>
+
+            <h3>🧬 Technical Evolution (BookGen Engine)</h3>
+            <p>This project has evolved through 24 iterations (<code>V1</code> to <code>V24</code>), refining the interaction between technology and spirit:</p>
+            <ul>
+                <li><strong>Trilingual Rendering Engine:</strong> A split-block system allowing perfect synchronization between Spanish, English, and German.</li>
+                <li><strong>Color Psychology (Chromotherapy):</strong>
+                    <ul>
+                        <li>Chapters evolve visually from earthly tones (Reds/Oranges) for grounding.</li>
+                        <li>Transition into mental calm (Deep Blues to Cyan).</li>
+                        <li>Culminate in spiritual elevation (Vibrant Purples to Pure White), visually guiding the ascension of energy.</li>
+                    </ul>
+                </li>
+                <li><strong>Sonic Immersion:</strong> Integration of a custom native audio player to accompany each meditation.</li>
+                <li><strong>Protection & Privacy:</strong> The final code is self-contained (SPA), with no external dependencies, ensuring privacy.</li>
+            </ul>
+
+            <h3>🛠️ Deployment & Usage</h3>
+            <ul>
+                <li><strong>Source:</strong> Markdown <code>.md</code> file formatted in 3 language blocks.</li>
+                <li><strong>Tool:</strong> Generator <code>Generador_V24.html</code>.</li>
+                <li><strong>Audio:</strong> Folder structure <code>/audio/c{X}_m{Y}_{lang}.mp3</code>.</li>
+            </ul>
+        </div>
+
+        <div class="content-de">
+            <h2>🇩🇪 Die Architektur des Lichts</h2>
+            <p><strong>„Das Erwachen der Seele“</strong> ist nicht nur ein digitales Buch; es ist ein <strong>Artefakt des Bewusstseins</strong>. Dieses Repository enthält den Quellcode und die logische Architektur zur Erstellung eines immersiven Leseerlebnisses, das den Benutzer durch 72 Schwingungszustände der Heilung und Erinnerung führt.</p>
+
+            <h3>🎯 Projektziel</h3>
+            <p>Das Hauptziel ist es, das passive Lesen zu überwinden. Durch die Kombination von <strong>Digitaler Farbtherapie</strong>, <strong>Audiofrequenzen</strong> und dreisprachigem <strong>Neuro-Linguistischem Programmieren (NLP)</strong> wirkt diese Anwendung als Induktor für Zustände leichter Selbsthypnose.</p>
+            <p>Der Leser „lernt“ keine Informationen; der Leser <strong>betritt</strong> einen sicheren Raum, in dem der rationale Verstand ruht und das Unterbewusstsein auf Frieden, Ganzheit und innere Stille umprogrammiert wird.</p>
+
+            <h3>🧬 Technische Evolution (BookGen Engine)</h3>
+            <p>Dieses Projekt hat sich über 24 Iterationen (<code>V1</code> bis <code>V24</code>) entwickelt und die Interaktion zwischen Technologie und Geist verfeinert:</p>
+            <ul>
+                <li><strong>Dreisprachige Render-Engine:</strong> Ein Block-System, das eine perfekte Synchronisation zwischen Spanisch, Englisch und Deutsch ermöglicht.</li>
+                <li><strong>Farbpsychologie (Chromotherapie):</strong>
+                    <ul>
+                        <li>Die Kapitel entwickeln sich visuell von erdigen Tönen (Rot/Orange) zur Erdung.</li>
+                        <li>Übergang zu geistiger Ruhe (Tiefblau bis Hellblau).</li>
+                        <li>Höhepunkt in spiritueller Erhebung (Lebhaftes Violett bis Reinweiß), was den Aufstieg der Energie visuell leitet.</li>
+                    </ul>
+                </li>
+                <li><strong>Klangimmersion:</strong> Integration eines benutzerdefinierten nativen Audioplayers.</li>
+                <li><strong>Schutz & Privatsphäre:</strong> Der finale Code ist eigenständig (SPA), ohne externe Abhängigkeiten.</li>
+            </ul>
+
+            <h3>🛠️ Nutzung</h3>
+            <ul>
+                <li><strong>Quelle:</strong> Markdown-Datei <code>.md</code> in 3 Sprachblöcken.</li>
+                <li><strong>Werkzeug:</strong> Generator <code>Generador_V24.html</code>.</li>
+                <li><strong>Audio:</strong> Ordnerstruktur <code>/audio/c{X}_m{Y}_{lang}.mp3</code>.</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p><strong>© Copyright Sergio Umaña</strong><br>
+            All rights reserved. The code and content within this repository are protected intellectual property.</p>
+        </div>
+
+    </div>
+
+    <script>
+        // Lógica simple para cambiar de idioma
+        function setLang(lang) {
+            // 1. Cambiar la clase del body para activar el CSS correspondiente
+            document.body.className = '';
+            document.body.classList.add('view-' + lang);
+
+            // 2. Actualizar estado visual de los botones
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Buscar el botón clicado (o su equivalente) y activarlo
+            // Usamos un selector simple basado en el texto o onclick
+            const buttons = document.querySelectorAll('.lang-btn');
+            if(lang === 'en') buttons[0].classList.add('active');
+            if(lang === 'es') buttons[1].classList.add('active');
+            if(lang === 'de') buttons[2].classList.add('active');
+        }
+    </script>
+
+</body>
+</html>
