@@ -1,0 +1,24 @@
+"#ffffff", // 24. Totalidad Blanco
+"#fbfcfc", // 23. Luz Blanca
+"#f4ecf7", // 22. Luz Rosada
+"#e8daef", // 21. Niebla
+"#d2b4de", // 20. Lila
+"#bb8fce", // 19. Lavanda
+"#af7ac5", // 18. Orquídea
+"#9b59b6", // 17. Amatista
+"#8e44ad", // 16. Púrpura Real
+"#5dade2", // 15. Azul Claro
+"#2980b9", // 14. Azul Océano
+"#3498db", // 13. Azul Cielo
+"#16a085", // 12. Mar Profundo
+"#1abc9c", // 11. Turquesa
+"#2ecc71", // 10. Esmeralda
+"#abebc6", // 9. Verde Brote
+"#f7dc6f", // 8. Luz Solar
+"#f1c40f", // 7. Oro Puro
+"#f39c12", // 6. Dorado Atardecer
+"#e67e22", // 5. Naranja Vida
+"#d35400", // 4. Naranja Quemado
+"#c0392b", // 3. Rojo Fuego
+"#851515", // 2. Rojo Rubí
+"#4a0e0e"  // 1. Rojo Caoba (Tierra)￼
