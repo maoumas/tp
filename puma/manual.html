@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PUMA Notes - Manual</title>
+    <link rel="apple-touch-icon" href="image_5.png">
+    <link rel="icon" href="image_5.png" type="image/png">
+    
+    <style>
+        :root { --bg: #f2f2f7; --blue: #007AFF; --green: #34C759; --puma: #D35400; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg); margin: 0; color: #333; line-height: 1.6;
+        }
+        
+        /* HEADER */
+        .header {
+            background: rgba(255,255,255,0.95); padding: 15px; border-bottom: 1px solid #ddd;
+            position: sticky; top: 0; z-index: 100; backdrop-filter: blur(10px);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .brand { font-weight: 900; font-size: 18px; display: flex; align-items: center; gap: 10px; color: #333; text-decoration: none; }
+        .brand img { height: 32px; border-radius: 6px; }
+        .back-btn { 
+            background: var(--blue); color: white; text-decoration: none; padding: 8px 15px; 
+            border-radius: 20px; font-weight: 600; font-size: 14px; 
+        }
+
+        /* CONTENT */
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .card { background: white; border-radius: 18px; padding: 30px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        
+        /* TYPOGRAPHY */
+        h1 { margin-top: 0; color: var(--puma); font-size: 28px; }
+        h2 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 30px; color: #333; }
+        h3 { color: var(--blue); margin-top: 25px; margin-bottom: 10px; }
+        p { color: #555; }
+        
+        /* PROMPT BOX */
+        .code-block {
+            background: #2d2d2d; color: #f8f8f2; padding: 20px; border-radius: 12px;
+            font-family: 'Menlo', monospace; font-size: 13px; overflow-x: auto; margin: 15px 0;
+            border: 1px solid #444; position: relative;
+        }
+        
+        /* TABLE */
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th { text-align: left; background: #eee; padding: 10px; border-radius: 8px 8px 0 0; }
+        td { border-bottom: 1px solid #eee; padding: 10px; font-size: 14px; }
+        code { background: #eee; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #d63384; }
+
+        /* NAV FLAGS */
+        .lang-nav { display: flex; gap: 10px; margin-bottom: 20px; justify-content: center; }
+        .lang-nav a { 
+            text-decoration: none; background: #fff; padding: 8px 16px; border-radius: 20px; 
+            font-size: 14px; font-weight: bold; color: #555; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* BUTTONS */
+        .copy-btn {
+            background: var(--green); color: white; border: none; padding: 8px 12px; border-radius: 6px;
+            font-weight: bold; cursor: pointer; float: right; font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <a href="index.html" class="brand">
+            <img src="image_5.png" alt="Logo"> PUMA MANUAL
+        </a>
+        <a href="index.html" class="back-btn">Open App &rarr;</a>
+    </div>
+
+    <div class="container">
+        
+        <div class="lang-nav">
+            <a href="#en">🇬🇧 English</a>
+            <a href="#es">🇪🇸 Español</a>
+            <a href="#de">🇩🇪 Deutsch</a>
+        </div>
+
+        <div id="en" class="card">
+            <h1>🇬🇧 PUMA User Manual</h1>
+            <p><strong>Personal Universal Markdown Assistant</strong></p>
+            
+            <h3>🚀 Quick Start</h3>
+            <ol>
+                <li>Upload your PDF to <strong>Google NotebookLM</strong>.</li>
+                <li>Copy the <strong>PUMA Prompt</strong> (below) and paste it into the AI chat.</li>
+                <li>Copy the AI's response.</li>
+                <li>Open PUMA App, paste into <strong>Editor</strong>, and tap <strong>Generate View</strong>.</li>
+                <li>Go to <strong>Preview</strong> and tap <strong>Share PDF</strong>.</li>
+            </ol>
+
+            <h3>🤖 The PUMA Prompt</h3>
+            <div class="code-block">
+                <button class="copy-btn" onclick="copyPrompt()">COPY</button>
+<pre id="promptText">INSTRUCTION: Analyze the attached document and generate a structured summary.
+IMPORTANT FORMATTING RULES:
+1. Do NOT include reference numbers like [1].
+2. Use Markdown strictly.
+3. For Section Headers use: - [x] **Title**
+4. For details use nested lists with indentations.
+5. For Quotes use: > "Quote text"
+6. For Analytical Notes use: **Side note:** Text
+7. For Key Concepts use: ==Concept== or **Concept**</pre>
+            </div>
+        </div>
+
+        <div id="es" class="card">
+            <h1>🇪🇸 Manual de Usuario</h1>
+            
+            <h3>🚀 Inicio Rápido</h3>
+            <ol>
+                <li>Sube tu PDF a <strong>Google NotebookLM</strong>.</li>
+                <li>Copia el <strong>Prompt PUMA</strong> (arriba) y pégalo en el chat de la IA.</li>
+                <li>Copia la respuesta que te dé la IA.</li>
+                <li>Abre la App PUMA, pega el texto en <strong>Editor</strong> y pulsa <strong>Generar Vista</strong>.</li>
+                <li>Ve a <strong>Vista Previa</strong> y pulsa <strong>Compartir PDF</strong>.</li>
+            </ol>
+
+            <h3>🎨 Guía de Formato</h3>
+            <table>
+                <tr><th>Elemento</th><th>Código Markdown</th></tr>
+                <tr><td>Título</td><td><code>- [x] **Título**</code></td></tr>
+                <tr><td>Cita (Gris)</td><td><code>> Texto aquí</code></td></tr>
+                <tr><td>Nota (Rosa)</td><td><code>**Nota:** Texto</code></td></tr>
+                <tr><td>Resaltar</td><td><code>==Texto==</code></td></tr>
+            </table>
+            
+            <h3>💡 Solución de Problemas</h3>
+            <ul>
+                <li><strong>El PDF sale en blanco y negro:</strong> Cuando le des a imprimir en el iPhone, haz el gesto de <strong>zoom (pellizcar)</strong> sobre la vista previa de la hoja. Eso crea un PDF a color real.</li>
+                <li><strong>La nota rosa no sale:</strong> Asegúrate de usar dos asteriscos: <code>**Nota:**</code>.</li>
+            </ul>
+        </div>
+
+        <div id="de" class="card">
+            <h1>🇩🇪 Benutzerhandbuch</h1>
+            <h3>🚀 Kurzanleitung</h3>
+            <ol>
+                <li>Laden Sie Ihr PDF in <strong>Google NotebookLM</strong> hoch.</li>
+                <li>Kopieren Sie den <strong>PUMA-Prompt</strong>.</li>
+                <li>Fügen Sie ihn in den KI-Chat ein.</li>
+                <li>Kopieren Sie das Ergebnis in die PUMA-App und tippen Sie auf <strong>Vorschau</strong>.</li>
+            </ol>
+        </div>
+
+    </div>
+
+    <script>
+        function copyPrompt() {
+            navigator.clipboard.writeText(document.getElementById('promptText').innerText).then(() => {
+                alert("Prompt copied!");
+            });
+        }
+    </script>
+</body>
+</html>
