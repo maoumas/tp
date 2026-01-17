@@ -9,81 +9,106 @@
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐆</text></svg>">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐆</text></svg>">
 
-    <title>PUMA Notes</title>
+    <title>PUMA Notes Fixed</title>
     <style>
         /* --- ESTILOS GENERALES --- */
-        :root { --bg: #f2f2f7; --blue: #007AFF; --green: #34C759; --puma: #D35400; }
+        :root { --bg: #f2f2f7; --blue: #007AFF; --green: #34C759; --puma: #D35400; --toolbar-height: 80px; }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg); margin: 0; height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+            background-color: var(--bg); margin: 0; height: 100vh; width: 100vw; overflow: hidden;
+            display: flex; flex-direction: column;
         }
 
-        /* BARRA SUPERIOR */
+        /* TOP BAR */
         .top-bar {
-            background: #fff; padding: 12px 20px; border-bottom: 1px solid #ddd;
+            background: #fff; padding: 10px 15px; border-bottom: 1px solid #ddd;
             display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05); z-index: 100;
+            height: 50px; flex-shrink: 0; z-index: 20;
         }
-        .brand { display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 18px; color: #333; letter-spacing: -0.5px; }
-        .brand span { font-size: 24px; }
-        
-        .controls { display: flex; gap: 10px; }
-        select.lang-select {
-            padding: 6px 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 13px; background: #f9f9f9;
-        }
-        .help-btn {
-            background: var(--puma); color: white; border: none; border-radius: 50%; width: 30px; height: 30px;
-            font-weight: bold; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center;
-        }
+        .brand { font-weight: 900; font-size: 18px; color: #333; display: flex; align-items: center; gap: 5px; }
+        .controls { display: flex; gap: 8px; }
+        .help-btn { background: var(--puma); color: white; border: none; border-radius: 50%; width: 28px; height: 28px; font-weight: bold; }
+        select.lang-select { padding: 4px; border-radius: 6px; border: 1px solid #ccc; font-size: 12px; background: #f9f9f9; }
 
         /* TABS */
-        .tabs { display: flex; background: #fff; padding: 0 10px 10px 10px; border-bottom: 1px solid #ccc; justify-content: center; gap: 10px; }
-        .tab { padding: 8px 20px; border-radius: 20px; border: none; background: #eee; font-weight: 600; font-size: 14px; transition: 0.3s; }
+        .tabs { 
+            display: flex; background: #fff; padding: 0 10px 10px 10px; border-bottom: 1px solid #ccc; 
+            justify-content: center; gap: 10px; flex-shrink: 0; z-index: 20;
+        }
+        .tab { padding: 6px 16px; border-radius: 20px; border: none; background: #eee; font-weight: 600; font-size: 13px; }
         .tab.active { background: var(--blue); color: white; }
 
+        /* ÁREA PRINCIPAL (Flex Container) */
+        .main-container {
+            flex-grow: 1; position: relative; overflow: hidden; width: 100%;
+        }
+
         /* PANELES */
-        .panel { flex: 1; display: none; flex-direction: column; background: white; overflow: hidden; position: relative; }
+        .panel {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; flex-direction: column; background: white;
+        }
         .panel.active { display: flex; }
 
-        /* EDITOR */
-        textarea { flex: 1; padding: 20px; font-size: 16px; border: none; outline: none; resize: none; font-family: monospace; }
-        
-        /* TOOLBAR */
-        .toolbar { padding: 15px; background: rgba(255,255,255,0.95); border-top: 1px solid #eee; display: flex; gap: 10px; flex-direction: column; }
+        /* ÁREAS DE CONTENIDO (Scrollable) */
+        /* Importante: El padding-bottom asegura que el texto no quede tapado por la barra de botones */
+        .scrollable-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 20px;
+            padding-bottom: 100px; /* Espacio extra para la barra flotante */
+        }
+
+        textarea.scrollable-content {
+            border: none; outline: none; resize: none; font-family: monospace; font-size: 16px; width: 100%; box-sizing: border-box;
+        }
+
+        /* TOOLBAR FLOTANTE (Fixed Bottom) */
+        .toolbar {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid #ccc;
+            padding: 15px;
+            box-sizing: border-box;
+            display: flex; gap: 10px; justify-content: center;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+            z-index: 30;
+        }
+
+        /* BOTONES */
         .btn {
-            padding: 14px; border-radius: 12px; font-weight: bold; text-align: center; cursor: pointer; border: none; font-size: 15px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s;
+            flex: 1; padding: 12px; border-radius: 12px; font-weight: bold; text-align: center; border: none; 
+            font-size: 14px; cursor: pointer; white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .btn-primary { background: var(--blue); color: white; }
         .btn-success { background: var(--green); color: white; }
-        .btn-secondary { background: #E5E5EA; color: #333; }
-        .btn-outline { background: transparent; border: 1px solid #ccc; color: #666; }
+        .btn-outline { background: #fff; border: 1px solid #ccc; color: #333; }
+        .btn-secondary { background: #E5E5EA; color: #333; max-width: 60px; font-size: 18px; }
 
-        /* MODAL DE AYUDA */
+        /* MODAL */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);
             display: none; align-items: center; justify-content: center; z-index: 1000;
         }
         .modal {
-            background: white; width: 90%; max-width: 500px; border-radius: 18px; padding: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2); max-height: 80vh; overflow-y: auto;
+            background: white; width: 85%; max-height: 80vh; overflow-y: auto; border-radius: 18px; padding: 25px;
         }
-        .modal h2 { margin-top: 0; color: var(--puma); display: flex; align-items: center; gap: 10px; }
         .prompt-box {
-            background: #f0f0f0; padding: 15px; border-radius: 10px; font-family: monospace; font-size: 12px;
-            color: #333; border: 1px solid #ccc; margin: 15px 0; white-space: pre-wrap; word-break: break-word;
+            background: #f0f0f0; padding: 10px; border-radius: 8px; font-family: monospace; font-size: 11px;
+            margin: 10px 0; word-break: break-word; white-space: pre-wrap; border: 1px solid #ddd;
         }
-        .copy-btn { background: #333; color: white; border: none; padding: 8px 15px; border-radius: 6px; font-size: 12px; cursor: pointer; float: right; margin-top: -10px; margin-bottom: 10px;}
 
-        /* VISTA PREVIA & ESTILOS APPLE */
-        #preview { padding: 30px; overflow-y: auto; color: #333; line-height: 1.6; padding-bottom: 100px; }
+        /* ESTILOS APPLE NOTES */
         .apple-header { font-size: 1.2em; font-weight: bold; margin-top: 20px; display: flex; align-items: center; }
         .apple-checkbox { accent-color: #d4af37; transform: scale(1.2); margin-right: 10px; }
         ul { list-style: none; padding-left: 0; margin: 10px 0; }
         li { padding-left: 20px; position: relative; margin-bottom: 5px; }
         li::before { content: "—"; position: absolute; left: 0; color: #999; font-weight: bold; }
         li ul li { padding-left: 20px; border-left: 2px solid #eee; }
-
+        
         /* Force Color Classes */
         .apple-quote {
             background-color: #F2F2F7 !important; border-left: 4px solid #8E8E93 !important;
@@ -96,16 +121,14 @@
             border-left: 4px solid #F06292 !important; font-size: 0.95em;
             -webkit-print-color-adjust: exact; print-color-adjust: exact;
         }
+        .apple-mark { background-color: #FFCCBC !important; color: #BF360C; padding: 2px 4px; border-radius: 4px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         .sidenote-label { font-weight: 800; font-size: 0.75em; text-transform: uppercase; display: block; margin-bottom: 5px; }
-        .apple-mark { 
-            background-color: #FFCCBC !important; color: #BF360C; padding: 2px 4px; border-radius: 4px; 
-            -webkit-print-color-adjust: exact; print-color-adjust: exact;
-        }
 
+        /* PRINT */
         @media print {
             .top-bar, .tabs, .toolbar, .modal-overlay { display: none !important; }
-            .panel.active { display: block !important; position: absolute; top: 0; left: 0; width: 100%; height: auto; }
-            body { background: white; }
+            .panel.active { position: relative; display: block; height: auto; overflow: visible; }
+            .scrollable-content { overflow: visible; padding: 0; height: auto; }
         }
     </style>
 </head>
@@ -128,81 +151,71 @@
         <button class="tab" id="tabPreview" onclick="verPreview()">2. Preview</button>
     </div>
 
-    <div id="editorPanel" class="panel active">
-        <textarea id="inputTxt" placeholder="Paste NotebookLM output here..."></textarea>
-        <div class="toolbar">
-            <input type="file" id="fileInput" accept=".md,.txt" style="display:none" onchange="loadFile(this)">
-            <button class="btn btn-outline" id="btnImport" onclick="document.getElementById('fileInput').click()">📂 Import File</button>
-            <button class="btn btn-primary" id="btnGenerate" onclick="verPreview()">Generate View &rarr;</button>
+    <div class="main-container">
+        
+        <div id="editorPanel" class="panel active">
+            <textarea id="inputTxt" class="scrollable-content" placeholder="Paste NotebookLM output here..."></textarea>
+            
+            <div class="toolbar">
+                <input type="file" id="fileInput" accept=".md,.txt" style="display:none" onchange="loadFile(this)">
+                <button class="btn btn-outline" id="btnImport" onclick="document.getElementById('fileInput').click()">📂 Import</button>
+                <button class="btn btn-primary" id="btnGenerate" onclick="verPreview()">Generate View &rarr;</button>
+            </div>
         </div>
-    </div>
 
-    <div id="previewPanel" class="panel">
-        <div id="preview"></div>
-        <div class="toolbar">
-            <button class="btn btn-success" id="btnPdf" onclick="imprimir()">📤 Share PDF / WhatsApp</button>
-            <button class="btn btn-secondary" id="btnBack" onclick="verEditor()">&larr; Back to Edit</button>
+        <div id="previewPanel" class="panel">
+            <div id="preview" class="scrollable-content"></div>
+            
+            <div class="toolbar">
+                <button class="btn btn-secondary" id="btnBack" onclick="verEditor()">&larr;</button>
+                <button class="btn btn-success" id="btnPdf" onclick="imprimir()">📤 Share PDF / WhatsApp</button>
+            </div>
         </div>
+
     </div>
 
     <div class="modal-overlay" id="helpModal" onclick="toggleModal(false)">
         <div class="modal" onclick="event.stopPropagation()">
-            <h2 id="modalTitle">🐆 PUMA Prompt</h2>
-            <p id="modalDesc">Copy this prompt and paste it into NotebookLM to get the perfect format:</p>
-            <button class="copy-btn" id="btnCopy" onclick="copyPrompt()">Copy Prompt</button>
+            <h3 id="modalTitle">🐆 PUMA Prompt</h3>
+            <p id="modalDesc" style="font-size:14px; color:#666;">Copy to NotebookLM:</p>
             <div class="prompt-box" id="promptText">
-INSTRUCTION: Analyze the attached document and generate a structured summary. 
+INSTRUCTION: Analyze the attached document and generate a structured summary.
 IMPORTANT FORMATTING RULES:
-1. Do NOT include any reference numbers (e.g., [1], [2]) or citations.
+1. Do NOT include reference numbers like [1].
 2. Use Markdown strictly.
 3. For Section Headers use: - [x] **Title**
 4. For details use nested lists with indentations.
-5. For Biblical/Direct Quotes use: > "Quote text"
-6. For your Analytical Side Notes use: ***Side note:*** Text
+5. For Quotes use: > "Quote text"
+6. For Analytical Notes use: ***Side note:*** Text
 7. For Key Concepts use: ==Concept== or **Concept**
             </div>
-            <button class="btn btn-secondary" onclick="toggleModal(false)" style="width:100%">Close</button>
+            <button class="btn btn-primary" id="btnCopy" onclick="copyPrompt()">Copy Prompt</button>
+            <button class="btn btn-outline" onclick="toggleModal(false)" style="margin-top:10px;">Close</button>
         </div>
     </div>
 
     <script>
-        // --- DATA & DICTIONARY ---
+        // --- DICTIONARY ---
         const translations = {
             en: {
-                tabEditor: "1. Editor", tabPreview: "2. Preview",
-                placeholder: "Paste NotebookLM output here...",
-                btnImport: "📂 Import File", btnGenerate: "Generate View →",
-                btnPdf: "📤 Share PDF / WhatsApp", btnBack: "← Back to Edit",
-                noteLabel: "NOTE",
-                modalTitle: "🐆 PUMA Prompt",
-                modalDesc: "Copy this prompt to NotebookLM. It blocks citations [1] and sets the layout:",
-                btnCopy: "Copy Prompt"
+                tabEditor: "1. Editor", tabPreview: "2. Preview", placeholder: "Paste NotebookLM output here...",
+                btnImport: "📂 Import", btnGenerate: "Generate View →", btnPdf: "📤 Share PDF / WhatsApp", btnBack: "←",
+                modalTitle: "🐆 PUMA Prompt", modalDesc: "Copy to NotebookLM:", btnCopy: "Copy Prompt", noteLabel: "NOTE"
             },
             es: {
-                tabEditor: "1. Editor", tabPreview: "2. Vista Previa",
-                placeholder: "Pega aquí el texto de NotebookLM...",
-                btnImport: "📂 Importar Archivo", btnGenerate: "Generar Vista →",
-                btnPdf: "📤 Compartir PDF / WhatsApp", btnBack: "← Volver a Editar",
-                noteLabel: "NOTA",
-                modalTitle: "🐆 Prompt PUMA",
-                modalDesc: "Copia este prompt en NotebookLM. Bloquea las citas [1] y ajusta el diseño:",
-                btnCopy: "Copiar Prompt"
+                tabEditor: "1. Editor", tabPreview: "2. Vista Previa", placeholder: "Pega el texto de NotebookLM...",
+                btnImport: "📂 Importar", btnGenerate: "Generar Vista →", btnPdf: "📤 PDF / WhatsApp", btnBack: "←",
+                modalTitle: "🐆 Prompt PUMA", modalDesc: "Copiar a NotebookLM:", btnCopy: "Copiar Prompt", noteLabel: "NOTA"
             },
             de: {
-                tabEditor: "1. Editor", tabPreview: "2. Vorschau",
-                placeholder: "Text hier einfügen...",
-                btnImport: "📂 Datei importieren", btnGenerate: "Vorschau ansehen →",
-                btnPdf: "📤 PDF / WhatsApp teilen", btnBack: "← Zurück",
-                noteLabel: "HINWEIS",
-                modalTitle: "🐆 PUMA Prompt",
-                modalDesc: "Kopieren Sie diesen Prompt in NotebookLM:",
-                btnCopy: "Prompt kopieren"
+                tabEditor: "1. Editor", tabPreview: "2. Vorschau", placeholder: "Text hier einfügen...",
+                btnImport: "📂 Import", btnGenerate: "Vorschau →", btnPdf: "📤 PDF / WhatsApp", btnBack: "←",
+                modalTitle: "🐆 PUMA Prompt", modalDesc: "Kopieren an NotebookLM:", btnCopy: "Kopieren", noteLabel: "HINWEIS"
             }
         };
 
         let currentLang = 'en';
 
-        // --- LANGUAGE LOGIC ---
         function changeLanguage() {
             currentLang = document.getElementById('langSelector').value;
             const t = translations[currentLang];
@@ -216,11 +229,10 @@ IMPORTANT FORMATTING RULES:
             document.getElementById('modalTitle').innerText = t.modalTitle;
             document.getElementById('modalDesc').innerText = t.modalDesc;
             document.getElementById('btnCopy').innerText = t.btnCopy;
-            
             if(document.getElementById('previewPanel').classList.contains('active')) convertirTexto();
         }
 
-        // --- CORE CONVERTER ---
+        // --- LOGIC ---
         function convertirTexto() {
             let texto = document.getElementById('inputTxt').value;
             let html = "";
@@ -257,15 +269,11 @@ IMPORTANT FORMATTING RULES:
                       .replace(/\*\*(.*?)\*\*/g, '<b>$1</b>');
         }
 
-        // --- MODAL & UTILS ---
-        function toggleModal(show) {
-            document.getElementById('helpModal').style.display = show ? 'flex' : 'none';
-        }
+        function toggleModal(show) { document.getElementById('helpModal').style.display = show ? 'flex' : 'none'; }
         function copyPrompt() {
-            let text = document.getElementById('promptText').innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                alert("Prompt copied! Now paste it in NotebookLM.");
-                toggleModal(false);
+            navigator.clipboard.writeText(document.getElementById('promptText').innerText).then(() => {
+                const btn = document.getElementById('btnCopy');
+                let orig = btn.innerText; btn.innerText = "OK! ✅"; setTimeout(()=>btn.innerText=orig, 2000);
             });
         }
         function loadFile(input) {
@@ -288,8 +296,7 @@ IMPORTANT FORMATTING RULES:
             document.querySelectorAll('.tab').forEach((t, i) => i === idx ? t.classList.add('active') : t.classList.remove('active'));
         }
         function imprimir() { window.print(); }
-
-        // Init
+        
         changeLanguage();
     </script>
 </body>
